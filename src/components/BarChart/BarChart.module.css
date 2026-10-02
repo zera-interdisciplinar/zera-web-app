@@ -1,0 +1,31 @@
+.envoltorio {
+  width: 100%;
+}
+
+.grafico {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.barra {
+  fill: var(--navy);
+}
+
+.barraDestaque {
+  fill: var(--ambar);
+  stroke: var(--navy);
+  stroke-width: 2px;
+}
+
+.rotuloMes {
+  fill: var(--texto-secundario);
+  font-family: var(--fonte-ui);
+  font-size: 0.875rem;
+}
+
+.marcaEixo {
+  fill: var(--texto-secundario);
+  font-family: var(--fonte-ui);
+  font-size: 0.8125rem;
+}

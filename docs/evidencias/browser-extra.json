@@ -1,0 +1,1360 @@
+{
+  "routes": [
+    {
+      "label": "categoria inv?lida",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "etiqueta n?o encontrada",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              ".aviso-demo"
+            ],
+            [
+              "th:nth-child(3)"
+            ],
+            [
+              "th:nth-child(4)"
+            ],
+            [
+              "th:nth-child(5)"
+            ],
+            [
+              "th:nth-child(6)"
+            ],
+            [
+              "tr:nth-child(1) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(1) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(1) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(2) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(2) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(2) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(3) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(3) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(3) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(4) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(4) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(4) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(5) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(5) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(5) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(6) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(6) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(6) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(7) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(7) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(7) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(8) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(8) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(8) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(9) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(9) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(9) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(10) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(10) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(10) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(11) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(11) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(11) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(12) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(12) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(12) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(13) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(13) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(13) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(14) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(14) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(14) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(15) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(15) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(15) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(16) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(16) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(16) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(17) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(17) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(17) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(18) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(18) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(18) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(19) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(19) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(19) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(20) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(20) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(20) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(21) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(21) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(21) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(22) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(22) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(22) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(23) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(23) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(23) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(24) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(24) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(24) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(25) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(25) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(25) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(26) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(26) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(26) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(27) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(27) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(27) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(28) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(28) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(28) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(29) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(29) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(29) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(30) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(30) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(30) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(31) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(31) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(31) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(32) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(32) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(32) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(33) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(33) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(33) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(34) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(34) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(34) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(35) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(35) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(35) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(36) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(36) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(36) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(37) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(37) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(37) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(38) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(38) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(38) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(39) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(39) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(39) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(40) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(40) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(40) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(41) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(41) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(41) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(42) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(42) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(42) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(43) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(43) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(43) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(44) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(44) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(44) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(45) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(45) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(45) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(46) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(46) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(46) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(47) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(47) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(47) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(48) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(48) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(48) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(49) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(49) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(49) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(50) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(50) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(50) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(51) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(51) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(51) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(52) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(52) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(52) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(53) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(53) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(53) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(54) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(54) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(54) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(55) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(55) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(55) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(56) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(56) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(56) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(57) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(57) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(57) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(58) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(58) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(58) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(59) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(59) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(59) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(60) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(60) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(60) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(61) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(61) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(61) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(62) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(62) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(62) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(63) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(63) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(63) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(64) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(64) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(64) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(65) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(65) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(65) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(66) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(66) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(66) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(67) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(67) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(67) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(68) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(68) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(68) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(69) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(69) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(69) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(70) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(70) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(70) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(71) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(71) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(71) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(72) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(72) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(72) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(73) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(73) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(73) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(74) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(74) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(74) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(75) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(75) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(75) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(76) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(76) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(76) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(77) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(77) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(77) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(78) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(78) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(78) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(79) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(79) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(79) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(80) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(80) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(80) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(81) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(81) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(81) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(82) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(82) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(82) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(83) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(83) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(83) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(84) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(84) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(84) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(85) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(85) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(85) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(86) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(86) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(86) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(87) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(87) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(87) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(88) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(88) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(88) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(89) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(89) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(89) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(90) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(90) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(90) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(91) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(91) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(91) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(92) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(92) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(92) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(93) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(93) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(93) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(94) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(94) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(94) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(95) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(95) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(95) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(96) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(96) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(96) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(97) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(97) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(97) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(98) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(98) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(98) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(99) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(99) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(99) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(100) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(100) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(100) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(101) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(101) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(101) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(102) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(102) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(102) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(103) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(103) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(103) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(104) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(104) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(104) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(105) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(105) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(105) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(106) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(106) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(106) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(107) > td:nth-child(3) > ._lote-critico_ix4if_31._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(107) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(107) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(108) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(108) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(108) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(109) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(109) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(109) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(110) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(110) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(110) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(111) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(111) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(111) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(112) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(112) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(112) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(113) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(113) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(113) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(114) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(114) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(114) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(115) > td:nth-child(3) > ._aproveitavel_ix4if_19._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(115) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(115) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(116) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(116) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(116) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(117) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(117) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(117) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(118) > td:nth-child(3) > ._descartavel_ix4if_27._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(118) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(118) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(119) > td:nth-child(3) > ._em-aprovacao_ix4if_7._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(119) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(119) > td:nth-child(5)"
+            ],
+            [
+              "tr:nth-child(120) > td:nth-child(3) > ._reutilizavel_ix4if_15._status_ix4if_1"
+            ],
+            [
+              "tr:nth-child(120) > td:nth-child(4)"
+            ],
+            [
+              "tr:nth-child(120) > td:nth-child(5)"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "label": "categoria vazia anuncia erro",
+      "passed": true
+    },
+    {
+      "label": "categoria demo criada e status anunciado",
+      "passed": true
+    },
+    {
+      "label": "etiqueta dispon?vel no detalhe",
+      "passed": true
+    },
+    {
+      "label": "busca por c?digo abre item",
+      "passed": true
+    },
+    {
+      "label": "c?digo inexistente anuncia erro",
+      "passed": true
+    },
+    {
+      "label": "contraste complementar dos textos do gr?fico",
+      "passed": true,
+      "detail": [
+        {
+          "text": "Mar",
+          "color": "rgb(106, 111, 128)",
+          "background": "#FFFFFF",
+          "fontSize": "14px",
+          "ratio": 5
+        },
+        {
+          "text": "Abr",
+          "color": "rgb(106, 111, 128)",
+          "background": "#FFFFFF",
+          "fontSize": "14px",
+          "ratio": 5
+        },
+        {
+          "text": "Mai",
+          "color": "rgb(106, 111, 128)",
+          "background": "#FFFFFF",
+          "fontSize": "14px",
+          "ratio": 5
+        },
+        {
+          "text": "Jun",
+          "color": "rgb(106, 111, 128)",
+          "background": "#FFFFFF",
+          "fontSize": "14px",
+          "ratio": 5
+        },
+        {
+          "text": "Jul",
+          "color": "rgb(106, 111, 128)",
+          "background": "#FFFFFF",
+          "fontSize": "14px",
+          "ratio": 5
+        },
+        {
+          "text": "Ago",
+          "color": "rgb(106, 111, 128)",
+          "background": "#FFFFFF",
+          "fontSize": "14px",
+          "ratio": 5
+        },
+        {
+          "text": "0",
+          "color": "rgb(106, 111, 128)",
+          "background": "#FFFFFF",
+          "fontSize": "13px",
+          "ratio": 5
+        },
+        {
+          "text": "50",
+          "color": "rgb(106, 111, 128)",
+          "background": "#FFFFFF",
+          "fontSize": "13px",
+          "ratio": 5
+        },
+        {
+          "text": "100",
+          "color": "rgb(106, 111, 128)",
+          "background": "#FFFFFF",
+          "fontSize": "13px",
+          "ratio": 5
+        },
+        {
+          "text": "150",
+          "color": "rgb(106, 111, 128)",
+          "background": "#FFFFFF",
+          "fontSize": "13px",
+          "ratio": 5
+        },
+        {
+          "text": "200",
+          "color": "rgb(106, 111, 128)",
+          "background": "#FFFFFF",
+          "fontSize": "13px",
+          "ratio": 5
+        },
+        {
+          "text": "68%",
+          "color": "rgb(27, 44, 103)",
+          "background": "#FFFFFF",
+          "fontSize": "32px",
+          "ratio": 13.1
+        },
+        {
+          "text": "meta 75%",
+          "color": "rgb(106, 111, 128)",
+          "background": "#FFFFFF",
+          "fontSize": "13px",
+          "ratio": 5
+        }
+      ]
+    },
+    {
+      "label": "produ??o redireciona rota privada ao login",
+      "passed": true
+    },
+    {
+      "label": "produ??o sem indica??o MSW",
+      "passed": true
+    },
+    {
+      "label": "produ??o carrega p?gina em chunk separado",
+      "passed": true,
+      "detail": [
+        "/assets/index-4i12g4Nl.js",
+        "/assets/index-BJceHoIs.js",
+        "/assets/index-CJHI8CfW.js",
+        "/assets/validacao-9I5ECcaO.js"
+      ]
+    },
+    {
+      "label": "refresh de produ??o preserva prote??o",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "contrasts": [
+    {
+      "text": "Mar",
+      "color": "rgb(106, 111, 128)",
+      "background": "#FFFFFF",
+      "fontSize": "14px",
+      "ratio": 5
+    },
+    {
+      "text": "Abr",
+      "color": "rgb(106, 111, 128)",
+      "background": "#FFFFFF",
+      "fontSize": "14px",
+      "ratio": 5
+    },
+    {
+      "text": "Mai",
+      "color": "rgb(106, 111, 128)",
+      "background": "#FFFFFF",
+      "fontSize": "14px",
+      "ratio": 5
+    },
+    {
+      "text": "Jun",
+      "color": "rgb(106, 111, 128)",
+      "background": "#FFFFFF",
+      "fontSize": "14px",
+      "ratio": 5
+    },
+    {
+      "text": "Jul",
+      "color": "rgb(106, 111, 128)",
+      "background": "#FFFFFF",
+      "fontSize": "14px",
+      "ratio": 5
+    },
+    {
+      "text": "Ago",
+      "color": "rgb(106, 111, 128)",
+      "background": "#FFFFFF",
+      "fontSize": "14px",
+      "ratio": 5
+    },
+    {
+      "text": "0",
+      "color": "rgb(106, 111, 128)",
+      "background": "#FFFFFF",
+      "fontSize": "13px",
+      "ratio": 5
+    },
+    {
+      "text": "50",
+      "color": "rgb(106, 111, 128)",
+      "background": "#FFFFFF",
+      "fontSize": "13px",
+      "ratio": 5
+    },
+    {
+      "text": "100",
+      "color": "rgb(106, 111, 128)",
+      "background": "#FFFFFF",
+      "fontSize": "13px",
+      "ratio": 5
+    },
+    {
+      "text": "150",
+      "color": "rgb(106, 111, 128)",
+      "background": "#FFFFFF",
+      "fontSize": "13px",
+      "ratio": 5
+    },
+    {
+      "text": "200",
+      "color": "rgb(106, 111, 128)",
+      "background": "#FFFFFF",
+      "fontSize": "13px",
+      "ratio": 5
+    },
+    {
+      "text": "68%",
+      "color": "rgb(27, 44, 103)",
+      "background": "#FFFFFF",
+      "fontSize": "32px",
+      "ratio": 13.1
+    },
+    {
+      "text": "meta 75%",
+      "color": "rgb(106, 111, 128)",
+      "background": "#FFFFFF",
+      "fontSize": "13px",
+      "ratio": 5
+    }
+  ],
+  "productionResources": [
+    "/assets/index-4i12g4Nl.js",
+    "/assets/index-BJceHoIs.js",
+    "/assets/index-CJHI8CfW.js",
+    "/assets/validacao-9I5ECcaO.js"
+  ],
+  "productionAxe": {
+    "violations": [],
+    "incomplete": []
+  }
+}

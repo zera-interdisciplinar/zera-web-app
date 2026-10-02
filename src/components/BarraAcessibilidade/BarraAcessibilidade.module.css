@@ -1,0 +1,21 @@
+.container { position: fixed; right: 1rem; bottom: 1rem; z-index: 40; display: flex; flex-direction: column; align-items: flex-end; gap: .5rem; }
+.gatilho { display: grid; place-items: center; width: 60px; height: 60px; padding: 11px; border: 3px solid #fff; border-radius: 50%; background: var(--navy); box-shadow: 0 4px 16px #171b2e55; cursor: pointer; }
+.gatilho img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.painel { width: min(24rem, calc(100vw - 1rem)); max-height: min(75vh, 40rem); overflow: auto; overflow-wrap: anywhere; border: 2px solid var(--navy); border-radius: 1rem; background: var(--branco); color: var(--texto); box-shadow: var(--sombra-modal); }
+.painel[hidden] { display: none; }
+.cabecalho { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; padding: 1rem; background: var(--navy); color: #fff; }
+.cabecalho h2 { font-size: 1.15rem; }
+.cabecalho button { color: #fff; border-color: #fff; }
+.gatilho:focus-visible { outline: 3px solid var(--azul); outline-offset: 3px; }
+.corpo { display: grid; min-width: 0; gap: .7rem; padding: 1rem; }
+.corpo > * { min-width: 0; }
+.corpo select { width: 100%; }
+.corpo button, .cabecalho button, .corpo select { min-height: 2.75rem; padding: .45rem .7rem; border: 2px solid var(--navy); border-radius: .5rem; background: var(--branco); color: var(--texto); cursor: pointer; }
+.cabecalho button { color: var(--navy); background: var(--branco); border-color: var(--branco); }
+.corpo button:hover, .corpo select:hover { background: var(--azul-claro); }
+.opcao { display: flex; align-items: center; gap: .6rem; min-height: 2.75rem; }
+.opcao input { flex: none; }
+.opcao input { width: 1.3rem; height: 1.3rem; accent-color: var(--navy); }
+.aviso { font-size: .875rem; line-height: 1.5; }
+.guia { position: fixed; left: 0; right: 0; z-index: 30; height: 2rem; transform: translateY(-50%); background: #3557ca22; border-top: 2px solid #1b2c67; border-bottom: 2px solid #1b2c67; pointer-events: none; }
+@media (max-width: 36rem) { .container { right: .5rem; bottom: .5rem; } .painel { max-height: calc(100dvh - 6rem); } }

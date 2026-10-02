@@ -1,0 +1,75 @@
+{
+  "checks": [
+    {
+      "label": "gestor consulta relatorios e encontra menu",
+      "passed": true
+    },
+    {
+      "label": "gestor gera previa sem controls de envio",
+      "passed": true
+    },
+    {
+      "label": "preview estreita 200 e lista por teclado",
+      "passed": true,
+      "detail": {
+        "documentWidth": 305,
+        "documentScroll": 305,
+        "dialogWidth": 242,
+        "dialogScroll": 242,
+        "listScroll": 40,
+        "listOutline": "solid"
+      }
+    },
+    {
+      "label": "filtro recebe foco em menuitem",
+      "passed": true
+    },
+    {
+      "label": "filtro por teclado altera rota",
+      "passed": true
+    },
+    {
+      "label": "tabela horizontal opera por teclado",
+      "passed": true
+    },
+    {
+      "label": "seta alterna aba e foco",
+      "passed": true
+    },
+    {
+      "label": "voz nao escuta antes de ativar",
+      "passed": true
+    },
+    {
+      "label": "voz ativada explicitamente em ptBR (API simulada)",
+      "passed": true
+    },
+    {
+      "label": "voz para ao fechar painel (API simulada)",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "previewAxe": {
+    "label": "previa somente leitura gestor",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "nodes": [
+          [
+            "._resumoPrevia_1w1xk_44"
+          ]
+        ]
+      }
+    ]
+  },
+  "previewReflow": {
+    "documentWidth": 305,
+    "documentScroll": 305,
+    "dialogWidth": 242,
+    "dialogScroll": 242,
+    "listScroll": 40,
+    "listOutline": "solid"
+  }
+}

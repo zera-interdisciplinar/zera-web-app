@@ -1,0 +1,35 @@
+.lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  border-bottom: 1px solid var(--borda);
+  background-color: var(--branco);
+  border-radius: var(--r-card) var(--r-card) 0 0;
+  padding: 0 var(--sp-6);
+}
+
+.aba {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: var(--sp-4) var(--sp-3);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--texto-secundario);
+  cursor: pointer;
+  transition:
+    color var(--transicao),
+    border-color var(--transicao);
+}
+
+.aba:hover {
+  color: var(--texto);
+}
+
+.ativa {
+  color: var(--navy);
+  font-weight: 700;
+  border-bottom-color: var(--ambar);
+}

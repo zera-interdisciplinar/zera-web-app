@@ -1,0 +1,64 @@
+.campo {
+  min-width: 0;
+  max-width: 100%;
+  background-color: var(--fundo);
+  border-radius: var(--r-field);
+  padding: var(--sp-4) var(--sp-6);
+  border: 2px solid transparent;
+  transition: border-color var(--transicao);
+}
+
+.campo:focus-within {
+  outline: 3px solid var(--navy);
+  outline-offset: 2px;
+}
+
+.invalido {
+  border-color: var(--perigo);
+}
+
+.rotulo {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--texto-secundario);
+  margin-bottom: var(--sp-1);
+}
+
+.controle {
+  min-width: 0;
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 1rem;
+  color: var(--texto);
+}
+
+.controle::placeholder {
+  color: var(--texto-secundario);
+  opacity: 1;
+}
+
+.controle:focus-visible {
+  outline: none;
+}
+
+.controle:disabled {
+  color: var(--texto-secundario);
+}
+
+.area {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.erro {
+  margin-top: var(--sp-2);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--perigo);
+}

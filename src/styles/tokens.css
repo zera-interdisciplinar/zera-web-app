@@ -1,0 +1,53 @@
+:root {
+  --navy: #1B2C67;
+  --navy-hover: #25346F;
+  --navy-suave: #2E3D75;
+  --azul: #3557CA;
+  --azul-hover: #2A46A2;
+  --azul-claro: #D3DBF8;
+  --ambar: #E9A23B;
+  --ambar-hover: #D8942F;
+  --verde: #55B685;
+  --creme: #F1EADB;
+
+  --fundo: #F6F8FC;
+  --branco: #FFFFFF;
+  --borda: #E3E7F0;
+
+  --texto: #171B2E;
+  --texto-secundario: #6A6F80;
+
+  --ambar-texto: #8A5E0E;
+  --verde-texto: #307050;
+
+  --perigo: #C0453E;
+  --perigo-hover: #A93B34;
+
+  --fonte-display: 'Sora', system-ui, sans-serif;
+  --fonte-ui: 'Public Sans', system-ui, sans-serif;
+  --fonte-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --r-card: 16px;
+  --r-modal: 24px;
+  --r-field: 16px;
+  --r-pill: 999px;
+  --r-nav: 14px;
+  --r-iconbox: 12px;
+
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  --sombra-modal: 0 24px 64px rgb(23 27 46 / 0.25);
+
+  --transicao: 160ms ease-out;
+
+  --largura-sidebar: 280px;
+  --altura-topbar: 72px;
+}

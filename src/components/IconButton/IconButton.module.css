@@ -1,0 +1,19 @@
+.botao {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  border-radius: var(--sp-2);
+  color: var(--texto-secundario);
+  cursor: pointer;
+  transition:
+    color var(--transicao),
+    background-color var(--transicao);
+}
+
+.botao:hover {
+  color: var(--navy);
+  background-color: var(--creme);
+}

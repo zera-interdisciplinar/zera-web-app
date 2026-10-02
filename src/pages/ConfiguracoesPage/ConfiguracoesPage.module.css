@@ -1,0 +1,26 @@
+.cartao {
+  background-color: var(--branco);
+  border-radius: var(--r-card);
+  padding: var(--sp-8);
+  max-width: 640px;
+}
+
+.cartao h2 {
+  margin-bottom: var(--sp-6);
+}
+
+.campos {
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.erro {
+  margin-top: var(--sp-4);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--perigo);
+}
+
+.acoes {
+  margin-top: var(--sp-6);
+}

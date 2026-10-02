@@ -1,0 +1,9 @@
+.cabecalho {
+  max-width: 72ch;
+}
+
+.subtitulo {
+  margin-top: var(--sp-1);
+  font-size: 1rem;
+  color: var(--texto-secundario);
+}

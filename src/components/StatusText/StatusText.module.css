@@ -1,0 +1,33 @@
+.status {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  white-space: normal;
+}
+
+.em-aprovacao {
+  color: var(--ambar-texto);
+}
+
+.em-estoque {
+  color: var(--texto-secundario);
+}
+
+.reutilizavel {
+  color: var(--verde-texto);
+}
+
+.aproveitavel {
+  color: var(--azul);
+}
+
+.rascunho, .aguardando-avaliacao, .removido { color: var(--texto-secundario); }
+.rejeitado, .descartado { color: var(--perigo); }
+.em-manutencao { color: var(--azul); }
+
+.descartavel {
+  color: var(--perigo);
+}
+
+.lote-critico {
+  color: var(--perigo);
+}

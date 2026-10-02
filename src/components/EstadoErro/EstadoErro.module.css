@@ -1,0 +1,17 @@
+.bloco {
+  background-color: var(--branco);
+  border-radius: var(--r-card);
+  padding: var(--sp-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  border-left: 4px solid var(--perigo);
+}
+
+.texto {
+  font-size: 0.9375rem;
+  color: var(--perigo);
+  font-weight: 500;
+}

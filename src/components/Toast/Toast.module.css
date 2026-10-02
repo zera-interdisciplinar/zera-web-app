@@ -1,0 +1,23 @@
+.toast {
+  position: fixed;
+  right: var(--sp-8);
+  bottom: var(--sp-8);
+  z-index: 70;
+  background-color: var(--navy);
+  color: var(--branco);
+  border-radius: var(--r-iconbox);
+  padding: var(--sp-4) var(--sp-6);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  max-width: 420px;
+  animation: surgir 200ms ease-out;
+}
+
+@keyframes surgir {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

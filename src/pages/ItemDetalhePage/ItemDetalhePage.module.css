@@ -1,0 +1,232 @@
+.trilha {
+  font-size: 0.875rem;
+  color: var(--texto-secundario);
+}
+
+.voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  color: var(--navy);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.voltar:hover {
+  text-decoration: underline;
+}
+
+.cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.cabecalho h1:focus {
+  outline: none;
+}
+
+.subtitulo {
+  margin-top: var(--sp-2);
+}
+
+.cabecalhoDireita {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.cartao {
+  background-color: var(--branco);
+  border-radius: var(--r-card);
+}
+
+.painel {
+  padding: var(--sp-8);
+}
+
+.gradeDados {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: var(--sp-6) var(--sp-8);
+  margin: 0;
+}
+
+.gradeDados dt {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--texto-secundario);
+}
+
+.gradeDados dd {
+  margin: var(--sp-1) 0 0;
+  font-size: 1rem;
+}
+
+.colunas {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--sp-8);
+  align-items: start;
+}
+
+.tituloSecao {
+  font-family: var(--fonte-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: var(--sp-4);
+}
+
+.vazio {
+  font-size: 0.9375rem;
+  color: var(--texto-secundario);
+}
+
+.listaManutencoes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.manutencao {
+  border: 1px solid var(--borda);
+  border-radius: var(--r-card);
+  padding: var(--sp-4);
+}
+
+.manutencaoTopo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  font-size: 0.875rem;
+  color: var(--texto-secundario);
+}
+
+.tipo {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.preventiva {
+  color: var(--verde-texto);
+}
+
+.corretiva {
+  color: var(--ambar-texto);
+}
+
+.manutencaoDescricao {
+  margin-top: var(--sp-2);
+  font-size: 0.9375rem;
+}
+
+.manutencaoTecnico {
+  margin-top: var(--sp-1);
+  font-size: 0.8125rem;
+  color: var(--texto-secundario);
+}
+
+.formManutencao {
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.erroForm {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--perigo);
+}
+
+.sucessoForm {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--verde-texto);
+}
+
+.notaAnalise {
+  font-size: 0.875rem;
+  color: var(--texto-secundario);
+  max-width: 64ch;
+  margin-bottom: var(--sp-6);
+}
+
+.risco {
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.risco-baixo {
+  color: var(--verde-texto);
+}
+
+.risco-medio {
+  color: var(--ambar-texto);
+}
+
+.risco-alto {
+  color: var(--perigo);
+}
+
+.fatores {
+  list-style: none;
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-3);
+  max-width: 76ch;
+}
+
+.fator {
+  border: 1px solid var(--borda);
+  border-radius: var(--r-card);
+  padding: var(--sp-4);
+}
+
+.fatorTopo {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  font-size: 0.9375rem;
+}
+
+.pontos {
+  color: var(--texto-secundario);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.fatorDetalhe {
+  margin-top: var(--sp-1);
+  font-size: 0.875rem;
+  color: var(--texto-secundario);
+}
+
+.recomendacao {
+  margin-top: var(--sp-6);
+  font-size: 0.9375rem;
+  background-color: var(--creme);
+  border-radius: var(--r-card);
+  padding: var(--sp-4) var(--sp-6);
+  max-width: 76ch;
+}
+
+@media (max-width: 880px) {
+  .colunas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

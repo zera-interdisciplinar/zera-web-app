@@ -1,0 +1,524 @@
+{
+  "routes": [
+    {
+      "label": "login com painel",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "login inválido",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "/",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              "text[x=\"43.333333333333336\"]"
+            ],
+            [
+              "text[x=\"130\"]"
+            ],
+            [
+              "text[x=\"216.66666666666669\"]"
+            ],
+            [
+              "text[x=\"303.3333333333333\"]"
+            ],
+            [
+              "text[x=\"390\"]"
+            ],
+            [
+              "text[x=\"476.6666666666667\"]"
+            ],
+            [
+              "text[y=\"234\"]"
+            ],
+            [
+              "text[y=\"179\"]"
+            ],
+            [
+              "text[y=\"124\"]"
+            ],
+            [
+              "text[y=\"69\"]"
+            ],
+            [
+              "text[y=\"14\"]"
+            ],
+            [
+              "._valor_1gue8_30"
+            ],
+            [
+              "._meta_1gue8_38"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "label": "/itens",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "/itens/1000",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "/itens/1000/triagem",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "/modelos",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "/recicladoras",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "/funcionarios",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "/relatorios",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "/configuracoes",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "/descartes",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "/itens/999999",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "/itens/abc",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "/nao-existe",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "modal de item preenchido",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "modal item com erros",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "itens alto contraste e espaçamento",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "gestor acesso negado /funcionarios",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "gestor acesso negado /relatorios",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "gestor acesso negado /configuracoes",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "gestor acesso negado /itens/1000/triagem",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "funcionario acesso negado /funcionarios",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "funcionario acesso negado /relatorios",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "funcionario acesso negado /configuracoes",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "label": "funcionario acesso negado /descartes",
+      "violations": [],
+      "incomplete": []
+    }
+  ],
+  "keyboard": [
+    {
+      "label": "skip link é primeiro foco",
+      "passed": true
+    },
+    {
+      "label": "skip link alcança main",
+      "passed": true
+    },
+    {
+      "label": "Tab não abre painel",
+      "passed": true
+    },
+    {
+      "label": "Shift não abre painel",
+      "passed": true
+    },
+    {
+      "label": "Shift+Tab não abre painel",
+      "passed": true
+    },
+    {
+      "label": "painel recebe foco",
+      "passed": true
+    },
+    {
+      "label": "Escape devolve foco do painel",
+      "passed": true
+    },
+    {
+      "label": "login vazio anuncia erros",
+      "passed": true
+    },
+    {
+      "label": "administrador demonstrativo autenticado via MSW",
+      "passed": true
+    },
+    {
+      "label": "modal inicia no campo",
+      "passed": true
+    },
+    {
+      "label": "digitação mantém foco do modal",
+      "passed": true
+    },
+    {
+      "label": "Tab navega no formulário",
+      "passed": true
+    },
+    {
+      "label": "ciclo do modal mantém foco dentro",
+      "passed": true
+    },
+    {
+      "label": "fechamento restaura foco ao gatilho",
+      "passed": true
+    },
+    {
+      "label": "modo foco preserva main e saída a11y",
+      "passed": true
+    }
+  ],
+  "reflow": [
+    {
+      "route": "/",
+      "zoom": 100,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Visão geral",
+      "passed": true
+    },
+    {
+      "route": "/",
+      "zoom": 200,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Visão geral",
+      "passed": true
+    },
+    {
+      "route": "/itens",
+      "zoom": 100,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Gestão de itens",
+      "passed": true
+    },
+    {
+      "route": "/itens",
+      "zoom": 200,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Gestão de itens",
+      "passed": true
+    },
+    {
+      "route": "/itens/1000",
+      "zoom": 100,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Inspiron 15 3000",
+      "passed": true
+    },
+    {
+      "route": "/itens/1000",
+      "zoom": 200,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Inspiron 15 3000",
+      "passed": true
+    },
+    {
+      "route": "/itens/1000/triagem",
+      "zoom": 100,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Triagem",
+      "passed": true
+    },
+    {
+      "route": "/itens/1000/triagem",
+      "zoom": 200,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Triagem",
+      "passed": true
+    },
+    {
+      "route": "/modelos",
+      "zoom": 100,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Modelos",
+      "passed": true
+    },
+    {
+      "route": "/modelos",
+      "zoom": 200,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Modelos",
+      "passed": true
+    },
+    {
+      "route": "/recicladoras",
+      "zoom": 100,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Recicladoras",
+      "passed": true
+    },
+    {
+      "route": "/recicladoras",
+      "zoom": 200,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Recicladoras",
+      "passed": true
+    },
+    {
+      "route": "/funcionarios",
+      "zoom": 100,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Funcionários",
+      "passed": true
+    },
+    {
+      "route": "/funcionarios",
+      "zoom": 200,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Funcionários",
+      "passed": true
+    },
+    {
+      "route": "/relatorios",
+      "zoom": 100,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Relatórios de descarte",
+      "passed": true
+    },
+    {
+      "route": "/relatorios",
+      "zoom": 200,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Relatórios de descarte",
+      "passed": true
+    },
+    {
+      "route": "/configuracoes",
+      "zoom": 100,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Configurações",
+      "passed": true
+    },
+    {
+      "route": "/configuracoes",
+      "zoom": 200,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Configurações",
+      "passed": true
+    },
+    {
+      "route": "/descartes",
+      "zoom": 100,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Registros de descarte",
+      "passed": true
+    },
+    {
+      "route": "/descartes",
+      "zoom": 200,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Registros de descarte",
+      "passed": true
+    },
+    {
+      "route": "/itens/999999",
+      "zoom": 100,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Detalhes do item",
+      "passed": true
+    },
+    {
+      "route": "/itens/999999",
+      "zoom": 200,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Detalhes do item",
+      "passed": true
+    },
+    {
+      "route": "/itens/abc",
+      "zoom": 100,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Item não encontrado",
+      "passed": true
+    },
+    {
+      "route": "/itens/abc",
+      "zoom": 200,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Item não encontrado",
+      "passed": true
+    },
+    {
+      "route": "/nao-existe",
+      "zoom": 100,
+      "width": 320,
+      "scroll": 320,
+      "heading": "Página não encontrada",
+      "passed": true
+    },
+    {
+      "route": "/nao-existe",
+      "zoom": 200,
+      "width": 305,
+      "scroll": 305,
+      "heading": "Página não encontrada",
+      "passed": true
+    }
+  ],
+  "roles": [
+    {
+      "role": "gestor",
+      "route": "/funcionarios",
+      "denied": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "role": "gestor",
+      "route": "/relatorios",
+      "denied": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "role": "gestor",
+      "route": "/configuracoes",
+      "denied": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "role": "gestor",
+      "route": "/descartes",
+      "denied": false,
+      "expected": false,
+      "passed": true
+    },
+    {
+      "role": "gestor",
+      "route": "/itens/1000/triagem",
+      "denied": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "role": "funcionario",
+      "route": "/funcionarios",
+      "denied": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "role": "funcionario",
+      "route": "/relatorios",
+      "denied": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "role": "funcionario",
+      "route": "/configuracoes",
+      "denied": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "role": "funcionario",
+      "route": "/descartes",
+      "denied": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "role": "funcionario",
+      "route": "/itens/1000/triagem",
+      "denied": false,
+      "expected": false,
+      "passed": true
+    }
+  ],
+  "errors": []
+}

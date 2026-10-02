@@ -59,6 +59,8 @@
 
 .itemPrevia {
   display: flex;
+  flex-wrap: wrap;
+  overflow-wrap: anywhere;
   align-items: baseline;
   gap: var(--sp-3);
   background-color: var(--fundo);
@@ -81,7 +83,7 @@
 .itemDias {
   color: var(--texto-secundario);
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .campoDestino {
@@ -97,6 +99,7 @@
 
 .acoesModal {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--sp-6);
   margin-top: var(--sp-8);
 }

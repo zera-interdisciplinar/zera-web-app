@@ -11,6 +11,7 @@ import { Skeleton } from '../../components/Skeleton'
 import { Toast } from '../../components/Toast'
 import { useRequisicao } from '../../hooks/useRequisicao'
 import { useToast } from '../../hooks/useToast'
+import { useAuth } from '../../hooks/useAuth'
 import {
   enviarRelatorio,
   gerarPrevia,
@@ -27,6 +28,8 @@ import estilos from './RelatoriosPage.module.css'
 type EtapaModal = 'previa' | 'confirmacao'
 
 export default function RelatoriosPage() {
+  const { temPerfil } = useAuth()
+  const podeEnviar = temPerfil(['administrador'])
   const buscarRelatorios = useCallback((sinal: AbortSignal) => listarRelatorios(sinal), [])
   const buscarRecicladoras = useCallback((sinal: AbortSignal) => listarRecicladoras(sinal), [])
   const buscarPrevia = useCallback((sinal: AbortSignal) => gerarPrevia(sinal), [])
@@ -81,6 +84,7 @@ export default function RelatoriosPage() {
   }
 
   function aoRevisar() {
+    if (!podeEnviar) return
     const validacao = validarEnvioRelatorio({ recicladoraId: Number(recicladoraId) })
     setErroRecicladora(validacao.erros.recicladoraId ?? null)
     if (!validacao.valido) return
@@ -88,7 +92,7 @@ export default function RelatoriosPage() {
   }
 
   async function aoConfirmarEnvio() {
-    if (!previa.dados) return
+    if (!podeEnviar || !previa.dados) return
     setEnviando(true)
     setErroEnvio(null)
     try {
@@ -179,7 +183,7 @@ export default function RelatoriosPage() {
                   {previa.dados.totalItens} {pluralizar(previa.dados.totalItens, 'item', 'itens')}{' '}
                   classificados como descartáveis, do mais antigo ao mais recente.
                 </p>
-                <ul className={estilos.listaPrevia}>
+                <ul className={estilos.listaPrevia} tabIndex={0} aria-label="Itens da prévia do relatório">
                   {previa.dados.itens.map((item) => (
                     <li key={item.produtoId} className={estilos.itemPrevia}>
                       <span className="texto-mono">{item.codigoBarras}</span>
@@ -189,7 +193,7 @@ export default function RelatoriosPage() {
                   ))}
                 </ul>
 
-                <div className={estilos.campoDestino}>
+                {podeEnviar && <div className={estilos.campoDestino}>
                   <FieldCard
                     id="relatorio-recicladora"
                     rotulo="Cooperativa de destino"
@@ -208,7 +212,8 @@ export default function RelatoriosPage() {
                       })),
                     ]}
                   />
-                </div>
+                </div>}
+                {!podeEnviar && <p>O envio à recicladora exige revisão e confirmação de um administrador.</p>}
 
                 {erroEnvio && (
                   <p className={estilos.erroModal} role="alert">
@@ -217,9 +222,9 @@ export default function RelatoriosPage() {
                 )}
 
                 <div className={estilos.acoesModal}>
-                  <Button variante="navy" tamanho="grande" onClick={aoRevisar}>
+                  {podeEnviar && <Button variante="navy" tamanho="grande" onClick={aoRevisar}>
                     Revisar envio
-                  </Button>
+                  </Button>}
                   <Button variante="secundario" tamanho="grande" onClick={() => setModalAberto(false)}>
                     Cancelar
                   </Button>
@@ -229,7 +234,7 @@ export default function RelatoriosPage() {
           </div>
         )}
 
-        {etapa === 'confirmacao' && previa.dados && (
+        {podeEnviar && etapa === 'confirmacao' && previa.dados && (
           <div>
             <p className={estilos.textoModal}>Confirmar envio do relatório?</p>
             <p className={estilos.detalheModal}>

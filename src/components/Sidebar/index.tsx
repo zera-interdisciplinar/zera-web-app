@@ -32,7 +32,7 @@ const DESTINOS = [
     rotulo: 'Relatórios',
     Icone: FileText,
     exato: false,
-    perfis: ['administrador'] as readonly Perfil[],
+    perfis: ['gestor', 'administrador'] as readonly Perfil[],
   },
   {
     para: '/configuracoes',

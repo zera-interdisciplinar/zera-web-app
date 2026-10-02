@@ -141,11 +141,6 @@
       "incomplete": []
     },
     {
-      "label": "gestor acesso negado /relatorios",
-      "violations": [],
-      "incomplete": []
-    },
-    {
       "label": "gestor acesso negado /configuracoes",
       "violations": [],
       "incomplete": []
@@ -459,8 +454,8 @@
     {
       "role": "gestor",
       "route": "/relatorios",
-      "denied": true,
-      "expected": true,
+      "denied": false,
+      "expected": false,
       "passed": true
     },
     {

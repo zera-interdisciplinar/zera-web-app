@@ -56,7 +56,7 @@ export function AppRoutes() {
           <Route
             path="/relatorios"
             element={
-              <PrivateRoute perfis={['administrador']}>
+              <PrivateRoute perfis={['gestor', 'administrador']}>
                 <RelatoriosPage />
               </PrivateRoute>
             }

@@ -29,5 +29,5 @@ Revalidado em 02/10/2026. Evidências executadas e limites em [AUDITORIA.md](AUD
 | E6 Memoização justificada | Parcial | Filtros derivados em useMemo, callbacks estáveis como dependências. | React Profiler e medição de ganho não executados. |
 | E7 XSS | Atendido | Sem dangerouslySetInnerHTML; JSX/sanitização e teste com tags maliciosas. | Evidência frontend; backend não auditado integralmente. |
 | E8 Validação/sanitização | Parcial | Formulários com erros anunciados; payload categoria/PATCH testados. | Cadastros/transições Actor sem serialização/autorização validada. |
-| E9 Rotas privadas | Parcial | Guard/menus; dez combinações funcionário/gestor testadas; admin demo nas áreas administrativas. | ADMIN ausente no QA; autorização real e divergência do escopo v2 pendentes. |
+| E9 Rotas privadas | Parcial | Guard/menus; dez combinações funcionário/gestor; gestor consulta prévia sem envio; admin demo nas áreas administrativas. | ADMIN ausente no QA; autorização real não comprovada. |
 | E10 ARIA/foco/landmarks | Parcial | Modal inert/ciclo de Tab/retorno, Escape, painel no login, tabelas/alternativa textual, modo foco. | Leitor de tela, voz real, todos os modais/paletas e estados autenticados. |

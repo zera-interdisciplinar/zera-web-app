@@ -48,7 +48,7 @@ Legenda: A = token administrativo em memória; I = token + X-Unit-Id. Todos os a
 | Prévia/envio de relatório | Sem contrato equivalente confirmado | — | — | Descartes não são relatórios enviados; somente demo. |
 | Leitura Neo4j | Nenhum endpoint encontrado | — | — | Nenhum driver/conexão direta no frontend. |
 
-Política anterior preservada: Funcionários/Relatórios/Configurações exclusivos do administrador, triagem funcionário/admin, descartes gestor/admin. Divergência: escopo v2 permite geração/visualização de relatórios ao gestor. Não se afirma resolução dessa divergência de autorização nem existência de ADMIN no QA. Frontend não substitui controles do backend.
+Política alinhada ao escopo v2: Funcionários/Configurações exclusivos do administrador; gestor/admin consultam relatórios e geram prévias, somente admin confirma envio; triagem funcionário/admin; descartes gestor/admin. Teste de gestor confirmou menu, rota e ausência de controles de envio. Não existe ADMIN documentado no QA. Frontend não substitui autorização do backend.
 
 ## Docker/backend local
 
@@ -68,11 +68,11 @@ Busca em 237 arquivos de código/testes/assets/dist sem credencial demonstrativa
 
 Chromium via agent-browser 0.27.0/CDP. Relatórios em docs/evidencias, sem campos de login. Rodada principal: 0 violações axe, 1 análise inconclusiva de contraste SVG/dashboard; zero falhas de teclado/RBAC/reflow e zero erros de runtime. 13 rotas/estados abertos diretamente; 26 combinações em 320 CSS px com texto 100%/200%. Login de produção a 320 CSS px/200% mediu clientWidth/scrollWidth iguais (305 px).
 
-Teclado real: primeiro foco no skip link, Enter para main, Tab/Shift/Shift+Tab sem modal espontâneo, painel/foco/Escape/retorno, login, digitação e ciclo do modal. Categoria vazia/sucesso e código encontrado/inexistente passaram em MSW. Produção protege acesso direto/refresh, não ativa MSW e carrega página em chunk separado. Relatório complementar contém análises de contraste inconclusivas em estados adicionais; não tratadas como passes.
+Teclado real: primeiro foco no skip link, Enter para main, Tab/Shift/Shift+Tab sem modal espontâneo, painel/foco/Escape/retorno, login, digitação e ciclo do modal. Categoria vazia/sucesso e código encontrado/inexistente passaram em MSW. Produção protege acesso direto/refresh, não ativa MSW e carrega página em chunk separado. Relatórios complementares contêm análises de contraste inconclusivas em estados adicionais; não tratadas como passes. Filtros por Enter/setas, rolagem horizontal de tabela por seta e abas por seta passaram. A falha de região rolável da prévia foi corrigida com foco e retestada sem violações axe.
 
 Estilos computados dos textos do gráfico sobre card branco: rótulos/eixo/meta 5:1 e valor central 13,1:1. 14 testes de contraste incluem texto normal 4,5:1 e foco/arco 3:1. Todas as paletas, overlays e componentes/estados não possuem revisão manual completa. Tabelas têm região rolável/caption; barras têm tabela textual visível via details; donut tem alternativa em texto/aria-label.
 
-Painel oferece tamanho, contraste, espaçamento, fonte do sistema, modo foco, guia não interativo, simulações aproximadas e ajuda por botão. Voz inicia somente por ativação explícita; parar/estado/aviso de processamento externo, encerramento ao fechar painel. Microfone real não exercitado. OpenDyslexic não incluída sem asset/licença. Áudio/vídeo: não aplicável, nenhum existente encontrado.
+Painel oferece tamanho, contraste, espaçamento, fonte do sistema, modo foco, guia não interativo, simulações aproximadas e ajuda por botão. Voz inicia somente por ativação explícita; parar/estado/aviso de processamento externo, encerramento ao fechar painel. Ciclo de ativação explícita/pt-BR/parada ao fechar testado com API de voz simulada, sem microfone. Microfone real não exercitado. OpenDyslexic não incluída sem asset/licença. Áudio/vídeo: não aplicável, nenhum existente encontrado.
 
 Limites: NVDA/VoiceOver indisponíveis; zoom nativo, leitor de tela, toque/dispositivo físico, todos os modais/paletas/estados reais não executados. 320 CSS px + texto 200% não é chamado de zoom nativo. Não se afirma conformidade WCAG integral.
 

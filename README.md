@@ -1,6 +1,6 @@
 # Zera — gestão de resíduos eletrônicos
 
-Aplicação Vite, React e TypeScript para acompanhar categorias, modelos e equipamentos identificados por etiqueta: inventário, triagem, manutenção, alertas, recicladoras e descartes. Funcionários operam o inventário e a triagem; gestores consultam estoque, categorias e análise preventiva; administradores também acessam usuários, relatórios e configurações. As permissões do backend prevalecem sobre a interface.
+Aplicação Vite, React e TypeScript para acompanhar categorias, modelos e equipamentos identificados por etiqueta: inventário, triagem, manutenção, alertas, recicladoras e descartes. Funcionários operam o inventário e a triagem; gestores consultam estoque, categorias, análise preventiva e prévias de relatórios; administradores também acessam usuários, relatórios e configurações. As permissões do backend prevalecem sobre a interface.
 
 MSW é uma demonstração local explicitamente ativada e identificada nas telas. O administrador demonstrativo depende de uma fixture local ignorada pelo Git e não distribuída. O build de produção não ativa MSW. Integrações reais usam APIs HTTPS autenticadas; PostgreSQL e Neo4j não são acessados pelo navegador. Evidências e limitações estão em `ENTREGAS.md` e `AUDITORIA.md`.
 

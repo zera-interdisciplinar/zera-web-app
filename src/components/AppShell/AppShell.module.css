@@ -45,10 +45,6 @@
   overflow-wrap: anywhere;
 }
 
-.conteudo:focus {
-  outline: none;
-}
-
 :global(html[data-modo-foco='ativo']) .shell {
   display: block;
 }

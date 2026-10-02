@@ -24,10 +24,6 @@
   flex-wrap: wrap;
 }
 
-.cabecalho h1:focus {
-  outline: none;
-}
-
 .subtitulo {
   margin-top: var(--sp-2);
 }

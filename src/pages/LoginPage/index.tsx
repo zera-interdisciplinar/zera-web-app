@@ -9,6 +9,7 @@ import { validarCredenciais } from '../../utils/validacao'
 import type { ErrosDeCampo } from '../../utils/validacao'
 import estilos from './LoginPage.module.css'
 import { modoDemonstracao } from '../../services/apiReal'
+import { SkipLink } from '../../components/SkipLink'
 
 export default function LoginPage() {
   const { entrar, entrando, erro, autenticado } = useAuth()
@@ -34,7 +35,7 @@ export default function LoginPage() {
 
   return (
     <>
-    <a className="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
+    <SkipLink />
     <main className={estilos.pagina} id="conteudo" tabIndex={-1}>
 
       <aside className={`${estilos.marca} sobre-navy`} aria-label="Sobre o Zera">

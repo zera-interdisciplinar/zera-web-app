@@ -168,6 +168,10 @@ table {
   font-weight: 700;
 }
 
+#conteudo {
+  scroll-margin-top: calc(var(--altura-topbar) + 1rem);
+}
+
 .aviso-demo { padding: .5rem .75rem; border: 1px solid var(--navy); border-radius: .5rem; color: var(--navy); background: var(--branco); font-size: .875rem; }
 
 html[data-espacamento='ampliado'] :is(p, h1, h2, h3, label, button, input, textarea, select) { line-height: 1.8; }

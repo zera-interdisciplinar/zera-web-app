@@ -4,13 +4,12 @@ import { Sidebar } from '../Sidebar'
 import { Topbar } from '../Topbar'
 import estilos from './AppShell.module.css'
 import { modoDemonstracao } from '../../services/apiReal'
+import { SkipLink } from '../SkipLink'
 
 export function AppShell() {
   return (
     <div className={estilos.shell}>
-      <a className="pular-para-conteudo" href="#conteudo">
-        Pular para o conteúdo
-      </a>
+      <SkipLink />
 
       <header className={estilos.cabecalho}>
         <div className={estilos.marca}>

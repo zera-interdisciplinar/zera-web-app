@@ -2,6 +2,7 @@ import type { Credenciais, SessaoAutenticada } from '../types/usuario'
 import type { TokenResponse, UserOutput } from '../types/apiReal'
 import { contextualizar, requisitar } from './http'
 import { definirSessaoApi, modoDemonstracao, requisitarApiReal } from './apiReal'
+import { ApiError } from '../types/api'
 
 export async function autenticar(credenciais: Credenciais): Promise<SessaoAutenticada> {
   try {
@@ -15,7 +16,7 @@ export async function autenticar(credenciais: Credenciais): Promise<SessaoAutent
       definirSessaoApi(token.accessToken, null)
       try {
         const pessoa = await requisitarApiReal<UserOutput>('administrative', `/api/v1/users/${encodeURIComponent(token.userId)}`)
-        if (pessoa.role !== 'MANAGER' && pessoa.role !== 'EMPLOYEE') throw new Error('Perfil não previsto no contrato da API.')
+        if (pessoa.role !== 'MANAGER' && pessoa.role !== 'EMPLOYEE') throw new ApiError('Perfil não previsto no contrato da API.', 403)
         definirSessaoApi(token.accessToken, pessoa.unitId)
         return {
           usuario: {

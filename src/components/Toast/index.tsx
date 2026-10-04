@@ -5,10 +5,8 @@ export interface ToastProps {
 }
 
 export function Toast({ mensagem }: ToastProps) {
-  if (!mensagem) return null
-
   return (
-    <div className={estilos.toast} role="status">
+    <div className={mensagem ? estilos.toast : 'somente-leitor-de-tela'} role="status" aria-atomic="true">
       {mensagem}
     </div>
   )

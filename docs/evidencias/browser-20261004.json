@@ -1,0 +1,77 @@
+{
+    "data":  "2026-10-04",
+    "navegador":  "Chromium",
+    "origem":  "MSW explicitamente ativado; perfis fictícios apenas para acessibilidade",
+    "combinacoes":  42,
+    "violacoes":  0,
+    "inconclusivos":  [
+                          {
+                              "perfil":  "funcionario",
+                              "rota":  "/",
+                              "analises":  [
+                                               {
+                                                   "id":  "color-contrast",
+                                                   "nodes":  13
+                                               }
+                                           ]
+                          },
+                          {
+                              "perfil":  "gestor",
+                              "rota":  "/",
+                              "analises":  [
+                                               {
+                                                   "id":  "color-contrast",
+                                                   "nodes":  13
+                                               }
+                                           ]
+                          },
+                          {
+                              "perfil":  "administrador",
+                              "rota":  "/",
+                              "analises":  [
+                                               {
+                                                   "id":  "color-contrast",
+                                                   "nodes":  13
+                                               }
+                                           ]
+                          }
+                      ],
+    "rotas":  [
+                  "/",
+                  "/configuracoes",
+                  "/descartes",
+                  "/funcionarios",
+                  "/itens",
+                  "/itens/1",
+                  "/itens/1/triagem",
+                  "/itens/1078",
+                  "/itens/1078/triagem",
+                  "/itens/invalido",
+                  "/modelos",
+                  "/nao-existe",
+                  "/recicladoras",
+                  "/relatorios"
+              ],
+    "testes":  73,
+    "arquivosDeTeste":  8,
+    "leitorDeTelaReal":  "Não executado; NVDA não localizado e automação Windows indisponível",
+    "leituraEmVozAlta":  "Ativação/parada por Enter, speaking true/false e cancelamento por Escape observados; saída sonora humana não avaliada",
+    "reflow320":  {
+                      "scrollWidth":  305,
+                      "clientWidth":  305,
+                      "texto200":  {
+                                       "scrollWidth":  305,
+                                       "clientWidth":  305,
+                                       "painel":  288
+                                   }
+                  },
+    "zoomNativo200":  {
+                          "scrollWidth":  632,
+                          "dpr":  2,
+                          "viewportCSS":  640,
+                          "raiz":  "16px",
+                          "clientWidth":  632
+                      },
+    "contrasteBotaoLeitura":  17.03638,
+    "apiReal":  "Sem sessão autenticada comprovada; HTTPS QA e conta de aplicação pendentes"
+}

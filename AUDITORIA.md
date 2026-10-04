@@ -1,4 +1,26 @@
-# Verificação técnica — 02/10/2026
+# Verificação técnica — atualizada em 04/10/2026
+
+## Continuação de 04/10/2026
+
+O usuário indicou os microsserviços QA. Nenhuma credencial de banco foi copiada para arquivos, frontend, logs ou Git. As credenciais compartilhadas no chat devem ser rotacionadas; não foram utilizadas em conexões HTTP nem em acesso direto aos bancos. O `.env` permaneceu intacto; inspecionaram-se apenas os nomes e a presença ativa de VITE_API_BASE_URL e VITE_USE_MSW. Não foram adicionadas variáveis públicas.
+
+Os dois swagger-config apontaram para `/qa/{administrative|inventory}/swagger-ui/api-docs`, ambos OpenAPI 3.1.0. Administrativo: server HTTP terminado em `/qa/administrative/swagger-ui`, UserOutput.role MANAGER/EMPLOYEE. Inventário: server `/`, sem securitySchemes; GET anônimo na origem declarada `/api/v1/items` retornou 404, enquanto GET administrativo `/api/v1/users` retornou 401. As tentativas HTTPS dos documentos falharam no transporte. `localhost:8000/api` não respondeu. São leituras anônimas, não autenticação comprovada. Não se presumiu a base do gateway a partir do Swagger UI. Actor continua sendo um objeto em query sem comportamento autenticado validado; não foram enviados claims ou mutações. Não há endpoint Neo4j confirmado. A conta de aplicação e a URL HTTPS segura continuam necessárias; as credenciais de banco/basic-auth não substituem LoginRequest.
+
+Docker Desktop estava desligado. Iniciaram-se somente os serviços Zera postgres, redis e backend-api do Compose já existente: os dois primeiros healthy, backend running. A documentação local em localhost:8080 não respondeu dentro do timeout de 10 segundos nesta rodada. Essa API Java tem contrato diferente do QA; não foi usada como fallback nem alegada como integração dos microsserviços. Não houve modificação do workspace pai nem de dados, volumes ou bancos existentes.
+
+Correções implementadas: 401 autenticado invalida token/unidade e informa o AuthContext; 403 preserva a sessão e informa falta de permissão; 401 atrasado de uma sessão anterior não encerra uma nova sessão. Login limpa sessão anterior e rejeita identidade divergente ou incompleta. Testes usam respostas controladas e valores efêmeros, não credenciais reais. Continuidade de dados PostgreSQL na UI permanece sem prova.
+
+O painel passou a oferecer leitura em voz alta opcional, apenas com voz local em português, sem microfone ou leitura de formulários, conteúdo oculto/inert e campos marcados data-sensivel. A leitura para ao fechar o painel, trocar de rota, ocultar a aba ou desmontar o componente. Chromium enumerou duas vozes locais em português; ativação por Tab/Enter mudou o botão para Parar leitura e speechSynthesis.speaking para true; Enter e Escape interromperam a fala. Não se verificou a saída de áudio por escuta humana. O recurso não substitui NVDA/VoiceOver, nem comprova teste com leitor de tela do sistema. NVDA não localizado nas instalações consultadas; node_repl/automação Windows não disponível nesta sessão. Microfone real não foi ativado. Comandos de voz agora encerram também na ocultação da aba.
+
+Navegação SPA atualiza document.title e foca main após a página carregar; observado em Dashboard → Modelos por Enter. Validação de login move o foco para o primeiro campo inválido. Toast mantém uma região status persistente e atomic. A auditoria encontrou e corrigiu headings h3 dos KPIs que pulavam h2, ausência de main/h1 no fallback lazy e ausência de h1 no erro/carregamento da triagem. Erro de categorias também bloqueia a triagem, em vez de ignorar o checklist.
+
+Verificações finais desta rodada: npm ci instalou 249 pacotes e reportou zero vulnerabilidades; npm test passou 73 testes em 8 arquivos; npm run lint e npm run build/TypeScript passaram. O Node 24.18.1 do PATH falhou em lstat de C:\Users\bart\AppData; usou-se o Node 22.14.0 existente somente no PATH dos processos da tarefa. Nenhuma alteração global de Node/PATH. Dev HTTP 200. Auditoria axe em 42 combinações de 14 rotas/estados e três perfis fictícios MSW: zero violações finais, contraste SVG do dashboard inconclusivo nos três perfis (13 nós por dashboard), mantido como pendência. Não é prova de dados ou RBAC autenticado real. Relatório local completo em artifacts/continuation-20261004/rotas.json; resumo publicável em docs/evidencias/browser-20261004.json.
+
+Login/painel a 320 CSS px: clientWidth/scrollWidth 305/305; texto interno 200%: 305/305 e painel 288px. Zoom nativo Chromium 200%: DPR 2, raiz 16px, viewport CSS 640px e largura/scrollWidth 632/632, separadamente do controle interno. Contraste medido no novo botão de leitura: rgb(23,27,46) sobre branco, 17,04:1. Skip link, foco no primeiro campo inválido, sequência de nove Tab até leitura, ativação/parada por Enter, Escape e retorno ao gatilho verificados. Campos fictícios de formulário, elementos ocultos e data-sensivel excluídos da leitura; conteúdo público incluído. Não se declara revisão manual integral de todos os modais/paletas, leitor de tela, toque ou WCAG completa.
+
+PR #1 já integrado antes desta rodada, main 50d062e. A branch de trabalho foi avançada por fast-forward para essa main, preservando alterações. ENTREGAS.md continua somente local e ignorado por .git/info/exclude; nenhum arquivo foi removido por limpeza. A publicação do frontend não resolve os bloqueios da API descritos acima. O registro anterior abaixo preserva as evidências de 02/10, sem convertê-las em validações de integração real.
+
+## Registro anterior de 02/10/2026
 
 ## Workspace, fontes e preservação
 

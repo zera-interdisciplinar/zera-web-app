@@ -13,6 +13,52 @@ beforeEach(async () => {
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.resetModules() })
 
 describe('serviços e erros das APIs', () => {
+  it('notifica o Context e invalida o token após 401 autenticado', async () => {
+    const { observarExpiracaoSessao, requisitarApiReal } = await import('../src/services/apiReal')
+    const expirou = vi.fn()
+    const remover = observarExpiracaoSessao(expirou)
+    busca.mockResolvedValue(new Response('{}', { status: 401 }))
+    await expect(requisitarApiReal('inventory', '/api/v1/items')).rejects.toMatchObject({ status: 401 })
+    expect(expirou).toHaveBeenCalledOnce()
+    await expect(requisitarApiReal('inventory', '/api/v1/items')).rejects.toMatchObject({ status: 401 })
+    expect(busca).toHaveBeenCalledOnce()
+    remover()
+  })
+  it('preserva a sessão em 403 para permitir outras operações autorizadas', async () => {
+    const { observarExpiracaoSessao, requisitarApiReal } = await import('../src/services/apiReal')
+    const expirou = vi.fn()
+    const remover = observarExpiracaoSessao(expirou)
+    busca.mockResolvedValueOnce(new Response('{}', { status: 403 })).mockResolvedValueOnce(Response.json([]))
+    await expect(requisitarApiReal('inventory', '/api/v1/items')).rejects.toThrow('permissão')
+    expect(await requisitarApiReal('inventory', '/api/v1/categories')).toEqual([])
+    expect(expirou).not.toHaveBeenCalled()
+    remover()
+  })
+  it('um 401 atrasado não encerra uma nova sessão', async () => {
+    const { definirSessaoApi, observarExpiracaoSessao, requisitarApiReal } = await import('../src/services/apiReal')
+    const expirou = vi.fn()
+    const remover = observarExpiracaoSessao(expirou)
+    let responder: (resposta: Response) => void = () => {}
+    busca.mockImplementationOnce(() => new Promise<Response>((resolve) => { responder = resolve }))
+    const anterior = requisitarApiReal('inventory', '/api/v1/items')
+    const resultado = expect(anterior).rejects.toMatchObject({ status: 401 })
+    definirSessaoApi(crypto.randomUUID(), crypto.randomUUID())
+    responder(new Response('{}', { status: 401 }))
+    await resultado
+    busca.mockResolvedValueOnce(Response.json([]))
+    expect(await requisitarApiReal('inventory', '/api/v1/categories')).toEqual([])
+    expect(expirou).not.toHaveBeenCalled()
+    remover()
+  })
+  it('não expira a sessão do Context por falha no login anônimo', async () => {
+    const { observarExpiracaoSessao, requisitarApiReal } = await import('../src/services/apiReal')
+    const expirou = vi.fn()
+    const remover = observarExpiracaoSessao(expirou)
+    busca.mockResolvedValueOnce(new Response('{}', { status: 401 }))
+    await expect(requisitarApiReal('administrative', '/api/v1/auth/login', { metodo: 'POST', autenticada: false })).rejects.toMatchObject({ status: 401 })
+    expect(expirou).not.toHaveBeenCalled()
+    remover()
+  })
   it.each([401, 403, 404, 409, 422, 500])('preserva HTTP %s no erro', async (status) => {
     busca.mockResolvedValue(new Response('{}', { status }))
     const { requisitarApiReal } = await import('../src/services/apiReal')

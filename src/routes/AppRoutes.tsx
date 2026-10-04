@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import { AppShell } from '../components/AppShell'
 import { PrivateRoute } from '../components/PrivateRoute'
 import { Skeleton } from '../components/Skeleton'
+import { SkipLink } from '../components/SkipLink'
 
 const LoginPage = lazy(() => import('../pages/LoginPage'))
 const DashboardPage = lazy(() => import('../pages/DashboardPage'))
@@ -19,9 +20,13 @@ const DescartesPage = lazy(() => import('../pages/DescartesPage'))
 
 function CarregandoPagina() {
   return (
-    <div style={{ padding: 'var(--sp-8)' }}>
+    <>
+    <SkipLink />
+    <main id="conteudo" tabIndex={-1} data-carregando style={{ padding: 'var(--sp-8)' }}>
+      <h1 className="somente-leitor-de-tela">Carregando a página</h1>
       <Skeleton descricao="Carregando a página." linhas={3} />
-    </div>
+    </main>
+    </>
   )
 }
 

@@ -14,7 +14,7 @@ export function KpiCard({ rotulo, valor, delta, tomDelta, Icone, fundoIcone }: K
   return (
     <article className={estilos.card}>
       <div className={estilos.topo}>
-        <h3 className={estilos.rotulo}>{rotulo}</h3>
+        <h2 className={estilos.rotulo}>{rotulo}</h2>
         <span className={`${estilos.icone} ${estilos[`fundo-${fundoIcone}`]}`} aria-hidden="true">
           <Icone size={20} />
         </span>

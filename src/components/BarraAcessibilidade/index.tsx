@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import emblema from '../../assets/z-mark.png'
 import { useAcessibilidade } from '../../hooks/useAcessibilidade'
 import type { PreferenciasAcessibilidade, SimulacaoCores } from '../../types/acessibilidade'
 import estilos from './BarraAcessibilidade.module.css'
+import { LeituraConteudo } from '../LeituraConteudo'
 
 interface ResultadoVoz {
   results: ArrayLike<ArrayLike<{ transcript: string }>>
@@ -43,6 +44,7 @@ const tamanhos = [100, 115, 130, 150, 200]
 export function BarraAcessibilidade() {
   const { preferencias, alterar, restaurar } = useAcessibilidade()
   const navegar = useNavigate()
+  const localizacao = useLocation()
   const [aberto, setAberto] = useState(false)
   const [ajudaAberta, setAjudaAberta] = useState(false)
   const [ouvindo, setOuvindo] = useState(false)
@@ -99,6 +101,17 @@ export function BarraAcessibilidade() {
   }, [preferencias.guiaLeitura])
 
   useEffect(() => () => vozRef.current?.stop(), [])
+
+  useEffect(() => {
+    const aoOcultar = () => {
+      if (!document.hidden) return
+      vozRef.current?.stop()
+      setOuvindo(false)
+      setMensagemVoz('Escuta encerrada ao sair da página.')
+    }
+    document.addEventListener('visibilitychange', aoOcultar)
+    return () => document.removeEventListener('visibilitychange', aoOcultar)
+  }, [])
 
   function fechar() {
     vozRef.current?.stop()
@@ -185,6 +198,7 @@ export function BarraAcessibilidade() {
                 <option value="tritanopia">Simular tritanopia</option>
               </select>
               <p className={estilos.aviso}>Simulações aproximadas para inspeção visual; não corrigem a percepção de cores.</p>
+              {aberto && <LeituraConteudo key={localizacao.key} />}
               {construtorVoz ? (
                 <button type="button" onClick={iniciarVoz} aria-pressed={ouvindo}>{ouvindo ? 'Parar escuta' : 'Ativar comando de voz'}</button>
               ) : <p>Comandos de voz não disponíveis neste navegador. Use os links ou o teclado.</p>}

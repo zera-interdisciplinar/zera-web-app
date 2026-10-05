@@ -1,3 +1,4 @@
+import { Formulario } from '../../components/Formulario'
 import { useCallback, useMemo, useState } from 'react'
 import { Button } from '../../components/Button'
 import { DataTable } from '../../components/DataTable'
@@ -10,6 +11,7 @@ import { PageHeader } from '../../components/PageHeader'
 import { SearchInput } from '../../components/SearchInput'
 import { Skeleton } from '../../components/Skeleton'
 import { Toast } from '../../components/Toast'
+import { LocaisReciclagem } from '../../components/LocaisReciclagem'
 import { useRequisicao } from '../../hooks/useRequisicao'
 import { useToast } from '../../hooks/useToast'
 import { criarRecicladora, listarRecicladoras } from '../../services/relatorioService'
@@ -18,11 +20,19 @@ import { mensagemDeErro } from '../../types/api'
 import type { NovaRecicladora, Recicladora } from '../../types/relatorio'
 import { validarNovaRecicladora } from '../../utils/validacao'
 import type { ErrosDeCampo } from '../../utils/validacao'
-import estilos from './RecicladorasPage.module.css'
+import estilos from '../../../styles/pages/RecicladorasPage/RecicladorasPage.module.css'
 
 const FORM_INICIAL: NovaRecicladora = { nome: '', cnpj: '', cidade: '', email: '' }
 
 export default function RecicladorasPage() {
+  if (!modoDemonstracao) return <>
+    <PageHeader titulo="Locais de reciclagem" subtitulo="Consulte pontos próximos para planejar o destino dos itens." />
+    <LocaisReciclagem />
+  </>
+  return <RecicladorasDemonstracao />
+}
+
+function RecicladorasDemonstracao() {
   const buscar = useCallback((sinal: AbortSignal) => listarRecicladoras(sinal), [])
   const recicladoras = useRequisicao<Recicladora[]>(buscar)
   const [toast, mostrarToast] = useToast()
@@ -136,43 +146,43 @@ export default function RecicladorasPage() {
         titulo="Adicionar recicladora"
         aoFechar={() => setModalAberto(false)}
       >
-        <form onSubmit={aoSalvar} noValidate>
+        <Formulario onSubmit={aoSalvar} noValidate>
           <div className={estilos.camposModal}>
             <FieldCard
-              id="recicladora-nome"
+              id="recicladora-nome" obrigatorio
               rotulo="Nome"
               valor={form.nome}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, nome: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, nome: valor })); setErros((atual) => ({ ...atual, nome: undefined })) }}
               erro={erros.nome}
               placeholder="Ex: Cooperativa Recicla Vale"
               maxLength={80}
               desabilitado={enviando}
             />
             <FieldCard
-              id="recicladora-cnpj"
+              id="recicladora-cnpj" obrigatorio
               rotulo="CNPJ"
               valor={form.cnpj}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, cnpj: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, cnpj: valor })); setErros((atual) => ({ ...atual, cnpj: undefined })) }}
               erro={erros.cnpj}
               placeholder="12.345.678/0001-90"
               maxLength={18}
               desabilitado={enviando}
             />
             {modoDemonstracao ? <FieldCard
-              id="recicladora-cidade"
+              id="recicladora-cidade" obrigatorio
               rotulo="Cidade"
               valor={form.cidade}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, cidade: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, cidade: valor })); setErros((atual) => ({ ...atual, cidade: undefined })) }}
               erro={erros.cidade}
               placeholder="Ex: Lins — SP"
               maxLength={60}
               desabilitado={enviando}
             /> : <FieldCard
-              id="recicladora-email"
+              id="recicladora-email" obrigatorio
               rotulo="E-mail"
               tipo="email"
               valor={form.email ?? ''}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, email: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, email: valor })); setErros((atual) => ({ ...atual, email: undefined })) }}
               erro={erros.email}
               placeholder="contato@recicladora.com.br"
               maxLength={120}
@@ -199,7 +209,7 @@ export default function RecicladorasPage() {
               Cancelar
             </Button>
           </div>
-        </form>
+        </Formulario>
       </Modal>
 
       <Toast mensagem={toast} />

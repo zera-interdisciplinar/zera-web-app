@@ -1,0 +1,15 @@
+.cartao { padding: var(--sp-6); background: var(--branco); border-radius: var(--r-card); display: grid; gap: var(--sp-4); }
+.formulario { display: grid; gap: var(--sp-4); }
+.formulario > button { justify-self: start; }
+.campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4); }
+.data { border: 1px solid var(--borda-controle); border-radius: var(--r-field); padding: var(--sp-4) var(--sp-6); display: grid; gap: var(--sp-2); }
+.data label { font-size: .75rem; font-weight: 700; text-transform: uppercase; color: var(--texto-secundario); }
+.data input { min-height: 44px; width: 100%; border: 0; background: var(--branco); }
+.itens { border: 1px solid var(--borda-controle); border-radius: var(--r-field); padding: var(--sp-4); min-width: 0; }
+.itens legend { font-weight: 700; padding-inline: var(--sp-2); }
+.item { display: flex; align-items: center; gap: var(--sp-3); min-height: 44px; padding-block: var(--sp-2); cursor: pointer; }
+.item input { width: 20px; height: 20px; flex-shrink: 0; accent-color: var(--navy); }
+.erro { color: var(--perigo); }
+.destino { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-4); flex-wrap: wrap; }
+.busca { border-top: 1px solid var(--borda); padding-top: var(--sp-4); }
+@media (max-width: 640px) { .cartao { padding: var(--sp-4); } .campos { grid-template-columns: minmax(0, 1fr); } }

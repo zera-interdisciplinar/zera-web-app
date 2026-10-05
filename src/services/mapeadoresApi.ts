@@ -40,6 +40,7 @@ export function mapearModelo(dado: ModelResponse): Modelo {
     especificacoes: {},
     vidaUtilMeses: dado.expectedLifespanMonths,
     materiais: dado.materials.map((material) => material.name),
+    aprovacao: dado.approvalStatus,
   }
 }
 
@@ -48,13 +49,15 @@ export function mapearItem(dado: ItemResponse): ProdutoDetalhado {
   const dias = Number.isFinite(criado) ? Math.max(0, Math.floor((Date.now() - criado) / 86_400_000)) : 0
   return {
     id: dado.id,
-    nome: dado.name ?? dado.model?.name ?? dado.displayCode ?? dado.barcode,
+    nome: dado.name ?? dado.model?.name ?? 'Item sem nome',
     categoriaId: dado.model?.category.id ?? '',
     categoriaNome: dado.model?.category.name ?? 'Não informada',
     marca: dado.model?.manufacturer ?? 'Não informada',
     condicao: dado.condition ? condicoes[dado.condition] : 'nao-informada',
     codigoBarras: dado.barcode,
+    codigoExibicao: dado.displayCode,
     responsavel: dado.createdByName ?? 'Não informado',
+    criadoPorId: dado.createdBy,
     dataEntrada: dado.createdAt,
     atualizacao: dado.updatedAt,
     classificacao: null,

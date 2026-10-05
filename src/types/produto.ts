@@ -24,6 +24,7 @@ export interface Produto {
   condicao: Condicao
   codigoBarras: string
   responsavel: string
+  criadoPorId?: string | null
   dataEntrada: string
   atualizacao: string
   classificacao: Classificacao | null
@@ -31,6 +32,7 @@ export interface Produto {
 }
 
 export interface ProdutoDetalhado extends Produto {
+  codigoExibicao?: string | null
   categoriaNome: string
   status: StatusItem
   diasEmEstoque: number

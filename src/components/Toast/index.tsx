@@ -1,8 +1,6 @@
-import estilos from './Toast.module.css'
-
-export interface ToastProps {
-  mensagem: string | null
-}
+import type { ToastProps } from '../../types/componentes/Toast'
+export type { ToastProps } from '../../types/componentes/Toast'
+import estilos from '../../../styles/components/Toast/Toast.module.css'
 
 export function Toast({ mensagem }: ToastProps) {
   return (

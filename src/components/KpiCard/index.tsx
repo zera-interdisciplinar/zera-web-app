@@ -1,14 +1,7 @@
-import type { LucideIcon } from 'lucide-react'
-import estilos from './KpiCard.module.css'
+import type { KpiCardProps } from '../../types/componentes/KpiCard'
+export type { KpiCardProps } from '../../types/componentes/KpiCard'
 
-export interface KpiCardProps {
-  rotulo: string
-  valor: string
-  delta: string
-  tomDelta: 'navy' | 'verde' | 'ambar'
-  Icone: LucideIcon
-  fundoIcone: 'navy' | 'verde' | 'ambar'
-}
+import estilos from '../../../styles/components/KpiCard/KpiCard.module.css'
 
 export function KpiCard({ rotulo, valor, delta, tomDelta, Icone, fundoIcone }: KpiCardProps) {
   return (

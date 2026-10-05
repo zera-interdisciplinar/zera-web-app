@@ -1,3 +1,5 @@
+import type { Condicao } from './produto'
+
 export type StatusRelatorio = 'enviado'
 
 export interface Recicladora {
@@ -17,9 +19,11 @@ export interface NovaRecicladora {
 
 export interface ItemRelatorio {
   produtoId: number | string
-  codigoBarras: string
   descricao: string
   categoriaNome: string
+  fabricante: string
+  modelo: string
+  condicao: Condicao
   diasEmEstoque: number
 }
 

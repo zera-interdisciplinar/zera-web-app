@@ -1,14 +1,15 @@
 
 const TAGS = /<[^>]*>/g
 const PROTOCOLOS_PERIGOSOS = /\b(javascript|data|vbscript)\s*:/gi
-// eslint-disable-next-line no-control-regex
-const CONTROLE = /[\u0000-\u001F\u007F]/g
 
 export function sanitizarTexto(valor: string): string {
-  return valor
+  const texto = Array.from(valor, (caractere) => {
+    const codigo = caractere.charCodeAt(0)
+    return codigo < 32 || codigo === 127 ? ' ' : caractere
+  }).join('')
+  return texto
     .replace(TAGS, '')
     .replace(PROTOCOLOS_PERIGOSOS, '')
-    .replace(CONTROLE, ' ')
     .trim()
 }
 

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
-const css = readFileSync(new URL('../src/styles/tokens.css', import.meta.url), 'utf8')
+const css = readFileSync(new URL('../styles/tokens.css', import.meta.url), 'utf8')
 
 function cor(nome: string): string {
   const encontrada = css.match(new RegExp(`--${nome}:\\s*(#[0-9a-fA-F]{6})`))
@@ -34,12 +34,18 @@ describe('contraste dos tokens aplicados a textos e controles', () => {
     ['perigo', 'branco'],
     ['branco', 'navy'],
     ['navy', 'ambar'],
+    ['navy', 'ambar-hover'],
+    ['branco', 'navy-suave'],
+    ['branco', 'verde-texto'],
   ])('%s sobre %s alcança 4,5:1', (frente, fundo) => {
     expect(razao(frente, fundo)).toBeGreaterThanOrEqual(4.5)
   })
 
   it('contorno navy sobre branco alcança 3:1', () => {
     expect(razao('navy', 'branco')).toBeGreaterThanOrEqual(3)
+  })
+  it.each(['branco', 'fundo'])('borda de controle sobre %s alcança 3:1', (fundo) => {
+    expect(razao('borda-controle', fundo)).toBeGreaterThanOrEqual(3)
   })
   it('arco do gráfico sobre o trilho alcança 3:1', () => {
     expect(razao('verde-texto', 'azul-claro')).toBeGreaterThanOrEqual(3)

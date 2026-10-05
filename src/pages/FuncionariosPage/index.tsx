@@ -1,3 +1,4 @@
+import { Formulario } from '../../components/Formulario'
 import { useCallback, useMemo, useState } from 'react'
 import { Button } from '../../components/Button'
 import { DataTable } from '../../components/DataTable'
@@ -19,7 +20,7 @@ import type { NovoUsuario, Perfil, Usuario } from '../../types/usuario'
 import { ROTULO_PERFIL } from '../../types/usuario'
 import { validarNovoUsuario } from '../../utils/validacao'
 import type { ErrosDeCampo } from '../../utils/validacao'
-import estilos from './FuncionariosPage.module.css'
+import estilos from '../../../styles/pages/FuncionariosPage/FuncionariosPage.module.css'
 
 interface FormFuncionario {
   nome: string
@@ -152,35 +153,35 @@ export default function FuncionariosPage() {
         titulo="Adicionar funcionário"
         aoFechar={() => setModalAberto(false)}
       >
-        <form onSubmit={aoSalvar} noValidate>
+        <Formulario onSubmit={aoSalvar} noValidate>
           <div className={estilos.camposModal}>
             <FieldCard
-              id="funcionario-nome"
+              id="funcionario-nome" obrigatorio
               rotulo="Nome"
               valor={form.nome}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, nome: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, nome: valor })); setErros((atual) => ({ ...atual, nome: undefined })) }}
               erro={erros.nome}
               placeholder="Nome completo"
               maxLength={80}
               desabilitado={enviando}
             />
             <FieldCard
-              id="funcionario-email"
+              id="funcionario-email" obrigatorio
               rotulo="E-mail"
               tipo="email"
               valor={form.email}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, email: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, email: valor })); setErros((atual) => ({ ...atual, email: undefined })) }}
               erro={erros.email}
               placeholder="nome@empresa.com"
               maxLength={120}
               desabilitado={enviando}
             />
             <FieldCard
-              id="funcionario-perfil"
+              id="funcionario-perfil" obrigatorio
               rotulo="Perfil"
               tipo="select"
               valor={form.perfil}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, perfil: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, perfil: valor })); setErros((atual) => ({ ...atual, perfil: undefined })) }}
               erro={erros.perfil}
               desabilitado={enviando}
               opcoes={[
@@ -191,10 +192,10 @@ export default function FuncionariosPage() {
               ]}
             />
             <FieldCard
-              id="funcionario-unidade"
+              id="funcionario-unidade" obrigatorio
               rotulo="Unidade"
               valor={form.unidade}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, unidade: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, unidade: valor })); setErros((atual) => ({ ...atual, unidade: undefined })) }}
               erro={erros.unidade}
               placeholder="Ex: Almoxarifado central"
               maxLength={60}
@@ -221,7 +222,7 @@ export default function FuncionariosPage() {
               Cancelar
             </Button>
           </div>
-        </form>
+        </Formulario>
       </Modal>
 
       <Toast mensagem={toast} />

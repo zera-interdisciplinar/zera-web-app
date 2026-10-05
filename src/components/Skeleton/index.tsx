@@ -1,9 +1,6 @@
-import estilos from './Skeleton.module.css'
-
-export interface SkeletonProps {
-  descricao: string
-  linhas?: number
-}
+import type { SkeletonProps } from '../../types/componentes/Skeleton'
+export type { SkeletonProps } from '../../types/componentes/Skeleton'
+import estilos from '../../../styles/components/Skeleton/Skeleton.module.css'
 
 export function Skeleton({ descricao, linhas = 4 }: SkeletonProps) {
   return (

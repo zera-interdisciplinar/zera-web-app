@@ -1,7 +1,7 @@
 export interface Kpis {
   itensCadastrados: number
   deltaItens: string
-  taxaReciclagem: number
+  taxaReciclagem: number | null
   deltaReciclagem: string
   aguardandoAprovacao: number
   prioritarios: number
@@ -15,8 +15,8 @@ export interface PontoMensal {
 }
 
 export interface Circularidade {
-  percentual: number
-  meta: number
+  percentual: number | null
+
 }
 
 export interface ResumoDashboard {

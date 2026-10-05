@@ -5,6 +5,7 @@ import type { Coluna } from '../../components/DataTable'
 import { EmptyState } from '../../components/EmptyState'
 import { EstadoErro } from '../../components/EstadoErro'
 import { FieldCard } from '../../components/FieldCard'
+import { Logo } from '../../components/Logo'
 import { Modal } from '../../components/Modal'
 import { PageHeader } from '../../components/PageHeader'
 import { Skeleton } from '../../components/Skeleton'
@@ -12,6 +13,7 @@ import { Toast } from '../../components/Toast'
 import { useRequisicao } from '../../hooks/useRequisicao'
 import { useToast } from '../../hooks/useToast'
 import { useAuth } from '../../hooks/useAuth'
+import { ROTULO_CONDICAO } from '../../types/produto'
 import {
   enviarRelatorio,
   gerarPrevia,
@@ -23,12 +25,12 @@ import { modoDemonstracao } from '../../services/apiReal'
 import type { PreviaRelatorio, Recicladora, Relatorio } from '../../types/relatorio'
 import { formatarData, pluralizar } from '../../utils/formatacao'
 import { validarEnvioRelatorio } from '../../utils/validacao'
-import estilos from './RelatoriosPage.module.css'
+import estilos from '../../../styles/pages/RelatoriosPage/RelatoriosPage.module.css'
 
 type EtapaModal = 'previa' | 'confirmacao'
 
 export default function RelatoriosPage() {
-  const { temPerfil } = useAuth()
+  const { temPerfil, usuario } = useAuth()
   const podeEnviar = temPerfil(['administrador'])
   const buscarRelatorios = useCallback((sinal: AbortSignal) => listarRelatorios(sinal), [])
   const buscarRecicladoras = useCallback((sinal: AbortSignal) => listarRecicladoras(sinal), [])
@@ -52,6 +54,14 @@ export default function RelatoriosPage() {
       recicladoras.dados?.find((recicladora) => String(recicladora.id) === recicladoraId) ?? null,
     [recicladoras.dados, recicladoraId],
   )
+  const categoriasDaPrevia = useMemo(() => {
+    const contagem = new Map<string, number>()
+    for (const item of previa.dados?.itens ?? []) {
+      contagem.set(item.categoriaNome, (contagem.get(item.categoriaNome) ?? 0) + 1)
+    }
+    return [...contagem].map(([nome, quantidade]) => ({ nome, quantidade }))
+  }, [previa.dados])
+  const dataDaPrevia = new Date().toISOString().slice(0, 10)
 
   const colunas = useMemo<Coluna<Relatorio>[]>(
     () => [
@@ -158,13 +168,14 @@ export default function RelatoriosPage() {
 
       <Modal
         aberto={modalAberto}
-        titulo={etapa === 'previa' ? 'Prévia do relatório de descarte' : 'Confirmar envio do relatório'}
+        titulo={etapa === 'previa' ? 'Prévia da cotação de equipamentos' : 'Confirmar envio do relatório'}
         aoFechar={() => setModalAberto(false)}
+        larguraMaxima={1040}
       >
         {etapa === 'previa' && (
           <div>
             {previa.carregando && (
-              <Skeleton descricao="Gerando a prévia do relatório de descarte." linhas={4} />
+              <Skeleton descricao="Gerando a prévia do relatório." linhas={4} />
             )}
             {previa.erro && (
               <EstadoErro mensagem={previa.erro} aoTentarNovamente={previa.recarregar} />
@@ -179,19 +190,87 @@ export default function RelatoriosPage() {
 
             {previa.dados && previa.dados.itens.length > 0 && (
               <>
-                <p className={estilos.resumoPrevia}>
-                  {previa.dados.totalItens} {pluralizar(previa.dados.totalItens, 'item', 'itens')}{' '}
-                  classificados como descartáveis, do mais antigo ao mais recente.
-                </p>
-                <ul className={estilos.listaPrevia} tabIndex={0} aria-label="Itens da prévia do relatório">
-                  {previa.dados.itens.map((item) => (
-                    <li key={item.produtoId} className={estilos.itemPrevia}>
-                      <span className="texto-mono">{item.codigoBarras}</span>
-                      <span className={estilos.itemDescricao}>{item.descricao}</span>
-                      <span className={estilos.itemDias}>{item.diasEmEstoque} dias</span>
-                    </li>
-                  ))}
-                </ul>
+                <article className={estilos.documento} aria-label="Prévia do relatório">
+                  <header className={estilos.topoDocumento}>
+                    <Logo />
+                    <div>
+                      <h2>Cotação de equipamentos</h2>
+                      <p>Solicitação de coleta e destino</p>
+                    </div>
+                  </header>
+
+                  <section className={estilos.blocoDocumento}>
+                    <h3 className={estilos.rotuloSecao}>Informações da cotação</h3>
+                    <div className={estilos.informacoesCotacao}>
+                      <div>
+                        <p>Número de cotação: —</p>
+                        <p>Data de emissão: {dataDaPrevia}</p>
+                        <p>Prazo da proposta: —</p>
+                      </div>
+                      <div>
+                        <p>Solicitante: {usuario?.nome ?? 'Não informado'}</p>
+                        <p>Responsável: {usuario?.nome ?? 'Não informado'}</p>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section className={estilos.blocoDocumento}>
+                    <h3 className={estilos.rotuloSecao}>Overview de categorias selecionadas para descarte</h3>
+                    <p>Abaixo estão as categorias de equipamentos selecionadas para coleta e descarte.</p>
+                    <p>Os itens serão avaliados conforme as informações disponíveis no cadastro.</p>
+                    <ul className={estilos.categoriasPrevia}>
+                      {categoriasDaPrevia.map((categoria) => (
+                        <li key={categoria.nome}>
+                          {categoria.nome}: {categoria.quantidade}{' '}
+                          {pluralizar(categoria.quantidade, 'unidade', 'unidades')}
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+
+                  <section className={estilos.blocoDocumento}>
+                    <h3 className={estilos.rotuloSecao}>Informações dos conteúdos</h3>
+                    <div className={estilos.listaEquipamentos} tabIndex={0} aria-label="Itens da prévia do relatório">
+                      {previa.dados.itens.map((item, indice) => (
+                        <article key={item.produtoId} className={estilos.equipamento}>
+                          <div className={estilos.colunaEquipamento}>
+                            <h4>Item {indice + 1} - {item.modelo} em estoque</h4>
+                            <p>Tipo de equipamento: {item.categoriaNome}</p>
+                            <p>Marca: {item.fabricante}</p>
+                            <p>Modelo: {item.modelo}</p>
+                            <p>Quantidade: 1</p>
+                            <p>Número patrimonial: —</p>
+                            <p>Número de série: —</p>
+                          </div>
+                          <div className={estilos.colunaEquipamento}>
+                            <p>Unidade/Local de origem: Não informado</p>
+                            <p>Situação: Descartável</p>
+                            <p>Condição: {ROTULO_CONDICAO[item.condicao]}</p>
+                            <p>Descrição: {item.descricao}</p>
+                            <p>Tempo em estoque: {item.diasEmEstoque} dias</p>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section className={estilos.blocoDocumento}>
+                    <h3 className={estilos.rotuloSecao}>Resumo</h3>
+                    <p>
+                      Prévia gerada em {dataDaPrevia} contendo {previa.dados.totalItens}{' '}
+                      {pluralizar(previa.dados.totalItens, 'item', 'itens')} selecionados para descarte.
+                    </p>
+                    <ul className={estilos.categoriasPrevia}>
+                      <li>{previa.dados.totalItens} {pluralizar(previa.dados.totalItens, 'item', 'itens')} para descarte</li>
+                      <li>Categorias: {categoriasDaPrevia.map((categoria) => categoria.nome).join(', ')}</li>
+                    </ul>
+                  </section>
+
+                  <footer className={estilos.rodapeDocumento}>
+                    <strong>TRANSFORMANDO</strong>
+                    <span>zera.institutojf@gmail.com</span>
+                  </footer>
+                </article>
 
                 {podeEnviar && <div className={estilos.campoDestino}>
                   <FieldCard

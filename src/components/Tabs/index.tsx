@@ -1,17 +1,7 @@
+import type { TabsProps } from '../../types/componentes/Tabs'
+export type { DefinicaoAba, TabsProps } from '../../types/componentes/Tabs'
 import { useRef } from 'react'
-import estilos from './Tabs.module.css'
-
-export interface DefinicaoAba {
-  id: string
-  rotulo: string
-}
-
-export interface TabsProps {
-  abas: DefinicaoAba[]
-  ativa: string
-  aoSelecionar: (id: string) => void
-  rotuloLista: string
-}
+import estilos from '../../../styles/components/Tabs/Tabs.module.css'
 
 export function Tabs({ abas, ativa, aoSelecionar, rotuloLista }: TabsProps) {
   const listaRef = useRef<HTMLDivElement | null>(null)

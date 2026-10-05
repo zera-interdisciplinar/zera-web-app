@@ -1,11 +1,7 @@
-import type { ReactNode } from 'react'
-import estilos from './IconButton.module.css'
+import type { IconButtonProps } from '../../types/componentes/IconButton'
+export type { IconButtonProps } from '../../types/componentes/IconButton'
 
-export interface IconButtonProps {
-  rotulo: string
-  onClick: () => void
-  children: ReactNode
-}
+import estilos from '../../../styles/components/IconButton/IconButton.module.css'
 
 export function IconButton({ rotulo, onClick, children }: IconButtonProps) {
   return (

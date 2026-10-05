@@ -1,0 +1,25 @@
+.cartao {
+  min-width: 0;
+  padding: var(--sp-4);
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-card);
+}
+
+.titulo {
+  margin: 0 0 var(--sp-2);
+  color: var(--texto);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.nota {
+  margin: 0 0 var(--sp-2);
+  color: var(--texto-secundario);
+  font-size: 0.8rem;
+}
+
+.grafico {
+  width: 100%;
+  min-width: 0;
+}

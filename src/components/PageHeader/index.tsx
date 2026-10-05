@@ -1,9 +1,6 @@
-import estilos from './PageHeader.module.css'
-
-export interface PageHeaderProps {
-  titulo: string
-  subtitulo: string
-}
+import type { PageHeaderProps } from '../../types/componentes/PageHeader'
+export type { PageHeaderProps } from '../../types/componentes/PageHeader'
+import estilos from '../../../styles/components/PageHeader/PageHeader.module.css'
 
 export function PageHeader({ titulo, subtitulo }: PageHeaderProps) {
   return (

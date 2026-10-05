@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../../components/Button'
 import { Logo } from '../../components/Logo'
-import estilos from './NotFoundPage.module.css'
+import estilos from '../../../styles/pages/NotFoundPage/NotFoundPage.module.css'
 
 export default function NotFoundPage() {
   const navegar = useNavigate()
@@ -14,9 +14,8 @@ export default function NotFoundPage() {
           Página não encontrada
         </h1>
         <p className={estilos.texto}>
-          O endereço pode ter sido digitado errado ou o item foi removido do inventário. Se você
-          chegou aqui por um código de barras, confira a etiqueta e tente de novo pela lista de
-          itens.
+          O endereço pode ter sido digitado errado ou o item foi removido do inventário. Confira o
+          endereço ou volte à lista de itens.
         </p>
         <div className={estilos.acoes}>
           <Button variante="primario" onClick={() => navegar('/')}>

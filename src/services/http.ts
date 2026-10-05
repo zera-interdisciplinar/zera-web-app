@@ -23,7 +23,7 @@ export async function requisitar<T>(caminho: string, opcoes: OpcoesRequisicao = 
     })
   } catch (erro) {
     if (erro instanceof DOMException && erro.name === 'AbortError') throw erro
-    throw new ApiError('Não foi possível falar com o servidor do Zera. Verifique a rede.', 0)
+    throw new ApiError('Não foi possível falar com o servidor do Zera. Verifique a rede.', 0, undefined, 'rede')
   }
 
   if (!resposta.ok) {
@@ -47,6 +47,6 @@ export async function requisitar<T>(caminho: string, opcoes: OpcoesRequisicao = 
 
 export function contextualizar(erro: unknown, contexto: string): unknown {
   if (erro instanceof DOMException && erro.name === 'AbortError') return erro
-  if (erro instanceof ApiError) return new ApiError(`${contexto} ${erro.message}`, erro.status, erro.campo)
+  if (erro instanceof ApiError) return new ApiError(`${contexto} ${erro.message}`, erro.status, erro.campo, erro.tipoFalha)
   return new ApiError(contexto, 0)
 }

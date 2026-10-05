@@ -1,3 +1,4 @@
+import { Formulario } from '../../components/Formulario'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
@@ -21,11 +22,13 @@ import { ROTULO_CONDICAO } from '../../types/produto'
 import { formatarData, formatarDataRelativa } from '../../utils/formatacao'
 import { modoDemonstracao } from '../../services/apiReal'
 import { sanitizarTexto } from '../../utils/sanitizacao'
-import estilos from './ItemDetalhePage.module.css'
+import estilos from '../../../styles/pages/ItemDetalhePage/ItemDetalhePage.module.css'
 import { listarEventos } from '../../services/cicloService'
+import { FluxoItemReal } from '../../components/FluxoItemReal'
 import type { EventResponse } from '../../types/apiReal'
 import { EdicaoItemReal } from '../../components/EdicaoItemReal'
 import { useAuth } from '../../hooks/useAuth'
+import { rotuloEvento } from '../../utils/eventos'
 
 const ROTULO_RISCO: Record<RiscoFalha, string> = {
   baixo: 'risco baixo',
@@ -55,11 +58,9 @@ export default function ItemDetalhePage() {
       <EmptyState
         nivelTitulo="h1"
         titulo="Item não encontrado"
-        descricao="O endereço não traz um identificador válido. Confira o código da etiqueta ou volte à lista de itens."
+        descricao="O endereço não traz um identificador válido. Volte à lista de itens e tente novamente."
         acao={
-          <Link to="/itens">
-            <Button variante="primario">Voltar para itens</Button>
-          </Link>
+          <Link to="/itens" className="link-botao">Voltar para itens</Link>
         }
       />
     )
@@ -73,7 +74,7 @@ function Detalhe({ produtoId }: { produtoId: number | string }) {
   const navegar = useNavigate()
   const produto = useProduto(produtoId)
   const buscarEventos = useCallback((sinal: AbortSignal) => listarEventos(produtoId, sinal), [produtoId])
-  const eventos = useRequisicao<EventResponse[]>(buscarEventos, !modoDemonstracao)
+  const eventos = useRequisicao<EventResponse[]>(buscarEventos, !modoDemonstracao && produto.dados !== null)
 
   const buscarManutencoes = useCallback(
     (sinal: AbortSignal) => listarManutencoes(produtoId, sinal),
@@ -127,7 +128,7 @@ function Detalhe({ produtoId }: { produtoId: number | string }) {
     }
   }
 
-  if (produto.carregando) {
+  if (produto.carregando && !produto.dados) {
     return <Skeleton descricao="Carregando os dados do item." linhas={5} />
   }
 
@@ -153,14 +154,11 @@ function Detalhe({ produtoId }: { produtoId: number | string }) {
           <h1 className="titulo-pagina" tabIndex={-1} ref={tituloRef}>
             {item.nome}
           </h1>
-          <p className={estilos.subtitulo}>
-            <span className="texto-mono">{item.codigoBarras}</span>
-            <span className="somente-leitor-de-tela"> — código de barras do item</span>
-          </p>
         </div>
         <div className={estilos.cabecalhoDireita}>
           <StatusText status={item.status} />
           {!modoDemonstracao && <EdicaoItemReal item={item} aoConcluir={produto.recarregar} />}
+          {!modoDemonstracao && <FluxoItemReal item={item} aoConcluir={produto.recarregar} />}
           {modoDemonstracao && temPerfil(['funcionario', 'administrador']) && <Button variante="primario" onClick={() => navegar(`/itens/${item.id}/triagem`)}>
             Iniciar triagem
           </Button>}
@@ -180,7 +178,7 @@ function Detalhe({ produtoId }: { produtoId: number | string }) {
           {eventos.carregando && <Skeleton descricao="Carregando eventos do item." linhas={3} />}
           {eventos.erro && <EstadoErro mensagem={eventos.erro} aoTentarNovamente={eventos.recarregar} />}
           {eventos.dados && <p role="status">{eventos.dados.length} eventos encontrados.</p>}
-          <ul>{eventos.dados?.map((evento) => <li key={evento.id}><time dateTime={evento.occurredAt}>{formatarDataRelativa(evento.occurredAt)}</time> — {evento.type} — {evento.actorName ?? 'Responsável não informado'}{evento.reason && `: ${evento.reason}`}</li>)}</ul>
+          <ul>{eventos.dados?.map((evento) => <li key={evento.id}><time dateTime={evento.occurredAt}>{formatarDataRelativa(evento.occurredAt)}</time> — {rotuloEvento(evento)}{temPerfil(['gestor', 'administrador']) && ` — ${evento.actorName ?? 'Responsável não informado'}`}{evento.reason && `: ${evento.reason}`}</li>)}</ul>
         </div>}
 
         {abaAtiva === 'dados' && (
@@ -204,10 +202,10 @@ function Detalhe({ produtoId }: { produtoId: number | string }) {
                   {formatarData(item.dataEntrada)} ({item.diasEmEstoque} dias)
                 </dd>
               </div>
-              <div>
-                <dt>Responsável</dt>
+              {temPerfil(['gestor', 'administrador']) && <div>
+                <dt>Cadastrado por</dt>
                 <dd>{item.responsavel}</dd>
-              </div>
+              </div>}
               <div>
                 <dt>Última atualização</dt>
                 <dd>{formatarDataRelativa(item.atualizacao)}</dd>
@@ -258,7 +256,7 @@ function Detalhe({ produtoId }: { produtoId: number | string }) {
 
               <div>
                 <h2 className={estilos.tituloSecao}>Registrar manutenção</h2>
-                {temPerfil(['funcionario', 'administrador']) ? <form onSubmit={aoRegistrarManutencao} noValidate className={estilos.formManutencao}>
+                {temPerfil(['funcionario', 'administrador']) ? <Formulario onSubmit={aoRegistrarManutencao} noValidate className={estilos.formManutencao}>
                   <FieldCard
                     id="tipo-manutencao"
                     rotulo="Tipo"
@@ -306,7 +304,7 @@ function Detalhe({ produtoId }: { produtoId: number | string }) {
                   <Button variante="primario" type="submit" disabled={enviando}>
                     {enviando ? 'Registrando…' : 'Registrar manutenção'}
                   </Button>
-                </form> : <p>Seu perfil permite consultar o histórico. O registro exige Funcionário ou Administrador.</p>}
+                </Formulario> : <p>Seu perfil permite consultar o histórico. O registro exige Funcionário ou Administrador.</p>}
               </div>
             </div>
           </div>

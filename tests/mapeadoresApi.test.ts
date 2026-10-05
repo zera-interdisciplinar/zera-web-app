@@ -63,4 +63,10 @@ describe('mapeamento do OpenAPI de inventário', () => {
     expect(mapeado.condicao).toBe('semidanificado')
     expect(mapeado.codigoBarras).toBe('COD-001')
   })
+  it('mantém o código de exibição separado da etiqueta externa', () => {
+    const mapeado = mapearItem({ ...item('IN_STOCK'), displayCode: '004218' })
+    expect(mapeado.codigoExibicao).toBe('004218')
+    expect(mapeado.codigoBarras).toBe('COD-001')
+    expect(mapeado.id).toBe('44444444-4444-4444-8444-444444444444')
+  })
 })

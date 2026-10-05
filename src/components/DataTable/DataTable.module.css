@@ -1,0 +1,31 @@
+.rolagem { max-width: 100%; overflow: auto; }
+.rolagem:focus-visible { outline: 3px solid var(--navy); outline-offset: 2px; }
+
+.tabela {
+  font-size: 0.9375rem;
+}
+
+.tabela thead th {
+  text-align: left;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--texto-secundario);
+  padding: var(--sp-4) var(--sp-6);
+  border-bottom: 1px solid var(--borda);
+  white-space: nowrap;
+}
+
+.tabela td {
+  padding: 20px var(--sp-6);
+  vertical-align: middle;
+  color: var(--texto);
+}
+
+.tabela tbody tr + tr {
+  border-top: 1px solid var(--borda);
+}
+
+.numerica {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

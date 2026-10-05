@@ -1,0 +1,92 @@
+.pagina {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+}
+
+:global(html[data-modo-foco='ativo']) .pagina {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marca {
+  background-color: var(--azul);
+  padding: var(--sp-12);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--sp-8);
+}
+
+.wordmark {
+  max-width: 300px;
+}
+
+.tagline {
+  margin-top: var(--sp-6);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--branco);
+  max-width: 40ch;
+}
+
+.marcaRodape {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-4);
+}
+
+.demo {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--texto-secundario);
+}
+
+.painel {
+  background-color: var(--branco);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--sp-12) var(--sp-16);
+}
+
+.subtitulo {
+  margin-top: var(--sp-2);
+  font-size: 0.9375rem;
+  color: var(--texto-secundario);
+}
+
+.formulario {
+  margin-top: var(--sp-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  max-width: 420px;
+}
+
+.erroGeral {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--perigo);
+}
+
+.aviso {
+  font-size: 0.8125rem;
+  color: var(--texto-secundario);
+  min-height: 1em;
+}
+
+@media (max-width: 880px) {
+  .pagina {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .marca {
+    padding: var(--sp-8) var(--sp-6);
+  }
+
+  .painel {
+    padding: var(--sp-8) var(--sp-6);
+  }
+}

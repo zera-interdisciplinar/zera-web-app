@@ -1,0 +1,132 @@
+.cartao {
+  background-color: var(--branco);
+  border-radius: var(--r-card);
+  padding: var(--sp-8);
+  max-width: 860px;
+}
+
+.contextoItem {
+  margin-top: var(--sp-2);
+  font-size: 0.875rem;
+  color: var(--texto-secundario);
+}
+
+.opcoes {
+  margin-top: var(--sp-6);
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.opcao {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--sp-3);
+  align-items: start;
+  border: 2px solid var(--borda);
+  border-radius: var(--r-card);
+  padding: var(--sp-4);
+  cursor: pointer;
+  transition:
+    border-color var(--transicao),
+    background-color var(--transicao);
+}
+
+.opcao:hover {
+  border-color: var(--texto-secundario);
+}
+
+.opcaoMarcada {
+  border-color: var(--ambar);
+  background-color: var(--creme);
+}
+
+.opcao input {
+  margin-top: 3px;
+}
+
+.opcaoTitulo {
+  font-weight: 700;
+  color: var(--texto);
+}
+
+.opcaoDetalhe {
+  grid-column: 2;
+  font-size: 0.875rem;
+  color: var(--texto-secundario);
+}
+
+.checklist {
+  margin: var(--sp-6) 0 0;
+  padding: 0;
+  border: none;
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.checkItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  border: 2px solid var(--borda);
+  border-radius: var(--r-card);
+  padding: var(--sp-4);
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+.checkItem:has(input:checked) {
+  border-color: var(--verde);
+  background-color: var(--creme);
+}
+
+.checkItem input {
+  margin-top: 3px;
+}
+
+.resumo {
+  margin: var(--sp-6) 0 0;
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.resumo div {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: var(--sp-4);
+  border-bottom: 1px solid var(--borda);
+  padding-bottom: var(--sp-3);
+}
+
+.resumo dt {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--texto-secundario);
+}
+
+.resumo dd {
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+.erro {
+  margin-top: var(--sp-4);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--perigo);
+}
+
+.aviso {
+  margin-top: var(--sp-3);
+  font-size: 0.875rem;
+  color: var(--texto-secundario);
+}
+
+.acoes {
+  margin-top: var(--sp-8);
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+  flex-wrap: wrap;
+}

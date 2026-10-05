@@ -13,6 +13,12 @@ const bases: Record<Recurso, string | undefined> = {
 
 let accessToken: string | null = null
 let unitId: string | null = null
+const aoExpirar = new Set<() => void>()
+
+export function observarExpiracaoSessao(observador: () => void): () => void {
+  aoExpirar.add(observador)
+  return () => { aoExpirar.delete(observador) }
+}
 
 export function definirSessaoApi(token: string | null, unidade: string | null) {
   accessToken = token
@@ -37,6 +43,7 @@ export async function requisitarApiReal<T>(recurso: Recurso, caminho: string, op
   }
   if (opcoes.autenticada !== false && !accessToken) throw new ApiError('Sessão expirada. Entre novamente.', 401)
   if (opcoes.unidade && !unitId) throw new ApiError('A conta não possui unidade de inventário.', 0)
+  const tokenDaRequisicao = accessToken
 
   const headers: Record<string, string> = { Accept: 'application/json' }
   if (opcoes.corpo !== undefined) headers['Content-Type'] = 'application/json'
@@ -57,7 +64,16 @@ export async function requisitarApiReal<T>(recurso: Recurso, caminho: string, op
     if (erro instanceof DOMException && erro.name === 'AbortError') throw erro
     throw new ApiError('Não foi possível acessar a API. Verifique a conexão e a configuração.', 0)
   }
-  if (!resposta.ok) throw new ApiError(`A API retornou HTTP ${resposta.status}.`, resposta.status)
+  if (!resposta.ok) {
+    if (resposta.status === 401 && opcoes.autenticada !== false && accessToken === tokenDaRequisicao) {
+      definirSessaoApi(null, null)
+      aoExpirar.forEach((observador) => observador())
+    }
+    const mensagem = resposta.status === 403
+      ? 'Sua conta não tem permissão para esta operação.'
+      : resposta.status === 401 ? 'Sessão inválida. Entre novamente.' : `A API retornou HTTP ${resposta.status}.`
+    throw new ApiError(mensagem, resposta.status)
+  }
   if (resposta.status === 204) return undefined as T
   try {
     return sanitizarObjeto((await resposta.json()) as T)

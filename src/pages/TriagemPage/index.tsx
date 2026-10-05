@@ -88,15 +88,15 @@ function FluxoTriagem({ produtoId }: { produtoId: number }) {
   }
 
   if (produto.carregando || categorias.carregando) {
-    return <Skeleton descricao="Carregando o item para triagem." linhas={4} />
+    return <><PageHeader titulo="Triagem" subtitulo="Carregando os dados do item." /><Skeleton descricao="Carregando o item para triagem." linhas={4} /></>
   }
 
-  if (produto.erro) {
-    return <EstadoErro mensagem={produto.erro} aoTentarNovamente={produto.recarregar} />
+  if (produto.erro || categorias.erro) {
+    return <><PageHeader titulo="Triagem" subtitulo="Não foi possível carregar os dados necessários." /><EstadoErro mensagem={produto.erro ?? categorias.erro!} aoTentarNovamente={produto.erro ? produto.recarregar : categorias.recarregar} /></>
   }
 
   const item = produto.dados
-  if (!item) return null
+  if (!item) return <EmptyState nivelTitulo="h1" titulo="Item não encontrado" descricao="Abra a triagem a partir de um item do inventário." />
 
   const comChecklist = exigeChecklist && estado.classificacao === 'descartavel'
   const etapas = comChecklist

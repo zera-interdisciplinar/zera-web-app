@@ -27,7 +27,11 @@ export default function LoginPage() {
 
     const validacao = validarCredenciais(formulario)
     setErros(validacao.erros)
-    if (!validacao.valido) return
+    if (!validacao.valido) {
+      const primeiroCampo = Object.keys(validacao.erros)[0]
+      if (primeiroCampo) document.getElementById(primeiroCampo)?.focus()
+      return
+    }
 
     const entrou = await entrar(validacao.dados)
     if (entrou) navegar('/', { replace: true })

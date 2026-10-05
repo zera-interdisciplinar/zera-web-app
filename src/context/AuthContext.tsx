@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { autenticar } from '../services/authService'
-import { definirSessaoApi, modoDemonstracao } from '../services/apiReal'
+import { definirSessaoApi, modoDemonstracao, observarExpiracaoSessao } from '../services/apiReal'
 import type { Credenciais, Perfil, Usuario } from '../types/usuario'
 import { mensagemDeErro } from '../types/api'
 import { CHAVE_SESSAO, carregar, remover, salvar } from '../utils/storage'
@@ -59,6 +59,11 @@ export function AuthProvider({ children }: Props) {
     setUsuario(null)
     setExpiraEm(null)
   }, [])
+
+  useEffect(() => observarExpiracaoSessao(() => {
+    sair()
+    setErro('Sua sessão expirou. Entre novamente para continuar.')
+  }), [sair])
 
   useEffect(() => {
     if (!expiraEm) return

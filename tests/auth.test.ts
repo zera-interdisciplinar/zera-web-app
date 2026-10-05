@@ -26,6 +26,23 @@ function prepararResposta(role: string) {
 }
 
 describe('autenticação real com respostas controladas, sem sessão backend comprovada', () => {
+  it('descarta sessão anterior quando uma nova tentativa de login falha', async () => {
+    const { definirSessaoApi, requisitarApiReal } = await import('../src/services/apiReal')
+    definirSessaoApi(crypto.randomUUID(), crypto.randomUUID())
+    fetchControlado.mockResolvedValueOnce(new Response('{}', { status: 401 }))
+    const { autenticar } = await import('../src/services/authService')
+    await expect(autenticar({ email: 'teste@example.invalid', senha: crypto.randomUUID() })).rejects.toMatchObject({ status: 401 })
+    await expect(requisitarApiReal('inventory', '/api/v1/items')).rejects.toMatchObject({ status: 401 })
+    expect(fetchControlado).toHaveBeenCalledOnce()
+  })
+  it('recusa identidade de outro usuário mesmo com papel documentado', async () => {
+    fetchControlado.mockResolvedValueOnce(Response.json({ accessToken: crypto.randomUUID(), userId: crypto.randomUUID(), expiresIn: 300 }))
+    fetchControlado.mockResolvedValueOnce(Response.json({ userId: crypto.randomUUID(), unitId: crypto.randomUUID(), name: 'Teste', email: 'teste@example.invalid', role: 'MANAGER' }))
+    const { autenticar } = await import('../src/services/authService')
+    await expect(autenticar({ email: 'teste@example.invalid', senha: crypto.randomUUID() })).rejects.toThrow('Identidade incompleta')
+    const { requisitarApiReal } = await import('../src/services/apiReal')
+    await expect(requisitarApiReal('inventory', '/api/v1/items')).rejects.toMatchObject({ status: 401 })
+  })
   it.each([['MANAGER', 'gestor'], ['EMPLOYEE', 'funcionario']])('mapeia somente o papel documentado %s', async (role, perfil) => {
     const unitId = prepararResposta(role)
     const { autenticar } = await import('../src/services/authService')

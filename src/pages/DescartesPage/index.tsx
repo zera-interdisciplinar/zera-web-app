@@ -7,10 +7,13 @@ import { useDescartes } from '../../hooks/useDescartes'
 import { RegistroDescarte } from '../../components/RegistroDescarte'
 import { useAmbiente } from '../../hooks/useAmbiente'
 import { formatarData } from '../../utils/formatacao'
+import { useAuth } from '../../hooks/useAuth'
+import type { DisposalResponse } from '../../types/apiReal'
 
 const destinos = { RECYCLING: 'Reciclagem', LANDFILL: 'Aterro', DONATION: 'Doação' }
 
 export default function DescartesPage() {
+  const { usuario } = useAuth()
   const { modoDemonstracao } = useAmbiente()
   const descartes = useDescartes()
   return <>
@@ -27,7 +30,7 @@ export default function DescartesPage() {
         { titulo: 'Local', render: (item) => item.placeName ?? 'Não informado' },
         { titulo: 'Itens', render: (item) => item.items.length, numerica: true },
         { titulo: 'Peso (kg)', render: (item) => item.totalWeightKg.toLocaleString('pt-BR'), numerica: true },
-        { titulo: 'Responsável', render: (item) => item.createdByName ?? 'Não informado' },
+        ...(usuario?.perfil !== 'funcionario' ? [{ titulo: 'Responsável', render: (item: DisposalResponse) => item.createdByName ?? 'Não informado' }] : []),
       ]} />}
     </>}
   </>

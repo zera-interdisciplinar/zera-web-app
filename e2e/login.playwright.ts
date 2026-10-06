@@ -1,4 +1,5 @@
 import { mkdirSync } from 'node:fs'
+import { randomUUID } from 'node:crypto'
 import { AxeBuilder } from '@axe-core/playwright'
 import { test, expect } from '@playwright/test'
 
@@ -43,12 +44,11 @@ test('login real do operário QA leva à área privada', async ({ page }) => {
   await page.getByLabel('Email').fill(operario.email)
   await page.locator('#senha').fill(operario.senha)
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Dashs do Zera' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Meus itens' })).toBeVisible()
 })
 
 test('credencial inválida mostra erro específico em 401', async ({ page }) => {
-  const senhaQa = process.env.QA_GESTOR_PASSWORD ?? ''
-  test.skip(!senhaQa, 'PENDENTE_USUARIO: configurar QA_GESTOR_PASSWORD no .env')
+  const senhaQa = randomUUID()
   await page.route('**/api/v1/auth/login', (route) => route.fulfill({ status: 401, contentType: 'application/json', body: '{}' }))
   await page.goto(`${baseReal}/login`)
   await page.getByLabel('Email').fill('qa-invalido@zera.com')
@@ -58,8 +58,7 @@ test('credencial inválida mostra erro específico em 401', async ({ page }) => 
 })
 
 test('falha de rede mostra indisponibilidade do serviço', async ({ page }) => {
-  const senhaQa = process.env.QA_GESTOR_PASSWORD ?? ''
-  test.skip(!senhaQa, 'PENDENTE_USUARIO: configurar QA_GESTOR_PASSWORD no .env')
+  const senhaQa = randomUUID()
   await page.route('**/api/v1/auth/login', (route) => route.abort('failed'))
   await page.goto(`${baseReal}/login`)
   await page.getByLabel('Email').fill('qa-invalido@zera.com')

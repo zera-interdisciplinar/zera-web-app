@@ -27,3 +27,11 @@ it('preserva taxas nulas e pesos reais dos indicadores', async () => {
   const { painel } = await preparar({ totalWeightKg: 12.5, recyclingRatePercent: null, recyclingRateChangePoints: null, totalWeightChangePercent: null, monthlyWeightKg: [{ month: '2026-10', weightKg: 12.5 }] })
   expect(await painel.obterIndicadoresDescarte()).toMatchObject({ totalWeightKg: 12.5, recyclingRatePercent: null })
 })
+
+it('preserva materiais e recusa pesos ausentes sem completar com zero', async () => {
+  const base = { totalWeightKg: 10, recyclingRatePercent: null, recyclingRateChangePoints: null, totalWeightChangePercent: null, monthlyWeightKg: [] }
+  const { painel, busca } = await preparar({ ...base, weightByMaterial: [{ material: 'METAL', weightKg: 10, percent: 100 }] })
+  expect((await painel.obterIndicadoresDescarte()).weightByMaterial).toEqual([{ material: 'METAL', weightKg: 10, percent: 100 }])
+  busca.mockResolvedValueOnce(Response.json({ ...base, weightByMaterial: [{ material: 'METAL', percent: 100 }] }))
+  await expect(painel.obterIndicadoresDescarte()).rejects.toThrow()
+})

@@ -240,10 +240,12 @@ describe('integração MSW do stream', () => {
 
   it('envia o JWT em Authorization e não inclui o token na URL', async () => {
     const accessToken = randomUUID()
-    definirSessaoApi(accessToken, null)
+    const erro = vi.fn()
+    definirSessaoApi(accessToken, 'unidade-da-sessao')
     server.use(http.get(endpoint, ({ request }) => {
       const url = new URL(request.url)
       expect(request.headers.get('Authorization')).toBe(`Bearer ${accessToken}`)
+      expect(request.headers.get('X-Unit-Id')).toBe('unidade-da-sessao')
       expect(url.searchParams.has('access_token')).toBe(false)
       expect(url.toString()).not.toContain(accessToken)
       return respostaSse('unavailable', { detail: 'snapshot not ready' })
@@ -253,8 +255,9 @@ describe('integração MSW do stream', () => {
     await acompanharDashboard(filtros, controlador.signal, {
       onSnapshot: () => undefined,
       onUnavailable: () => controlador.abort(),
-      onError: () => undefined,
+      onError: erro,
       onState: () => undefined,
     })
+    expect(erro).not.toHaveBeenCalled()
   })
 })

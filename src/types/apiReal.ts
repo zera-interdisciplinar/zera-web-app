@@ -37,6 +37,7 @@ export interface ModelResponse {
   manufacturer: string
   expectedLifespanMonths: number | null
   warrantyMonths: number | null
+  estimatedWeightKg?: number | null
   materials: Array<{ id: string; code: string; name: string; recyclable: boolean; hazardous: boolean; disposalGuide: string | null }>
   notes: string | null
   category: CategoryResponse

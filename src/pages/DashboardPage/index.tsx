@@ -169,10 +169,10 @@ function PainelGestao() {
       <div id={`painel-${aba}`} role="tabpanel" aria-labelledby={`aba-${aba}`} className={estilos.painel}>
         {aba === 'operational' && <OperacionalTab />}
         {aba === 'overview' && <VisaoGeralTab snapshot={snapshot} />}
-        {aba === 'life' && <ItensVidaUtilTab />}
-        {aba === 'evolution' && <EvolucaoMovimentacoesTab />}
-        {aba === 'quality' && <QualidadeDadosTab />}
-        {aba === 'materials' && <MateriaisSustentabilidadeTab />}
+        {aba === 'life' && <ItensVidaUtilTab ativo />}
+        {aba === 'evolution' && <EvolucaoMovimentacoesTab snapshot={snapshot} />}
+        {aba === 'quality' && <QualidadeDadosTab snapshot={snapshot} />}
+        {aba === 'materials' && <MateriaisSustentabilidadeTab ativo />}
       </div>
     </div>
   )

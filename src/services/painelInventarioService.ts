@@ -16,6 +16,7 @@ export interface IndicadoresDescarte {
   recyclingRateChangePoints: number | null
   totalWeightChangePercent: number | null
   monthlyWeightKg: Array<{ month: string; weightKg: number }>
+  weightByMaterial?: Array<{ material: string; weightKg: number; percent: number }>
 }
 
 function objeto(valor: unknown): valor is Record<string, unknown> {
@@ -36,7 +37,9 @@ function indicadoresValidos(valor: unknown): valor is IndicadoresDescarte {
   if (!objeto(valor) || !numero(valor.totalWeightKg)
     || !['recyclingRatePercent', 'recyclingRateChangePoints', 'totalWeightChangePercent'].every((chave) => percentual(valor[chave]))
     || !Array.isArray(valor.monthlyWeightKg)
-    || !valor.monthlyWeightKg.every((ponto) => objeto(ponto) && typeof ponto.month === 'string' && numero(ponto.weightKg))) {
+    || !valor.monthlyWeightKg.every((ponto) => objeto(ponto) && typeof ponto.month === 'string' && numero(ponto.weightKg))
+    || (valor.weightByMaterial !== undefined && (!Array.isArray(valor.weightByMaterial)
+      || !valor.weightByMaterial.every((ponto) => objeto(ponto) && typeof ponto.material === 'string' && numero(ponto.weightKg) && numero(ponto.percent))))) {
     return false
   }
   return true

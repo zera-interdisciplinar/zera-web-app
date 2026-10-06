@@ -61,12 +61,11 @@ describe('contratos de destinação v1', () => {
     expect(locais[0]).not.toHaveProperty('recyclingBusinessId')
     expect(locais[0]).not.toHaveProperty('email')
   })
-  it('não consulta coordenadas inválidas nem catálogo interno no fluxo real', async () => {
+  it('não envia coordenadas nem cadastros de recicladora inválidos', async () => {
     const { buscarLocaisReciclagem } = await import('../src/services/descarteService')
     await expect(buscarLocaisReciclagem({ lat: 91, lng: 0 })).rejects.toMatchObject({ status: 422 })
-    const { listarRecicladoras, criarRecicladora } = await import('../src/services/relatorioService')
-    await expect(listarRecicladoras()).rejects.toThrow('pontos de reciclagem')
-    await expect(criarRecicladora({ nome: 'Empresa', cnpj: '', cidade: '' })).rejects.toThrow('localização')
+    const { criarRecicladora } = await import('../src/services/relatorioService')
+    await expect(criarRecicladora({ nome: 'Empresa', cnpj: '', cidade: '' })).rejects.toMatchObject({ status: 422 })
     expect(busca).not.toHaveBeenCalled()
   })
 })

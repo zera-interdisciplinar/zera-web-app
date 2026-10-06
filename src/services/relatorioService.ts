@@ -6,11 +6,11 @@ import type {
 } from '../types/relatorio'
 import { contextualizar, requisitar } from './http'
 import { modoDemonstracao } from './apiReal'
-import { ApiError } from '../types/api'
+import { listarEmpresasReciclagem, cadastrarEmpresaReciclagem } from './recicladoraService'
 
 export async function listarRecicladoras(sinal?: AbortSignal): Promise<Recicladora[]> {
   try {
-    if (!modoDemonstracao) throw new ApiError('Para destinar itens, consulte os pontos de reciclagem próximos. O cadastro de parceiros não integra este fluxo.', 0)
+    if (!modoDemonstracao) return await listarEmpresasReciclagem(sinal)
     return await requisitar<Recicladora[]>('/recyclers', { sinal })
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível carregar as cooperativas.')
@@ -19,7 +19,7 @@ export async function listarRecicladoras(sinal?: AbortSignal): Promise<Reciclado
 
 export async function criarRecicladora(nova: NovaRecicladora): Promise<Recicladora> {
   try {
-    if (!modoDemonstracao) throw new ApiError('Os pontos de reciclagem são consultados por localização. Não é necessário cadastrar uma empresa parceira.', 0)
+    if (!modoDemonstracao) return await cadastrarEmpresaReciclagem(nova)
     return await requisitar<Recicladora>('/recyclers', { metodo: 'POST', corpo: nova })
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível cadastrar a cooperativa.')

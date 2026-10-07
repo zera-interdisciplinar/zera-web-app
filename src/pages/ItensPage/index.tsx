@@ -178,7 +178,7 @@ export default function ItensPage() {
               Limpar filtros
             </button>
           )}
-          <Button variante="primario" onClick={abrirCadastro}>
+          <Button id="adicionar-item" variante="primario" onClick={abrirCadastro}>
             Adicionar item
           </Button>
         </div>
@@ -214,7 +214,7 @@ export default function ItensPage() {
                   Limpar filtros
                 </button>
               ) : (
-                <Button variante="primario" onClick={abrirCadastro}>
+                <Button id="adicionar-item" variante="primario" onClick={abrirCadastro}>
                   Adicionar item
                 </Button>
               )
@@ -258,7 +258,7 @@ export default function ItensPage() {
           </div>
         ) : (
           <form onSubmit={aoSalvar} noValidate>
-            {categorias.carregando && <p role="status">Carregando categorias…</p>}
+            {categorias.carregando && <p className={estilos.statusModal} role="status">Carregando categorias…</p>}
             {categorias.erro && <EstadoErro mensagem={categorias.erro} aoTentarNovamente={categorias.recarregar} />}
             <div className={estilos.camposModal}>
               <FieldCard
@@ -301,7 +301,7 @@ export default function ItensPage() {
                   aoMudar={(valor) => setForm((atual) => ({ ...atual, modelId: valor }))}
                   erro={erros.modelId} desabilitado={enviando || modelos.carregando}
                   opcoes={[{ valor: '', rotulo: 'Selecione um modelo cadastrado' }, ...(modelos.dados ?? []).filter((modelo) => !form.categoriaId || String(modelo.categoriaId) === form.categoriaId).map((modelo) => ({ valor: String(modelo.id), rotulo: `${modelo.fabricante} ${modelo.nome}` }))]} />
-                {modelos.carregando && <p role="status">Carregando modelos…</p>}
+                {modelos.carregando && <p className={estilos.statusModal} role="status">Carregando modelos…</p>}
                 {modelos.erro && <EstadoErro mensagem={modelos.erro} aoTentarNovamente={modelos.recarregar} />}
                 <FieldCard id="item-codigo" rotulo="Código de barras" valor={form.barcode}
                   aoMudar={(valor) => setForm((atual) => ({ ...atual, barcode: valor }))}

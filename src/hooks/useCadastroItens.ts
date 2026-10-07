@@ -178,6 +178,7 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
       if (!montado.current) return
       mostrarToast(`"${item.nome}" removido do inventário.`)
       setExclusao((atual) => ({ ...atual, excluindo: null }))
+      requestAnimationFrame(() => document.getElementById('adicionar-item')?.focus())
       aoAtualizar()
     } catch (falha: unknown) {
       if (montado.current) setExclusao((atual) => ({ ...atual, erroExclusao: mensagemDeErro(falha) }))

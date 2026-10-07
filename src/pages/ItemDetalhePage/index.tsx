@@ -126,7 +126,7 @@ function Detalhe({ produtoId }: { produtoId: number | string }) {
     }
   }
 
-  if (produto.carregando) {
+  if (produto.carregando && !produto.dados) {
     return <Skeleton descricao="Carregando os dados do item." linhas={5} />
   }
 

@@ -143,3 +143,5 @@
 .limpar:hover {
   background-color: var(--fundo);
 }
+
+.statusModal { color: var(--branco, #FFFFFF); }

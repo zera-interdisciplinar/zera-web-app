@@ -59,7 +59,7 @@ export function useRequisicao<T>(
   const carregando = ativo && resultado.requisicao !== requisicao
 
   return {
-    dados: ativo && !carregando ? resultado.dados : null,
+    dados: ativo && resultado.requisicao?.buscar === buscar && resultado.requisicao.ativo ? resultado.dados : null,
     carregando,
     erro: ativo && !carregando ? resultado.erro : null,
     recarregar,

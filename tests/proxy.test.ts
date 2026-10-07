@@ -2,8 +2,9 @@ import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { criarProxy } from '../server/proxy.mjs'
-import analyticsHandler from '../api/analytics/[...path]'
-import { configuracaoProxy } from '../server/config.mjs'
+import analyticsHandler from '../api/proxy'
+import { configuracaoProxy, restaurarCaminhoProxy } from '../server/config.mjs'
+import { readFileSync } from 'node:fs'
 
 const servidores: ReturnType<typeof createServer>[] = []
 async function iniciar(handler: Parameters<typeof createServer>[0]): Promise<string> {
@@ -18,6 +19,24 @@ afterEach(async () => {
 })
 
 describe('proxy de aplicação', () => {
+  it('encaminha os caminhos profundos por rewrite explícito na Vercel', async () => {
+    const deployment = JSON.parse(readFileSync(new URL('../vercel.json', import.meta.url), 'utf8'))
+    expect(deployment.rewrites).toContainEqual({ source: '/api/:service(administrative|inventory|analytics)/:path*', destination: '/api/proxy?__zera_service=:service&__zera_path=:path*' })
+  })
+  it('restaura o destino do rewrite, preserva filtros e recusa destinos injetados', async () => {
+    const upstream = await iniciar((req, res) => {
+      expect(req.url).toBe('/api/v1/models?page=2&size=20')
+      res.writeHead(200); res.end('{}')
+    })
+    vi.stubEnv('ZERA_INVENTORY_API_ORIGIN', upstream)
+    vi.stubEnv('ZERA_APP_API_KEY', crypto.randomUUID())
+    const proxy = await iniciar(analyticsHandler)
+    expect((await fetch(`${proxy}/api/proxy?__zera_service=inventory&__zera_path=api%2Fv1%2Fmodels&page=2&size=20`)).status).toBe(200)
+    expect((await fetch(`${proxy}/api/proxy?__zera_service=https%3A%2F%2Fevil.invalid&__zera_path=health`)).status).toBe(404)
+    expect((await fetch(`${proxy}/api/proxy?__zera_service=inventory&__zera_service=analytics&__zera_path=health`)).status).toBe(404)
+    const query = new URLSearchParams({ __zera_service: 'inventory', __zera_path: 'api/v1/items/by-barcode/A%2FB' })
+    expect(restaurarCaminhoProxy(`/api/proxy?${query}`)).toBe('/api/inventory/api/v1/items/by-barcode/A%2FB')
+  })
   it('usa nomes privados canônicos e mantém compatibilidade com a base administrativa anterior', () => {
     expect(configuracaoProxy({ ZERA_ADMIN_URL: 'https://admin.example.invalid', ZERA_ADMIN_API_ORIGIN: 'https://old.example.invalid' }).administrative).toBe('https://admin.example.invalid')
   })

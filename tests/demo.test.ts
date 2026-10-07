@@ -1,24 +1,25 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-afterEach(() => {
-  vi.doUnmock('virtual:credencial-demo')
-  vi.resetModules()
-})
+afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.resetModules() })
 
-describe('validação demo com valores efêmeros, sem credencial da fixture local', () => {
-  it('recusa administrador quando não há fixture', async () => {
-    vi.doMock('virtual:credencial-demo', () => ({ default: '' }))
-    const { validarCredencialDemo } = await import('../src/services/demoService')
-    expect(await validarCredencialDemo(crypto.randomUUID())).toBe(false)
+describe('isolamento da demonstração', () => {
+  it('recusa o acesso de demonstração quando as APIs reais estão habilitadas', async () => {
+    vi.stubEnv('VITE_USE_MSW', 'false')
+    const fetchControlado = vi.fn()
+    vi.stubGlobal('fetch', fetchControlado)
+    const { abrirDemonstracao } = await import('../src/services/authService')
+    await expect(abrirDemonstracao('administrador')).rejects.toMatchObject({ status: 403 })
+    expect(fetchControlado).not.toHaveBeenCalled()
   })
 
-  it('não aceita outra entrada com o mesmo comprimento', async () => {
-    const entrada = crypto.randomUUID()
-    const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(entrada))
-    const digest = Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, '0')).join('')
-    vi.doMock('virtual:credencial-demo', () => ({ default: digest }))
-    const { validarCredencialDemo } = await import('../src/services/demoService')
-    expect(await validarCredencialDemo(crypto.randomUUID())).toBe(false)
-    expect(await validarCredencialDemo(entrada)).toBe(true)
+  it('a demonstração não transmite senha nem token para abrir um perfil fictício', async () => {
+    vi.stubEnv('VITE_USE_MSW', 'true')
+    const fetchControlado = vi.fn().mockResolvedValue(Response.json({ usuario: { perfil: 'gestor' }, expiraEm: new Date().toISOString() }))
+    vi.stubGlobal('fetch', fetchControlado)
+    const { abrirDemonstracao } = await import('../src/services/authService')
+    await abrirDemonstracao('gestor')
+    expect(fetchControlado.mock.calls[0][0]).toMatch(/\/auth\/demo$/)
+    expect(JSON.parse(fetchControlado.mock.calls[0][1].body)).toEqual({ perfil: 'gestor' })
+    expect(fetchControlado.mock.calls[0][1].headers.Authorization).toBeUndefined()
   })
 })

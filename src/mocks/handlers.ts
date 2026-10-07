@@ -1,5 +1,5 @@
 import { HttpResponse, http, delay } from 'msw'
-import { validarCredencialDemo } from '../services/demoService'
+
 import type { AlertaLote } from '../types/alerta'
 import type { Categoria, NovaCategoria } from '../types/categoria'
 import type { Configuracoes } from '../types/configuracao'
@@ -13,10 +13,10 @@ import type {
   StatusItem,
 } from '../types/produto'
 import type { ItemRelatorio, NovaRecicladora, Relatorio } from '../types/relatorio'
-import type { Credenciais, NovoUsuario, SessaoAutenticada, Usuario } from '../types/usuario'
+import type { Perfil, NovoUsuario, SessaoAutenticada, Usuario } from '../types/usuario'
 import { diasDesde, montarCodigoBarras } from '../utils/formatacao'
 import {
-  SENHA_MINIMA_DEMO,
+
   categorias as categoriasIniciais,
   modelos as modelosIniciais,
   recicladoras as recicladorasIniciais,
@@ -207,23 +207,11 @@ function itensParaDescarte(): ItemRelatorio[] {
 }
 
 export const handlers = [
-  http.post(`${BASE}/auth/login`, async ({ request }) => {
+  http.post(`${BASE}/auth/demo`, async ({ request }) => {
     await delay(420)
-    const credenciais = (await request.json()) as Credenciais
-    const usuario = banco.usuarios.find((item) => item.email === credenciais.email.toLowerCase())
-
-    const senhaValida =
-      usuario?.perfil === 'administrador'
-        ? await validarCredencialDemo(credenciais.senha)
-        : credenciais.senha.length >= SENHA_MINIMA_DEMO
-
-    if (!usuario || !senhaValida) {
-      return HttpResponse.json(
-        { mensagem: 'E-mail ou senha não conferem. Confira as credenciais de acesso.' },
-        { status: 401 },
-      )
-    }
-
+    const entrada = (await request.json()) as { perfil?: Perfil }
+    const usuario = banco.usuarios.find((item) => item.perfil === entrada.perfil)
+    if (!usuario) return HttpResponse.json({ mensagem: 'Selecione um perfil para explorar a demonstração.' }, { status: 400 })
     const expiraEm = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString()
     const sessao: SessaoAutenticada = { usuario, expiraEm }
     return HttpResponse.json(sessao)

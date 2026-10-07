@@ -11,9 +11,9 @@ import './styles/global.css'
 import { App } from './App'
 
 async function preparar() {
-  if (import.meta.env.DEV && import.meta.env.VITE_USE_MSW === 'true') {
+  if (import.meta.env.VITE_USE_MSW === 'true') {
     const { worker } = await import('./mocks/browser')
-    await worker.start({ onUnhandledRequest: 'bypass', quiet: true })
+    await worker.start({ onUnhandledRequest: 'bypass', quiet: true, serviceWorker: { url: `${import.meta.env.BASE_URL}mockServiceWorker.js` } })
   }
 
   const raiz = document.getElementById('root')

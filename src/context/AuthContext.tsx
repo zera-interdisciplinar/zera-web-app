@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { autenticar } from '../services/authService'
+import { abrirDemonstracao, autenticar } from '../services/authService'
 import { definirSessaoApi, modoDemonstracao, observarExpiracaoSessao } from '../services/apiReal'
 import type { Credenciais, Perfil, Usuario } from '../types/usuario'
 import { mensagemDeErro } from '../types/api'
@@ -53,6 +53,23 @@ export function AuthProvider({ children }: Props) {
     }
   }, [])
 
+  const explorar = useCallback(async (perfil: Perfil): Promise<boolean> => {
+    setEntrando(true)
+    setErro(null)
+    try {
+      const sessao = await abrirDemonstracao(perfil)
+      salvar<SessaoPersistida>(CHAVE_SESSAO, sessao)
+      setUsuario(sessao.usuario)
+      setExpiraEm(sessao.expiraEm)
+      return true
+    } catch (falha) {
+      setErro(mensagemDeErro(falha))
+      return false
+    } finally {
+      setEntrando(false)
+    }
+  }, [])
+
   const sair = useCallback(() => {
     definirSessaoApi(null, null)
     remover(CHAVE_SESSAO)
@@ -84,10 +101,11 @@ export function AuthProvider({ children }: Props) {
       entrando,
       erro,
       entrar,
+      explorar,
       sair,
       temPerfil,
     }),
-    [usuario, entrando, erro, entrar, sair, temPerfil],
+    [usuario, entrando, erro, entrar, explorar, sair, temPerfil],
   )
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>

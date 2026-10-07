@@ -20,6 +20,6 @@ describe('cliente das APIs reais', () => {
   it('não inventa uma base quando a variável pública está ausente', async () => {
     vi.stubEnv('VITE_INVENTORY_API_URL', '')
     const { requisitarApiReal } = await import('../src/services/apiReal')
-    await expect(requisitarApiReal('inventory', '/api/v1/items')).rejects.toThrow('VITE_INVENTORY_API_URL')
+    await expect(requisitarApiReal('inventory', '/api/v1/items')).rejects.toThrow('serviço está indisponível')
   })
 })

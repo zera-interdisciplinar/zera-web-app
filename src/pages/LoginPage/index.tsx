@@ -12,7 +12,7 @@ import { modoDemonstracao } from '../../services/apiReal'
 import { SkipLink } from '../../components/SkipLink'
 
 export default function LoginPage() {
-  const { entrar, entrando, erro, autenticado } = useAuth()
+  const { entrar, explorar, entrando, erro, autenticado } = useAuth()
   const navegar = useNavigate()
 
   const [formulario, setFormulario] = useState<Credenciais>({ email: '', senha: '' })
@@ -62,10 +62,18 @@ export default function LoginPage() {
         <h1 className="titulo-pagina" id="titulo-login">
           Entrar no Zera
         </h1>
-        <p className={estilos.subtitulo}>Use o e-mail corporativo cadastrado pelo administrador.</p>
-        {modoDemonstracao && <p className="aviso-demo" role="status">Demonstração local com dados simulados.</p>}
+        <p className={estilos.subtitulo}>{modoDemonstracao ? 'Conheça o inventário e acompanhe o ciclo dos itens.' : 'Use seu e-mail corporativo e sua senha de acesso.'}</p>
+        {modoDemonstracao && <p className="aviso-demo" role="status">Demonstração com dados fictícios. As alterações são reiniciadas ao recarregar.</p>}
 
-        <form className={estilos.formulario} onSubmit={aoEnviar} noValidate>
+        {modoDemonstracao ? (
+          <section className={estilos.formulario} aria-label="Escolha um perfil para explorar">
+            <Button variante="navy" tamanho="grande" disabled={entrando} onClick={() => void explorar('gestor')}>Explorar como gestor</Button>
+            <Button variante="secundario" tamanho="grande" disabled={entrando} onClick={() => void explorar('funcionario')}>Explorar como funcionário</Button>
+            <Button variante="secundario" tamanho="grande" disabled={entrando} onClick={() => void explorar('administrador')}>Explorar como administrador</Button>
+            {erro && <p className={estilos.erroGeral} role="alert">{erro}</p>}
+            <p aria-live="polite">{entrando ? 'Abrindo a demonstração…' : ''}</p>
+          </section>
+        ) : <form className={estilos.formulario} onSubmit={aoEnviar} noValidate>
           <FieldCard
             id="email"
             rotulo="E-mail"
@@ -103,7 +111,7 @@ export default function LoginPage() {
           <p className={estilos.aviso} aria-live="polite">
             {entrando ? 'Conferindo credenciais no servidor.' : ''}
           </p>
-        </form>
+        </form>}
       </section>
     </main>
     </>

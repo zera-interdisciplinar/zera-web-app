@@ -2,7 +2,7 @@ import { ApiError } from '../types/api'
 import { sanitizarObjeto } from '../utils/sanitizacao'
 import type { Pagina } from '../types/apiReal'
 
-export const modoDemonstracao = import.meta.env.DEV && import.meta.env.VITE_USE_MSW === 'true'
+export const modoDemonstracao = import.meta.env.VITE_USE_MSW === 'true'
 
 type Recurso = 'administrative' | 'inventory'
 
@@ -35,10 +35,11 @@ export interface OpcoesApiReal {
 
 export async function requisitarApiReal<T>(recurso: Recurso, caminho: string, opcoes: OpcoesApiReal = {}): Promise<T> {
   const base = bases[recurso]
-  if (!base) throw new ApiError(`Configure VITE_${recurso === 'administrative' ? 'ADMIN' : 'INVENTORY'}_API_URL para usar a API real.`, 0)
+  if (!base) throw new ApiError('O serviço está indisponível. Entre em contato com a equipe responsável pelo ZERA.', 0)
   const origem = typeof document === 'undefined' ? 'http://localhost/' : document.baseURI
   const url = new URL(`${base.replace(/\/$/, '')}${caminho}`, origem)
-  if (url.protocol !== 'https:') {
+  const local = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)
+  if (url.protocol !== 'https:' && !(import.meta.env.DEV && local && url.protocol === 'http:')) {
     throw new ApiError('API remota sem HTTPS. Credenciais e dados não serão enviados por HTTP.', 0)
   }
   if (opcoes.autenticada !== false && !accessToken) throw new ApiError('Sessão expirada. Entre novamente.', 401)

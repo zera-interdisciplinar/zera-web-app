@@ -1,91 +1,17 @@
-import { useCallback } from 'react'
 import { RotateCcw } from 'lucide-react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ROTULO_STATUS } from '../../types/produto'
 import type { StatusItem } from '../../types/produto'
-import { useAuth } from '../../hooks/useAuth'
-import { useCategorias } from '../../hooks/useCategorias'
-import { useMenuSuspenso } from '../../hooks/useMenuSuspenso'
-import { useRequisicao } from '../../hooks/useRequisicao'
-import { listarUsuarios } from '../../services/usuarioService'
-import type { Usuario } from '../../types/usuario'
+import { useTopbar } from '../../hooks/useTopbar'
 import { iniciais, ROTULO_PERFIL } from '../../types/usuario'
 import { FilterChip } from '../FilterChip'
-import estilos from './Topbar.module.css'
-
-interface FiltrosContexto {
-  periodo: string
-  categoria: string
-  status: string
-  responsavel: string
-}
-
-const PERIODOS = ['todo o período', 'últimos 6 meses', 'últimos 3 meses', 'último ano']
-const STATUS = ['todos', ...Object.keys(ROTULO_STATUS)]
-
-const FILTROS_PADRAO: FiltrosContexto = {
-  periodo: PERIODOS[0],
-  categoria: 'todas',
-  status: 'todos',
-  responsavel: 'todos',
-}
+import estilos from '../../../styles/components/Topbar/Topbar.module.css'
 
 export function Topbar() {
-  const { usuario, sair } = useAuth()
-  const navegar = useNavigate()
-  const categorias = useCategorias()
-  const buscarUsuarios = useCallback((sinal: AbortSignal) => listarUsuarios(sinal), [])
-  const usuarios = useRequisicao<Usuario[]>(buscarUsuarios, usuario?.perfil === 'administrador')
-
-  const [parametros] = useSearchParams()
-  const filtros: FiltrosContexto = {
-    periodo: parametros.get('periodo') ?? FILTROS_PADRAO.periodo,
-    categoria: parametros.get('categoria') ?? FILTROS_PADRAO.categoria,
-    status: parametros.get('status') ?? FILTROS_PADRAO.status,
-    responsavel: parametros.get('responsavel') ?? FILTROS_PADRAO.responsavel,
-  }
-  function aplicar(chave: keyof FiltrosContexto, valor: string) {
-    const novos = new URLSearchParams(parametros)
-    if (valor === FILTROS_PADRAO[chave]) novos.delete(chave)
-    else novos.set(chave, valor)
-    navegar(`/itens?${novos}`)
-  }
-
-  const filtrosSujos =
-    filtros.periodo !== FILTROS_PADRAO.periodo ||
-    filtros.categoria !== FILTROS_PADRAO.categoria ||
-    filtros.status !== FILTROS_PADRAO.status ||
-    filtros.responsavel !== FILTROS_PADRAO.responsavel
-
-  const limparFiltros = () => navegar('/itens')
-
   const {
-    aberto: contaAberta,
-    gatilhoRef: gatilhoContaRef,
-    menuRef: menuContaRef,
-    alternar: alternarConta,
-    fechar: fecharConta,
-    aoTeclarMenu: aoTeclarMenuConta,
-  } = useMenuSuspenso()
-
-  function encerrarSessao() {
-    fecharConta()
-    sair()
-    navegar('/login')
-  }
-
-  const opcoesCategoria = [
-    { valor: 'todas', rotulo: 'Todas as categorias' },
-    ...(categorias.dados ?? []).map((categoria) => ({
-      valor: String(categoria.id),
-      rotulo: categoria.nome,
-    })),
-  ]
-
-  const opcoesResponsavel = [
-    { valor: 'todos', rotulo: 'Todos os responsáveis' },
-    ...(usuarios.dados ?? []).map((pessoa) => ({ valor: pessoa.nome, rotulo: pessoa.nome })),
-  ]
+    usuario, filtros, filtrosSujos, aplicar, limparFiltros, contaAberta,
+    gatilhoContaRef, menuContaRef, alternarConta, aoTeclarMenuConta,
+    encerrarSessao, opcoesCategoria, opcoesResponsavel, periodos, status,
+  } = useTopbar()
 
   return (
     <div className={estilos.topbar}>
@@ -97,7 +23,7 @@ export function Topbar() {
               Período: <strong>{filtros.periodo}</strong>
             </>
           }
-          opcoes={PERIODOS.map((periodo) => ({ valor: periodo, rotulo: periodo }))}
+          opcoes={periodos}
           valorAtual={filtros.periodo}
           aoSelecionar={(valor) => aplicar('periodo', valor)}
         />
@@ -125,7 +51,7 @@ export function Topbar() {
               Status: <strong>{ROTULO_STATUS[filtros.status as StatusItem] ?? 'Todos'}</strong>
             </>
           }
-          opcoes={STATUS.map((status) => ({ valor: status, rotulo: ROTULO_STATUS[status as StatusItem] ?? 'Todos' }))}
+          opcoes={status}
           valorAtual={filtros.status}
           aoSelecionar={(valor) => aplicar('status', valor)}
         />

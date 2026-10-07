@@ -1,14 +1,10 @@
+import type { UserCardProps } from '../../types/componentes/UserCard'
+export type { UserCardProps } from '../../types/componentes/UserCard'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { useMenuSuspenso } from '../../hooks/useMenuSuspenso'
 import { ROTULO_PERFIL } from '../../types/usuario'
-import estilos from './UserCard.module.css'
-
-export interface UserCardProps {
-  nome: string
-  cargo: string
-  iniciais: string
-}
+import estilos from '../../../styles/components/UserCard/UserCard.module.css'
 
 export function UserCard({ nome, cargo, iniciais: sigla }: UserCardProps) {
   const { usuario, sair } = useAuth()

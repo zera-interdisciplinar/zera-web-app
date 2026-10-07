@@ -94,7 +94,7 @@ export interface DisposalResponse {
   placeName: string | null
   disposedAt: string
   notes: string | null
-  items: Array<{ id: string; barcode: string; name: string | null }>
+  items: Array<{ itemId: string; displayCode: string | null; name: string | null; weightKg: number }>
   totalWeightKg: number
   createdByName: string | null
   createdAt: string

@@ -1,9 +1,4 @@
-/// <reference types="vite/client" />
 
-declare module 'virtual:credencial-demo' {
-  const digest: string
-  export default digest
-}
 
 interface ImportMetaEnv {
   readonly VITE_ROUTER_MODE?: 'hash' | 'history'

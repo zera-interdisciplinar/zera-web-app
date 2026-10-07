@@ -12,7 +12,7 @@ import { mensagemDeErro } from '../../types/api'
 import type { Configuracoes } from '../../types/configuracao'
 import { validarConfiguracoes } from '../../utils/validacao'
 import type { ErrosDeCampo } from '../../utils/validacao'
-import estilos from './ConfiguracoesPage.module.css'
+import estilos from '../../../styles/pages/ConfiguracoesPage/ConfiguracoesPage.module.css'
 import { modoDemonstracao } from '../../services/apiReal'
 import { obterCapacidade } from '../../services/cicloService'
 import type { UnitSettingsResponse } from '../../types/apiReal'
@@ -79,19 +79,8 @@ export default function ConfiguracoesPage() {
         {capacidade.carregando && <Skeleton descricao="Consultando capacidade." linhas={2} />}
         {capacidade.erro && <EstadoErro mensagem={capacidade.erro} aoTentarNovamente={capacidade.recarregar} />}
         {capacidade.dados && <p role="status">{capacidade.dados.configured ? `${capacidade.dados.stockCapacity} itens` : 'Capacidade não configurada.'}</p>}
-        <p>Os parâmetros de lote crítico e circularidade não estão disponíveis neste contrato.</p>
+        <p>Esta unidade utiliza o limite de capacidade de estoque.</p>
       </section>}
-
-      {(import.meta.env.VITE_ADMIN_OPENAPI_URL || import.meta.env.VITE_INVENTORY_OPENAPI_URL) && (
-        <section className={estilos.cartao} aria-labelledby="titulo-contratos">
-          <h2 className="titulo-card" id="titulo-contratos">Contratos das APIs</h2>
-          <p>Documentação pública dos serviços; o acesso aos dados continua sujeito à autenticação.</p>
-          <ul>
-            {import.meta.env.VITE_ADMIN_OPENAPI_URL && <li><a href={import.meta.env.VITE_ADMIN_OPENAPI_URL} target="_blank" rel="noopener noreferrer">OpenAPI administrativo</a></li>}
-            {import.meta.env.VITE_INVENTORY_OPENAPI_URL && <li><a href={import.meta.env.VITE_INVENTORY_OPENAPI_URL} target="_blank" rel="noopener noreferrer">OpenAPI de inventário</a></li>}
-          </ul>
-        </section>
-      )}
 
       {configuracoes.carregando && <Skeleton descricao="Carregando os parâmetros do sistema." linhas={3} />}
       {configuracoes.erro && (

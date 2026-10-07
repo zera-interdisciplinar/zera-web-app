@@ -1,4 +1,4 @@
-import type { Credenciais, SessaoAutenticada } from '../types/usuario'
+import type { Credenciais, Perfil, SessaoAutenticada } from '../types/usuario'
 import type { TokenResponse, UserOutput } from '../types/apiReal'
 import { contextualizar, requisitar } from './http'
 import { definirSessaoApi, modoDemonstracao, requisitarApiReal } from './apiReal'
@@ -41,5 +41,14 @@ export async function autenticar(credenciais: Credenciais): Promise<SessaoAutent
     })
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível entrar.')
+  }
+}
+
+export async function abrirDemonstracao(perfil: Perfil): Promise<SessaoAutenticada> {
+  if (!modoDemonstracao) throw new ApiError('A demonstração está desativada neste ambiente.', 403)
+  try {
+    return await requisitar<SessaoAutenticada>('/auth/demo', { metodo: 'POST', corpo: { perfil } })
+  } catch (erro) {
+    throw contextualizar(erro, 'Não foi possível abrir a demonstração.')
   }
 }

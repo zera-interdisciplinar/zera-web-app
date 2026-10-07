@@ -1,12 +1,7 @@
-import type { ReactNode } from 'react'
-import estilos from './EmptyState.module.css'
+import type { EmptyStateProps } from '../../types/componentes/EmptyState'
+export type { EmptyStateProps } from '../../types/componentes/EmptyState'
 
-export interface EmptyStateProps {
-  titulo: string
-  descricao: string
-  acao?: ReactNode
-  nivelTitulo?: 'h1' | 'h2'
-}
+import estilos from '../../../styles/components/EmptyState/EmptyState.module.css'
 
 export function EmptyState({ titulo, descricao, acao, nivelTitulo: Titulo = 'h2' }: EmptyStateProps) {
   return (

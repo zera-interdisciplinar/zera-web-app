@@ -23,7 +23,7 @@ import type { AlertaLote } from '../../types/alerta'
 import type { ResumoDashboard } from '../../types/dashboard'
 import type { ProdutoDetalhado } from '../../types/produto'
 import { formatarDataRelativa, pluralizar } from '../../utils/formatacao'
-import estilos from './DashboardPage.module.css'
+import estilos from '../../../styles/pages/DashboardPage/DashboardPage.module.css'
 
 interface FiltroAtividade {
   recorte: 'todos' | 'pendentes'

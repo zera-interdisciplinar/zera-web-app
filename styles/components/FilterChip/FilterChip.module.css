@@ -1,0 +1,96 @@
+.envoltorio {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  border: none;
+  cursor: pointer;
+  max-width: 100%;
+  white-space: normal;
+  text-align: left;
+  overflow-wrap: anywhere;
+  transition:
+    background-color var(--transicao),
+    color var(--transicao);
+}
+
+.pill {
+  background-color: var(--branco);
+  border-radius: var(--r-controle);
+  min-height: 44px;
+  padding: 0 28px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.pill:hover {
+  background-color: var(--borda);
+}
+
+.pill.ativo {
+  background-color: var(--navy);
+  color: var(--branco);
+}
+
+.texto {
+  background: none;
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--sp-2);
+  font-size: 0.875rem;
+  color: var(--texto-secundario);
+}
+
+.texto strong {
+  color: var(--texto);
+  font-weight: 700;
+}
+
+.texto:hover {
+  background-color: var(--creme);
+}
+
+.chevron {
+  color: var(--texto-secundario);
+  flex-shrink: 0;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + var(--sp-2));
+  left: 0;
+  z-index: 40;
+  list-style: none;
+  margin: 0;
+  padding: var(--sp-2);
+  min-width: min(220px, calc(100vw - 2rem));
+  background-color: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-iconbox);
+}
+
+.item {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--sp-2);
+  font-size: 0.875rem;
+  color: var(--texto);
+  cursor: pointer;
+}
+
+.item:hover {
+  background-color: var(--creme);
+}
+
+.itemAtual {
+  font-weight: 700;
+  color: var(--navy);
+}

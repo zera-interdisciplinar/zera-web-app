@@ -16,8 +16,8 @@ export default function DescartesPage() {
   const buscar = useCallback((sinal: AbortSignal) => listarDescartes(sinal), [])
   const descartes = useRequisicao<DisposalResponse[]>(buscar, !modoDemonstracao)
   return <>
-    <PageHeader titulo="Registros de descarte" subtitulo="Destinações registradas no inventário. Esta consulta não representa envio de relatórios." />
-    {modoDemonstracao ? <EmptyState titulo="Consulta disponível na API real" descricao="Esta tela consulta os registros documentados de descarte. Não há fixture para esta consulta." /> : <>
+    <PageHeader titulo="Registros de descarte" subtitulo="Consulte o destino, a data e o peso dos itens descartados." />
+    {modoDemonstracao ? <EmptyState titulo="Nenhum descarte registrado" descricao="Os registros de descarte serão apresentados aqui quando estiverem disponíveis." /> : <>
       {descartes.carregando && <Skeleton descricao="Carregando os descartes." linhas={3} />}
       {descartes.erro && <EstadoErro mensagem={descartes.erro} aoTentarNovamente={descartes.recarregar} />}
       {descartes.dados && <p role="status">{descartes.dados.length} registros encontrados.</p>}

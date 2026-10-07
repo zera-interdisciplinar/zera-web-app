@@ -1,18 +1,7 @@
-import type { ReactNode } from 'react'
-import estilos from './DataTable.module.css'
+import type { DataTableProps } from '../../types/componentes/DataTable'
+export type { Coluna, DataTableProps } from '../../types/componentes/DataTable'
 
-export interface Coluna<T> {
-  titulo: string
-  render: (item: T) => ReactNode
-  numerica?: boolean
-}
-
-export interface DataTableProps<T> {
-  colunas: Coluna<T>[]
-  dados: T[]
-  chave: (item: T) => number | string
-  legenda: string
-}
+import estilos from '../../../styles/components/DataTable/DataTable.module.css'
 
 export function DataTable<T>({ colunas, dados, chave, legenda }: DataTableProps<T>) {
   return (

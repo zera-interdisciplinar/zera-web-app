@@ -1,25 +1,6 @@
-import estilos from './FieldCard.module.css'
-
-export interface OpcaoCampo {
-  valor: string
-  rotulo: string
-}
-
-export type TipoFieldCard = 'texto' | 'email' | 'senha' | 'numero' | 'select' | 'textarea'
-
-export interface FieldCardProps {
-  id: string
-  rotulo: string
-  valor: string
-  aoMudar: (valor: string) => void
-  tipo?: TipoFieldCard
-  opcoes?: OpcaoCampo[]
-  erro?: string
-  placeholder?: string
-  maxLength?: number
-  autoComplete?: string
-  desabilitado?: boolean
-}
+import type { FieldCardProps } from '../../types/componentes/FieldCard'
+export type { OpcaoCampo, TipoFieldCard, FieldCardProps } from '../../types/componentes/FieldCard'
+import estilos from '../../../styles/components/FieldCard/FieldCard.module.css'
 
 const TIPO_HTML: Record<string, string> = {
   texto: 'text',

@@ -23,7 +23,7 @@ import { modoDemonstracao } from '../../services/apiReal'
 import type { PreviaRelatorio, Recicladora, Relatorio } from '../../types/relatorio'
 import { formatarData, pluralizar } from '../../utils/formatacao'
 import { validarEnvioRelatorio } from '../../utils/validacao'
-import estilos from './RelatoriosPage.module.css'
+import estilos from '../../../styles/pages/RelatoriosPage/RelatoriosPage.module.css'
 
 type EtapaModal = 'previa' | 'confirmacao'
 

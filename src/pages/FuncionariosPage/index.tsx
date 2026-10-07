@@ -19,7 +19,7 @@ import type { NovoUsuario, Perfil, Usuario } from '../../types/usuario'
 import { ROTULO_PERFIL } from '../../types/usuario'
 import { validarNovoUsuario } from '../../utils/validacao'
 import type { ErrosDeCampo } from '../../utils/validacao'
-import estilos from './FuncionariosPage.module.css'
+import estilos from '../../../styles/pages/FuncionariosPage/FuncionariosPage.module.css'
 
 interface FormFuncionario {
   nome: string

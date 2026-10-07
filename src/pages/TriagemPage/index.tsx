@@ -20,7 +20,7 @@ import { modoDemonstracao } from '../../services/apiReal'
 import { mensagemDeErro } from '../../types/api'
 import type { Classificacao } from '../../types/produto'
 import { formatarData } from '../../utils/formatacao'
-import estilos from './TriagemPage.module.css'
+import estilos from '../../../styles/pages/TriagemPage/TriagemPage.module.css'
 
 const ROTULO_CLASSIFICACAO: Record<Classificacao, { titulo: string; detalhe: string }> = {
   reutilizavel: {
@@ -47,16 +47,14 @@ export default function TriagemPage() {
         titulo="Item não encontrado"
         descricao="O endereço não traz um identificador válido. Abra a triagem a partir da ficha do item."
         acao={
-          <Link to="/itens">
-            <Button variante="primario">Voltar para itens</Button>
-          </Link>
+          <Link to="/itens" className="link-botao">Voltar para itens</Link>
         }
       />
     )
   }
 
   if (!modoDemonstracao) {
-    return <EmptyState nivelTitulo="h1" titulo="Triagem indisponível nesta integração" descricao="A API real não documenta a triagem deste formulário. As transições de item exigem ações e dados diferentes." acao={<Link to={`/itens/${id}`}><Button variante="primario">Voltar para o item</Button></Link>} />
+    return <EmptyState nivelTitulo="h1" titulo="Avaliação do item" descricao="Abra os detalhes do item para avaliar sua condição e acompanhar as etapas de aprovação." acao={<Link to={`/itens/${id}`} className="link-botao">Voltar para o item</Link>} />
   }
   return <FluxoTriagem key={id} produtoId={Number(id)} />
 }
@@ -157,9 +155,7 @@ function FluxoTriagem({ produtoId }: { produtoId: number }) {
             )}
 
             <div className={estilos.acoes}>
-              <Link to={`/itens/${item.id}`}>
-                <Button variante="secundario">Voltar</Button>
-              </Link>
+              <Link to={`/itens/${item.id}`} className="link-botao">Voltar</Link>
               <Button
                 variante="primario"
                 onClick={() => despachar({ tipo: 'avancar', exigeChecklist })}
@@ -278,12 +274,8 @@ function FluxoTriagem({ produtoId }: { produtoId: number }) {
             descricao={`${item.marca} ${item.nome} foi classificado como ${ROTULO_CLASSIFICACAO[estado.classificacao].titulo.toLowerCase()}. O inventário já reflete a decisão.`}
             acao={
               <>
-                <Link to={`/itens/${item.id}`}>
-                  <Button variante="primario">Abrir ficha do item</Button>
-                </Link>
-                <Link to="/itens">
-                  <Button variante="secundario">Voltar para itens</Button>
-                </Link>
+                <Link to={`/itens/${item.id}`} className="link-botao">Abrir ficha do item</Link>
+                <Link to="/itens" className="link-botao">Voltar para itens</Link>
               </>
             }
           />

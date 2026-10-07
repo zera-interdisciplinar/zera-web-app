@@ -1,9 +1,6 @@
-import estilos from './DonutChart.module.css'
-
-export interface DonutChartProps {
-  percentual: number
-  meta: number
-}
+import type { DonutChartProps } from '../../types/componentes/DonutChart'
+export type { DonutChartProps } from '../../types/componentes/DonutChart'
+import estilos from '../../../styles/components/DonutChart/DonutChart.module.css'
 
 const RAIO = 80
 const CIRCUNFERENCIA = 2 * Math.PI * RAIO

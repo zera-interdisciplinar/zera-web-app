@@ -21,8 +21,9 @@ import { ROTULO_CONDICAO } from '../../types/produto'
 import { formatarData, formatarDataRelativa } from '../../utils/formatacao'
 import { modoDemonstracao } from '../../services/apiReal'
 import { sanitizarTexto } from '../../utils/sanitizacao'
-import estilos from './ItemDetalhePage.module.css'
+import estilos from '../../../styles/pages/ItemDetalhePage/ItemDetalhePage.module.css'
 import { listarEventos } from '../../services/cicloService'
+import { FluxoItemReal } from '../../components/FluxoItemReal'
 import type { EventResponse } from '../../types/apiReal'
 import { EdicaoItemReal } from '../../components/EdicaoItemReal'
 import { useAuth } from '../../hooks/useAuth'
@@ -57,9 +58,7 @@ export default function ItemDetalhePage() {
         titulo="Item não encontrado"
         descricao="O endereço não traz um identificador válido. Confira o código da etiqueta ou volte à lista de itens."
         acao={
-          <Link to="/itens">
-            <Button variante="primario">Voltar para itens</Button>
-          </Link>
+          <Link to="/itens" className="link-botao">Voltar para itens</Link>
         }
       />
     )
@@ -161,6 +160,7 @@ function Detalhe({ produtoId }: { produtoId: number | string }) {
         <div className={estilos.cabecalhoDireita}>
           <StatusText status={item.status} />
           {!modoDemonstracao && <EdicaoItemReal item={item} aoConcluir={produto.recarregar} />}
+          {!modoDemonstracao && <FluxoItemReal item={item} aoConcluir={produto.recarregar} />}
           {modoDemonstracao && temPerfil(['funcionario', 'administrador']) && <Button variante="primario" onClick={() => navegar(`/itens/${item.id}/triagem`)}>
             Iniciar triagem
           </Button>}

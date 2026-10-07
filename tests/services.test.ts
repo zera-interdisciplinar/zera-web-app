@@ -139,7 +139,8 @@ describe('serviços e erros das APIs', () => {
     const { requisitarApiReal } = await import('../src/services/apiReal')
     expect(await requisitarApiReal('inventory', '/api/v1/items')).toEqual({ name: 'alert(1)Computador' })
   })
-  it('nunca envia credenciais de uma API real nem mesmo por HTTP local', async () => {
+  it('não permite HTTP local em uma publicação de produção', async () => {
+    vi.stubEnv('DEV', false)
     vi.stubEnv('VITE_ADMIN_API_URL', 'http://localhost:8080')
     vi.resetModules()
     const { requisitarApiReal } = await import('../src/services/apiReal')

@@ -4,7 +4,7 @@ import type { CadastroItemReal } from '../src/types/cadastroItem'
 
 const modelo = 'bb9e2f7d-b386-440a-ab0e-9a3b29fa1111'
 const unidade = 'bb9e2f7d-b386-440a-ab0e-9a3b29fa2222'
-const dados: CadastroItemReal = { name: 'Notebook', barcode: 'COD-001', modelId: modelo, condition: 'USED' }
+const dados: CadastroItemReal = { name: 'Notebook', barcode: 'COD-001', modelId: modelo, condition: 'USED', usageIntensity: 4, hasDamages: false, damages: [] }
 let busca: ReturnType<typeof vi.fn>
 
 beforeEach(async () => {
@@ -59,5 +59,20 @@ describe('cadastro e remoção no inventário', () => {
     const resultado = validarCadastroItemReal({ ...dados, name: 'x'.repeat(121) })
     expect(resultado.valido).toBe(false)
     expect(resultado.erros.name).toContain('120')
+  })
+  it('exige escolhas explícitas de uso e danos antes do cadastro', async () => {
+    const { criarItemReal } = await import('../src/services/itemCadastroService')
+    await expect(criarItemReal({ ...dados, hasDamages: null })).rejects.toMatchObject({ campo: 'hasDamages', status: 422 })
+    for (const usageIntensity of [NaN, Infinity, -1, 11, 2.5]) {
+      await expect(criarItemReal({ ...dados, usageIntensity })).rejects.toMatchObject({ campo: 'usageIntensity', status: 422 })
+    }
+    await expect(criarItemReal({ ...dados, hasDamages: true, damages: [] })).rejects.toMatchObject({ campo: 'damages', status: 422 })
+    expect(busca).not.toHaveBeenCalled()
+  })
+  it('envia tipos de dano selecionados e elimina duplicações', async () => {
+    busca.mockResolvedValue(Response.json({ id: 'item-1', ...dados, status: 'DRAFT', model: null, createdAt: '2026-10-07', updatedAt: '2026-10-07' }))
+    const { criarItemReal } = await import('../src/services/itemCadastroService')
+    await criarItemReal({ ...dados, hasDamages: true, damages: ['OXIDATION', 'OXIDATION'] })
+    expect(JSON.parse(busca.mock.calls[0][1].body)).toMatchObject({ usageIntensity: 4, hasDamages: true, damages: ['OXIDATION'] })
   })
 })

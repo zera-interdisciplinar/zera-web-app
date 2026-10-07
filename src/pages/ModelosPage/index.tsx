@@ -20,7 +20,7 @@ import type { Modelo, NovoModelo } from '../../types/modelo'
 import { pluralizar } from '../../utils/formatacao'
 import { validarNovoModelo } from '../../utils/validacao'
 import type { ErrosDeCampo } from '../../utils/validacao'
-import estilos from './ModelosPage.module.css'
+import estilos from '../../../styles/pages/ModelosPage/ModelosPage.module.css'
 import { CadastroCategoria } from '../../components/CadastroCategoria'
 
 interface FormModelo {

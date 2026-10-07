@@ -1,15 +1,12 @@
+import type { PrivateRouteProps } from '../../types/componentes/PrivateRoute'
+export type { PrivateRouteProps } from '../../types/componentes/PrivateRoute'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
-import type { ReactNode } from 'react'
+
 import { useAuth } from '../../hooks/useAuth'
-import type { Perfil } from '../../types/usuario'
+
 import { ROTULO_PERFIL } from '../../types/usuario'
 import { Button } from '../Button'
 import { EmptyState } from '../EmptyState'
-
-export interface PrivateRouteProps {
-  children: ReactNode
-  perfis?: Perfil[]
-}
 
 export function PrivateRoute({ children, perfis }: PrivateRouteProps) {
   const { autenticado, usuario, temPerfil } = useAuth()

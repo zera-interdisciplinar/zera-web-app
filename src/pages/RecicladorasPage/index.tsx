@@ -18,7 +18,7 @@ import { mensagemDeErro } from '../../types/api'
 import type { NovaRecicladora, Recicladora } from '../../types/relatorio'
 import { validarNovaRecicladora } from '../../utils/validacao'
 import type { ErrosDeCampo } from '../../utils/validacao'
-import estilos from './RecicladorasPage.module.css'
+import estilos from '../../../styles/pages/RecicladorasPage/RecicladorasPage.module.css'
 
 const FORM_INICIAL: NovaRecicladora = { nome: '', cnpj: '', cidade: '', email: '' }
 

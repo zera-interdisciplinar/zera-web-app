@@ -1,23 +1,10 @@
+import type { FilterChipProps } from '../../types/componentes/FilterChip'
+export type { OpcaoFiltro, FilterChipProps } from '../../types/componentes/FilterChip'
 import { useId } from 'react'
-import type { ReactNode } from 'react'
+
 import { ChevronDown } from 'lucide-react'
 import { useMenuSuspenso } from '../../hooks/useMenuSuspenso'
-import estilos from './FilterChip.module.css'
-
-export interface OpcaoFiltro {
-  valor: string
-  rotulo: string
-}
-
-export interface FilterChipProps {
-  rotulo: ReactNode
-  aparencia?: 'pill' | 'texto'
-  ativo?: boolean
-  aoClicar?: () => void
-  opcoes?: OpcaoFiltro[]
-  valorAtual?: string
-  aoSelecionar?: (valor: string) => void
-}
+import estilos from '../../../styles/components/FilterChip/FilterChip.module.css'
 
 export function FilterChip({
   rotulo,

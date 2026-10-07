@@ -46,7 +46,7 @@ export async function editarItemReal(id: number | string, dados: UpdateItemReque
 
 export async function criarProduto(novo: NovoProduto): Promise<ProdutoDetalhado> {
   try {
-    if (!modoDemonstracao) throw new Error('O formulário atual não coleta barcode e modelId exigidos pela API. Cadastro indisponível até adaptar o formulário.')
+    if (!modoDemonstracao) throw new Error('Informe o modelo e o código de barras para cadastrar este item.')
     return await requisitar<ProdutoDetalhado>('/items', { metodo: 'POST', corpo: novo })
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível cadastrar o item.')
@@ -55,7 +55,7 @@ export async function criarProduto(novo: NovoProduto): Promise<ProdutoDetalhado>
 
 export async function atualizarProduto(id: number | string, dados: NovoProduto): Promise<ProdutoDetalhado> {
   try {
-    if (!modoDemonstracao) throw new Error('A API usa PATCH com campos próprios; edição indisponível até adaptar o formulário.')
+    if (!modoDemonstracao) throw new Error('Abra os detalhes do item para editar suas informações.')
     return await requisitar<ProdutoDetalhado>(`/items/${id}`, { metodo: 'PUT', corpo: dados })
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível salvar as alterações do item.')
@@ -64,7 +64,7 @@ export async function atualizarProduto(id: number | string, dados: NovoProduto):
 
 export async function excluirProduto(id: number | string): Promise<void> {
   try {
-    if (!modoDemonstracao) throw new Error('A exclusão exige o parâmetro Actor; sua serialização e autorização ainda não foram validadas no backend.')
+    if (!modoDemonstracao) throw new Error('Não foi possível remover este item. Abra o inventário e tente novamente.')
     return await requisitar<void>(`/items/${id}`, { metodo: 'DELETE' })
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível excluir o item.')
@@ -80,7 +80,7 @@ export interface ResultadoTriagem {
 
 export async function registrarTriagem(resultado: ResultadoTriagem): Promise<ProdutoDetalhado> {
   try {
-    if (!modoDemonstracao) throw new Error('A API não documenta POST /items/{id}/triage. Use as transições documentadas após adequar a triagem.')
+    if (!modoDemonstracao) throw new Error('Abra os detalhes do item para iniciar sua avaliação.')
     return await requisitar<ProdutoDetalhado>(`/items/${resultado.produtoId}/triage`, {
       metodo: 'POST',
       corpo: resultado,

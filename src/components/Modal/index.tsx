@@ -1,15 +1,9 @@
+import type { ModalProps } from '../../types/componentes/Modal'
+export type { ModalProps } from '../../types/componentes/Modal'
 import { useCallback, useEffect, useRef } from 'react'
-import type { ReactNode } from 'react'
-import { X } from 'lucide-react'
-import estilos from './Modal.module.css'
 
-export interface ModalProps {
-  aberto: boolean
-  titulo: string
-  aoFechar: () => void
-  children: ReactNode
-  larguraMaxima?: number
-}
+import { X } from 'lucide-react'
+import estilos from '../../../styles/components/Modal/Modal.module.css'
 
 const FOCAVEIS =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'

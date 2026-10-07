@@ -12,7 +12,7 @@ import type { Perfil } from '../../types/usuario'
 import { iniciais, ROTULO_PERFIL } from '../../types/usuario'
 import { NavItem } from '../NavItem'
 import { UserCard } from '../UserCard'
-import estilos from './Sidebar.module.css'
+import estilos from '../../../styles/components/Sidebar/Sidebar.module.css'
 
 const DESTINOS = [
   { para: '/', rotulo: 'Dashboard', Icone: LayoutDashboard, exato: true },

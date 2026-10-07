@@ -7,7 +7,7 @@ import { useAuth } from '../../hooks/useAuth'
 import type { Credenciais } from '../../types/usuario'
 import { validarCredenciais } from '../../utils/validacao'
 import type { ErrosDeCampo } from '../../utils/validacao'
-import estilos from './LoginPage.module.css'
+import estilos from '../../../styles/pages/LoginPage/LoginPage.module.css'
 import { modoDemonstracao } from '../../services/apiReal'
 import { SkipLink } from '../../components/SkipLink'
 

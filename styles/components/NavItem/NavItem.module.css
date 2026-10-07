@@ -1,0 +1,31 @@
+.item {
+  list-style: none;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 44px;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-nav);
+  color: rgb(255 255 255 / 0.85);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition:
+    background-color var(--transicao),
+    color var(--transicao);
+}
+
+.link:hover {
+  background-color: rgb(255 255 255 / 0.08);
+  color: var(--branco);
+}
+
+.ativo,
+.ativo:hover {
+  background-color: var(--branco);
+  color: var(--navy);
+  font-weight: 700;
+}

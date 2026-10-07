@@ -4,7 +4,7 @@ O Zera acompanha o ciclo dos itens de uma organização: cadastro, avaliação, 
 
 ## Identidade visual
 
-As três referências de dashboard, inventário e cadastro definem a composição: cabeçalho branco, navegação azul à esquerda, fundo creme, cartões brancos e ações em âmbar. O cadastro usa painel azul com campos brancos. A marca deve usar os arquivos vetoriais do projeto, sem redesenhar o logotipo como texto.
+As três referências de dashboard, inventário e cadastro definem a composição: cabeçalho branco, navegação azul à esquerda, fundo creme, cartões brancos e ações em âmbar. O cadastro usa painel azul com campos brancos. A marca deve usar os arquivos de marca existentes no projeto, sem redesenhar o logotipo como texto.
 
 A paleta abaixo foi medida nos pixels de áreas sólidas das referências. Antialiasing, compressão e escala podem alterar pixels nas bordas. A família tipográfica original, medidas em rem, grade interna e animações não podem ser recuperadas com certeza a partir de uma imagem. As regras de implementação a seguir são escolhas explícitas para manter a identidade e a legibilidade.
 

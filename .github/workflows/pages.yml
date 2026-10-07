@@ -24,12 +24,14 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run check
       - run: npm run lint
       - run: npm test
       - run: npm run build -- --base=/zera-web-app/
         env:
           VITE_ROUTER_MODE: hash
-          VITE_USE_MSW: 'false'
+          VITE_USE_MSW: 'true'
+          VITE_API_BASE_URL: /api
       - name: Check publication scope
         run: |
           test ! -f ENTREGAS.md

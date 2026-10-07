@@ -8,3 +8,6 @@ fixtures.local/
 artifacts/
 .DS_Store
 *.local
+
+work/
+CONTRIBUTING.local.md

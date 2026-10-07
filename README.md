@@ -1,25 +1,11 @@
-# Zera
+# ZERA
 
-Frontend para gestão de resíduos eletrônicos, feito com Vite, React e TypeScript. O sistema organiza equipamentos, triagem, manutenção e descarte. A interface aplica permissões por perfil: funcionário, gestor e administrador. No desenvolvimento, MSW pode fornecer dados simulados.
+O ZERA organiza o ciclo de vida de equipamentos e resíduos eletrônicos, do recebimento à reutilização ou ao descarte. O projeto reúne inventário, triagem e acompanhamento para facilitar o trabalho das equipes e dar visibilidade ao destino de cada item.
 
-## Pré-requisitos
+Na aplicação web, a equipe cadastra e consulta itens, identifica equipamentos pelo código de barras, acompanha condições e status e organiza categorias e modelos. Gestores consultam indicadores e relatórios; as ações disponíveis respeitam o perfil de acesso de cada pessoa.
 
-- Node.js 20.19+ ou 22.12+.
-- npm.
+O frontend foi desenvolvido com React, TypeScript e Vite. Ele se comunica com os serviços administrativos e de inventário do ZERA, responsáveis pelas regras de negócio e pela persistência dos dados.
 
-## Rodar localmente
+[Abrir a demonstração](https://zera-interdisciplinar.github.io/zera-web-app/)
 
-Clone o repositório e entre na pasta do projeto. Depois instale as dependências e inicie o servidor:
-
-```bash
-npm ci
-npm run dev
-```
-
-Abra o endereço mostrado no terminal, normalmente `http://localhost:5173`.
-
-Para usar a API simulada no desenvolvimento, crie um arquivo `.env` com:
-
-```env
-VITE_USE_MSW=true
-```
+A demonstração usa dados fictícios, que são reiniciados ao recarregar a página.

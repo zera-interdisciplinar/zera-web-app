@@ -30,8 +30,12 @@ for (const largura of [320, 1280]) {
       if (aba === 'Itens e vida útil') {
         await expect(tabela.getByRole('row')).toHaveCount(26)
         await expect(tabela.getByRole('cell', { name: '—', exact: true }).first()).toBeVisible()
+        await expect(page.getByRole('img', { name: 'Itens por condição', exact: true })).toBeVisible()
       }
+      if (aba === 'Evolução e movimentações') await expect(page.getByRole('img', { name: 'Evolução mensal dos cadastros', exact: true })).toBeVisible()
+      if (aba === 'Qualidade dos dados e alertas') await expect(page.getByRole('img', { name: 'Alertas por gravidade', exact: true })).toBeVisible()
       if (aba === 'Materiais e sustentabilidade') await expect(tabela).toContainText('Metal')
+      if (aba === 'Materiais e sustentabilidade') await expect(page.getByRole('img', { name: 'Peso descartado por material', exact: true })).toBeVisible()
       expect((await new AxeBuilder({ page }).analyze()).violations.map(v => v.id)).toEqual([])
       expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false)
     }

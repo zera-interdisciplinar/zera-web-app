@@ -1,5 +1,5 @@
-import { useContext } from 'react'
-import { AuthContext } from '../../context/auth'
+import { usePainelUsuario } from '../../hooks/usePainelUsuario'
+import { Button } from '../../components/Button'
 import { PainelPessoal } from '../../components/PainelPessoal'
 import { DashboardDemo } from '../../components/DashboardDemo'
 import { dashboardDemoEnabled } from '../../config/dashboardMode'
@@ -44,7 +44,7 @@ const statusLabels: Record<string, string> = {
 
 function labelConexao(estado: string): string {
   const labels: Record<string, string> = {
-    connecting: 'Conectando ao dashboard',
+    connecting: 'Preparando os dados…',
     connected: 'Dados atualizados',
     reconnecting: 'Reconectando ao dashboard',
     unavailable: 'Dados indisponíveis',
@@ -54,16 +54,17 @@ function labelConexao(estado: string): string {
 }
 
 export default function DashboardPage({ demonstracao = false }: { demonstracao?: boolean } = {}) {
-  const auth = useContext(AuthContext)
+  const painel = usePainelUsuario()
   if (import.meta.env.DEV && (demonstracao || dashboardDemoEnabled())) return <DashboardDemo />
-  if (auth?.usuario?.perfil === 'funcionario') return <PainelPessoal />
-  return <PainelGestao />
+  if (painel.funcionario && !painel.indicadores) return <><PainelPessoal /><Button onClick={painel.alternar}>Ver indicadores da unidade</Button></>
+  return <>{painel.funcionario && <Button onClick={painel.alternar}>Voltar aos meus itens</Button>}<PainelGestao pessoal={painel.funcionario} /></>
 }
 
-function PainelGestao() {
+function PainelGestao({ pessoal = false }: { pessoal?: boolean }) {
   const [aba, setAba] = useState<AbaId>('operational')
   const [filtros, setFiltros] = useState<FiltrosDashboard>({ period: '6m', view: 'todos' })
-  const { snapshot, estado, indisponivel, erro, recarregar } = useDashboardSse(filtros, aba !== 'operational')
+  const usaStream = ['overview', 'evolution', 'quality'].includes(aba)
+  const { snapshot, estado, indisponivel, erro, recarregar } = useDashboardSse(filtros, usaStream)
   const catalogo = useCategorias()
 
   const categorias = [...new Set([...(snapshot?.available_filters.categories ?? []), ...(catalogo.dados?.map((categoria) => categoria.nome) ?? [])])]
@@ -104,15 +105,15 @@ function PainelGestao() {
   }
 
   return (
-    <div className={estilos.dashboard} data-estado={aba === 'operational' ? 'carregando' : erro || indisponivel ? 'erro' : snapshot ? 'sucesso' : 'carregando'}>
+    <div className={estilos.dashboard} data-estado={usaStream ? erro ? 'erro' : indisponivel ? 'indisponivel' : snapshot ? 'sucesso' : 'carregando' : undefined}>
       <div className={estilos.tituloLinha}>
-        <PageHeader titulo="Painel do Zera" subtitulo="Indicadores de inventário, movimentações e sustentabilidade." />
+        <PageHeader titulo={pessoal ? 'Indicadores da unidade' : 'Painel do Zera'} subtitulo="Indicadores de inventário, movimentações e sustentabilidade." />
         <span className={`${estilos.estado} ${estilos[`estado_${estado}`]}`} role="status" aria-live="polite">
-          {aba === 'operational' ? 'Inventário da unidade' : labelConexao(estado)}
+          {!usaStream ? 'Inventário da unidade' : labelConexao(estado)}
         </span>
       </div>
 
-      {aba !== 'operational' && snapshot && (
+      {usaStream && snapshot && (
         <p className={estilos.mensagemInfo} role="status">
           Atualização: {formatarDataRelativa(snapshot.extracted_at)}
           {estado === 'reconnecting' ? ' · Reconectando: exibindo o último lote recebido.' : ''}
@@ -148,7 +149,7 @@ function PainelGestao() {
       </nav>
 
       <section className={estilos.filtros} aria-label="Filtros do dashboard">
-        {filtrosPorAba[aba].map((definicao) => (
+        {filtrosPorAba[aba].filter(definicao => !pessoal || !['unitId', 'responsible'].includes(definicao.key)).map((definicao) => (
           <label className={estilos.filtro} key={definicao.key}>
             <span>{definicao.label}</span>
             <select
@@ -163,15 +164,15 @@ function PainelGestao() {
         ))}
       </section>
 
-      {aba !== 'operational' && erro && <EstadoErro mensagem={formatarErroDashboard(erro.status, erro.detail)} aoTentarNovamente={recarregar} />}
-      {aba !== 'operational' && indisponivel && <p className={estilos.mensagemInfo} role="status">Ainda não há dados para exibir aqui.</p>}
+      {usaStream && erro && <EstadoErro mensagem={formatarErroDashboard(erro.status, erro.detail)} aoTentarNovamente={recarregar} />}
+      {usaStream && indisponivel && <p className={estilos.mensagemInfo} role="status">Os dados deste período ainda não foram disponibilizados.</p>}
 
       <div id={`painel-${aba}`} role="tabpanel" aria-labelledby={`aba-${aba}`} className={estilos.painel}>
         {aba === 'operational' && <OperacionalTab />}
-        {aba === 'overview' && <VisaoGeralTab snapshot={snapshot} />}
+        {aba === 'overview' && <VisaoGeralTab snapshot={snapshot} aguardando={!erro && !indisponivel} />}
         {aba === 'life' && <ItensVidaUtilTab ativo />}
-        {aba === 'evolution' && <EvolucaoMovimentacoesTab snapshot={snapshot} />}
-        {aba === 'quality' && <QualidadeDadosTab snapshot={snapshot} />}
+        {aba === 'evolution' && <EvolucaoMovimentacoesTab snapshot={snapshot} aguardando={!erro && !indisponivel} />}
+        {aba === 'quality' && <QualidadeDadosTab snapshot={snapshot} aguardando={!erro && !indisponivel} />}
         {aba === 'materials' && <MateriaisSustentabilidadeTab ativo />}
       </div>
     </div>

@@ -10,7 +10,7 @@ export { acompanharDashboard } from './dashboardSse'
 
 export async function obterSnapshotDashboard(filtros: FiltrosDashboard, sinal?: AbortSignal): Promise<DashboardSnapshot> {
   const controlador = new AbortController()
-  const timeout = AbortSignal.timeout(30_000)
+  const timeout = AbortSignal.timeout(195_000)
   const sinalStream = AbortSignal.any([controlador.signal, timeout, ...(sinal ? [sinal] : [])])
   const resultado: { snapshot?: DashboardSnapshot; erro?: ApiError } = {}
   await acompanharDashboard(filtros, sinalStream, {

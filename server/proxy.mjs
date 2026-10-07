@@ -60,7 +60,7 @@ export function criarProxy({ administrative, inventory, analytics, apiKey, origi
       const cancel = () => { if (!res.writableEnded) abort.abort() }
       res.once('close', cancel)
       // Limita a abertura, nao a vida do SSE; heartbeats podem continuar por minutos.
-      const timeout = setTimeout(() => abort.abort(), 15_000)
+      const timeout = setTimeout(() => abort.abort(), match[1] === 'analytics' ? 180_000 : 15_000)
       try {
         const response = await fetch(url, {
           method: req.method,

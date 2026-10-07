@@ -1,9 +1,12 @@
 .envoltorio {
   width: 100%;
+  max-width: 100%;
+  overflow: auto;
 }
+.envoltorio:focus-visible { outline: 3px solid var(--navy); outline-offset: 2px; }
 
 .grafico {
-  width: 100%;
+  min-width: 100%;
   height: auto;
   display: block;
 }

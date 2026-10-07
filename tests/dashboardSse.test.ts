@@ -29,6 +29,9 @@ afterEach(() => {
 afterAll(() => server.close())
 
 describe('parser SSE do dashboard', () => {
+  it('recusa URL remota HTTP antes de transmitir a sessão', () => {
+    expect(() => criarUrlDashboardSse({ period: '6m', view: 'todos' }, 'http://remote.example.invalid')).toThrow('conexão segura')
+  })
   it('monta o endpoint a partir da base /api sem duplicar o prefixo', () => {
     const url = criarUrlDashboardSse(
       { period: '6m', view: 'todos' },
@@ -77,6 +80,30 @@ describe('valores nulos do contrato', () => {
 
 describe('origem dos cards e gráficos', () => {
   const filtros: FiltrosDashboard = { period: '6m', view: 'todos' }
+
+  it('após EOF troca para consultas de snapshot a cada 30 segundos, canceláveis', async () => {
+    vi.useFakeTimers()
+    const controle = new AbortController()
+    let chamadas = 0
+    const busca = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => {
+      chamadas += 1
+      const lote = { ...dashboardSnapshotMock, batch_id: `poll-${chamadas}` }
+      return new Response(new ReadableStream({ start(controller) {
+        controller.enqueue(new TextEncoder().encode(`event: snapshot\ndata: ${JSON.stringify(lote)}\n\n`))
+        if (chamadas === 1) controller.close()
+      } }), { headers: { 'Content-Type': 'text/event-stream' } })
+    })
+    try {
+      const tarefa = acompanharDashboard(filtros, controle.signal, { onSnapshot: () => { if (chamadas === 3) controle.abort() }, onUnavailable: vi.fn(), onError: vi.fn(), onState: vi.fn() })
+      await vi.advanceTimersByTimeAsync(1000)
+      expect(chamadas).toBe(2)
+      await vi.advanceTimersByTimeAsync(29_999)
+      expect(chamadas).toBe(2)
+      await vi.advanceTimersByTimeAsync(1)
+      await tarefa
+      expect(chamadas).toBe(3)
+    } finally { controle.abort(); busca.mockRestore(); vi.useRealTimers() }
+  })
 
   it('exibe o selo em cada card/gráfico abastecido por fixture', () => {
     const visaoGeral = renderToStaticMarkup(createElement(VisaoGeralTab, { snapshot: dashboardSnapshotMock, demo: true }))
@@ -133,6 +160,26 @@ describe('origem dos cards e gráficos', () => {
 describe('integração MSW do stream', () => {
   const filtros: FiltrosDashboard = { period: '6m', view: 'todos' }
 
+  it('aguarda preparação acima de 15 segundos sem abortar dados válidos', async () => {
+    vi.useFakeTimers()
+    let liberar: (resposta: Response) => void = () => {}
+    let sinal: AbortSignal | null = null
+    const busca = vi.spyOn(globalThis, 'fetch').mockImplementationOnce((_url, opcoes) => {
+      sinal = opcoes?.signal ?? null
+      return new Promise<Response>((resolve) => { liberar = resolve })
+    })
+    const controle = new AbortController()
+    const snapshot = vi.fn(() => controle.abort())
+    try {
+      const tarefa = acompanharDashboard(filtros, controle.signal, { onSnapshot: snapshot, onUnavailable: vi.fn(), onError: vi.fn(), onState: vi.fn() })
+      await vi.advanceTimersByTimeAsync(16_000)
+      expect((sinal as AbortSignal | null)?.aborted).toBe(false)
+      liberar(new Response(`event: snapshot\ndata: ${JSON.stringify(dashboardSnapshotMock)}\n\n`, { headers: { 'Content-Type': 'text/event-stream' } }))
+      await tarefa
+      expect(snapshot).toHaveBeenCalledOnce()
+    } finally { busca.mockRestore(); vi.useRealTimers() }
+  })
+
   it.each([401, 403, 503])('preserva HTTP %s e só expira sessão em 401', async (status) => {
     server.use(http.get(endpoint, () => Response.json({ detail: 'falha controlada' }, { status })))
     const expirou = vi.fn()
@@ -166,11 +213,11 @@ describe('integração MSW do stream', () => {
   it('comunica falha de rede e permite cancelar antes da reconexão', async () => {
     server.use(http.get(endpoint, () => Response.error()))
     const controlador = new AbortController()
-    const erro = vi.fn(() => controlador.abort())
+    const erro = vi.fn()
     await acompanharDashboard(filtros, controlador.signal, {
-      onSnapshot: vi.fn(), onUnavailable: vi.fn(), onError: erro, onState: vi.fn(),
+      onSnapshot: vi.fn(), onUnavailable: vi.fn(), onError: erro, onState: (estado) => { if (estado === 'reconnecting') controlador.abort() },
     })
-    expect(erro).toHaveBeenCalledWith({ status: 0, detail: expect.stringContaining('Tentando reconectar') })
+    expect(erro).not.toHaveBeenCalled()
   })
 
   it('reabre o stream depois de EOF e recebe o novo lote', async () => {

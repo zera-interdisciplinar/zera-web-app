@@ -1,5 +1,6 @@
 import type { DashboardSnapshot, EventoSseDashboard, FiltrosDashboard } from '../types/dashboardAnalytics'
 import { criarUrlApi, expirarSessaoApi, obterSessaoApi } from './apiReal'
+import { ApiError } from '../types/api'
 
 const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL ?? '/api/analytics'
 const CAMINHO_OVERVIEW = '/api/v1/dashboard/overview'
@@ -22,6 +23,10 @@ export function criarUrlDashboardSse(filtros: FiltrosDashboard, baseUrl = API_BA
   // Base reservada apenas para resolver URLs relativas fora do navegador; não é chamada como serviço.
   const origem = typeof document === 'undefined' ? 'https://zera.invalid/' : document.baseURI
   const url = criarUrlApi(CAMINHO_OVERVIEW, new URL(baseUrl, origem).toString())
+  const local = import.meta.env.DEV && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)
+  if (url.protocol !== 'https:' && !(local && url.protocol === 'http:')) {
+    throw new ApiError('Não foi possível estabelecer uma conexão segura.', 0, undefined, 'configuracao')
+  }
   url.searchParams.set('period', filtros.period)
   url.searchParams.set('view', filtros.view)
 
@@ -138,8 +143,12 @@ export async function acompanharDashboard(
   opcoes: OpcoesStreamDashboard,
 ): Promise<void> {
   let falhasDeRede = 0
+  let consultaPeriodica = false
 
   while (!sinal.aborted) {
+    let limiteDado: ReturnType<typeof setTimeout> | undefined
+    let inatividade: ReturnType<typeof setTimeout> | undefined
+    let recebeuDados = false
     opcoes.onState(falhasDeRede > 0 ? 'reconnecting' : 'connecting')
     try {
       const sessao = obterSessaoApi()
@@ -154,20 +163,25 @@ export async function acompanharDashboard(
       if (unidade) headers.set('X-Unit-Id', unidade)
 
       const cancelamento = new AbortController()
-      const limiteAbertura = setTimeout(() => cancelamento.abort(new DOMException('Tempo de abertura excedido.', 'TimeoutError')), 15_000)
-      let resposta: Response
-      try {
-        resposta = await fetch(criarUrlDashboardSse(filtros), {
+      // A primeira resposta pode precisar preparar uma consulta ainda suspensa.
+      limiteDado = setTimeout(() => cancelamento.abort(new DOMException('Tempo de preparação excedido.', 'TimeoutError')), 190_000)
+      const resposta = await fetch(criarUrlDashboardSse(filtros), {
         method: 'GET',
         headers,
         signal: AbortSignal.any([sinal, cancelamento.signal]),
         credentials: 'omit',
         redirect: 'error',
         cache: 'no-store',
-        })
-      } finally { clearTimeout(limiteAbertura) }
+      })
 
       if (!resposta.ok) {
+        if ([502, 503, 504].includes(resposta.status) && falhasDeRede < 2) {
+          await resposta.text()
+          falhasDeRede += 1
+          opcoes.onState('reconnecting')
+          await esperar(500 * 2 ** (falhasDeRede - 1), sinal)
+          continue
+        }
         const texto = await resposta.text()
         opcoes.onError(extrairFalha(resposta.status, texto))
         opcoes.onState('error')
@@ -181,12 +195,11 @@ export async function acompanharDashboard(
         return
       }
 
-      falhasDeRede = 0
-      opcoes.onState('connected')
       const reader = resposta.body.getReader()
       const decoder = new TextDecoder()
       let buffer = ''
       let terminal = false
+      let concluirConsulta = false
       const cancelarLeitura = () => { void reader.cancel().catch(() => undefined) }
       sinal.addEventListener('abort', cancelarLeitura, { once: true })
 
@@ -194,6 +207,10 @@ export async function acompanharDashboard(
         while (!sinal.aborted) {
           const { done, value } = await reader.read()
           if (done) break
+          if (recebeuDados) {
+            clearTimeout(inatividade)
+            inatividade = setTimeout(() => cancelamento.abort(new DOMException('Atualização interrompida.', 'TimeoutError')), 65_000)
+          }
           const resultado = analisarChunkSse(buffer, decoder.decode(value, { stream: true }))
           buffer = resultado.restante
           for (const evento of resultado.eventos) {
@@ -209,10 +226,23 @@ export async function acompanharDashboard(
             }
 
             if (evento.event === 'snapshot' && validarSnapshot(corpo)) {
+              clearTimeout(limiteDado)
+              recebeuDados = true
+              falhasDeRede = 0
+              opcoes.onState('connected')
               opcoes.onSnapshot(corpo)
+              clearTimeout(inatividade)
+              inatividade = setTimeout(() => cancelamento.abort(new DOMException('Atualização interrompida.', 'TimeoutError')), 65_000)
+              if (consultaPeriodica) { concluirConsulta = true; break }
             } else if (evento.event === 'unavailable' && typeof (corpo as { detail?: unknown })?.detail === 'string') {
+              clearTimeout(limiteDado)
+              recebeuDados = true
+              falhasDeRede = 0
               opcoes.onUnavailable((corpo as { detail: string }).detail)
               opcoes.onState('unavailable')
+              clearTimeout(inatividade)
+              inatividade = setTimeout(() => cancelamento.abort(new DOMException('Atualização interrompida.', 'TimeoutError')), 65_000)
+              if (consultaPeriodica) { concluirConsulta = true; break }
             } else if (evento.event === 'error') {
               const falha = corpo as { status?: unknown; detail?: unknown } | null
               opcoes.onError({
@@ -230,7 +260,7 @@ export async function acompanharDashboard(
               break
             }
           }
-          if (terminal) break
+          if (terminal || concluirConsulta) break
         }
       } finally {
         sinal.removeEventListener('abort', cancelarLeitura)
@@ -240,11 +270,37 @@ export async function acompanharDashboard(
       }
 
       if (terminal || sinal.aborted) return
+      // A mesma rota fornece um snapshot por consulta; não se inventa outra API.
+      const jaConsultava = consultaPeriodica
+      if (recebeuDados) consultaPeriodica = true
+      if (jaConsultava && recebeuDados) {
+        await esperar(30_000, sinal)
+        continue
+      }
       falhasDeRede += 1
+      if (falhasDeRede >= 3) {
+        opcoes.onError({ status: 0, detail: 'Não recebemos dados para atualizar o painel. Tente novamente.' })
+        opcoes.onState('error')
+        return
+      }
     } catch (erro) {
-      if (sinal.aborted || (erro instanceof DOMException && erro.name === 'AbortError')) return
-      opcoes.onError({ status: 0, detail: 'Conexão com analytics interrompida. Tentando reconectar.' })
+      if (sinal.aborted) return
+      if (erro instanceof ApiError && erro.tipoFalha === 'configuracao') {
+        opcoes.onError({ status: 0, detail: erro.message })
+        opcoes.onState('error')
+        return
+      }
+      if (recebeuDados) consultaPeriodica = true
       falhasDeRede += 1
+      if (falhasDeRede >= 3) {
+        opcoes.onError({ status: 0, detail: 'Não conseguimos atualizar os dados. Tente novamente.' })
+        opcoes.onState('error')
+        return
+      }
+      if (import.meta.env.DEV) console.warn('[Zera] Consulta interrompida', { tipo: erro instanceof Error ? erro.name : 'rede' })
+    } finally {
+      clearTimeout(limiteDado)
+      clearTimeout(inatividade)
     }
 
     if (!sinal.aborted) {

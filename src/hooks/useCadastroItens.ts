@@ -42,6 +42,7 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
   const montado = useRef(false)
   const salvando = useRef(false)
   const removendo = useRef(false)
+  const restaurarFoco = useRef(false)
   const buscaEtiqueta = useRef<AbortController | null>(null)
   const buscarModelos = useCallback((sinal: AbortSignal) => listarModelos(sinal), [])
   const modelos = useRequisicao(buscarModelos, !modoDemonstracao)
@@ -53,6 +54,13 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
       buscaEtiqueta.current?.abort()
     }
   }, [])
+
+  useEffect(() => {
+    if (exclusao.excluindo || !restaurarFoco.current) return
+    restaurarFoco.current = false
+    const quadro = requestAnimationFrame(() => document.getElementById('adicionar-item')?.focus())
+    return () => cancelAnimationFrame(quadro)
+  }, [exclusao.excluindo])
 
   const abrirCadastro = useCallback(() => setEstado({ ...ESTADO_INICIAL, modalAberto: true }), [])
   const abrirEdicao = useCallback((produto: ProdutoDetalhado) => {
@@ -178,7 +186,7 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
       if (!montado.current) return
       mostrarToast(`"${item.nome}" removido do inventário.`)
       setExclusao((atual) => ({ ...atual, excluindo: null }))
-      requestAnimationFrame(() => document.getElementById('adicionar-item')?.focus())
+      restaurarFoco.current = true
       aoAtualizar()
     } catch (falha: unknown) {
       if (montado.current) setExclusao((atual) => ({ ...atual, erroExclusao: mensagemDeErro(falha) }))

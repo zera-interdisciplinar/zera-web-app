@@ -214,7 +214,7 @@ export default function ItensPage() {
                   Limpar filtros
                 </button>
               ) : (
-                <Button id="adicionar-item" variante="primario" onClick={abrirCadastro}>
+                <Button variante="primario" onClick={abrirCadastro}>
                   Adicionar item
                 </Button>
               )

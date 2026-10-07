@@ -139,6 +139,10 @@
 
 @media (max-width: 640px) {
   .topbar { height: auto; min-height: 60px; padding: var(--sp-3); flex-wrap: wrap; }
-  .filtros { min-width: 0; }
+  .topbar { position: relative; padding-right: 64px; }
+  .conta { position: absolute; top: var(--sp-3); right: var(--sp-3); }
+  .filtros { min-width: 0; gap: var(--sp-1); }
+  .filtros button { font-size: 0.75rem; }
+  .separador { display: none; }
   .menuConta { min-width: min(260px, calc(100vw - 2rem)); }
 }

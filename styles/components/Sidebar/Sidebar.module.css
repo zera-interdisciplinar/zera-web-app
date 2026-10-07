@@ -39,6 +39,8 @@
 
 @media (max-width: 640px) {
   .sidebar { position: static; width: 100%; height: auto; padding: var(--sp-3); }
-  .lista { grid-template-columns: minmax(0, 1fr); }
-  .rodape { padding-top: var(--sp-3); }
+  .nav { overflow-x: auto; overflow-y: visible; }
+  .lista { display: flex; width: max-content; gap: var(--sp-2); }
+  .lista li { flex: 0 0 auto; }
+  .rodape { display: none; }
 }

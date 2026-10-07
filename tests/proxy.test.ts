@@ -42,3 +42,18 @@ describe('proxy de aplicação', () => {
     expect(await response.text()).toContain('Não foi possível')
   })
 })
+
+it('encaminha etiquetas codificadas sem alterar o segmento', async () => {
+  const upstream = await iniciar((req, res) => {
+    expect(req.url).toBe('/api/v1/items/by-barcode/A%2FB')
+    res.writeHead(200); res.end('{}')
+  })
+  const proxy = await iniciar(criarProxy({ inventory: upstream, apiKey: crypto.randomUUID() }))
+  expect((await fetch(`${proxy}/inventory/api/v1/items/by-barcode/A%2FB`)).status).toBe(200)
+})
+
+it('responde 400 para uma URL malformada', async () => {
+  const handler = criarProxy({ apiKey: crypto.randomUUID() })
+  const res = { setHeader: () => {}, writeHead: (status: number) => { expect(status).toBe(400) }, end: () => {} }
+  await handler({ url: 'http://[', headers: {}, method: 'GET' }, res)
+})

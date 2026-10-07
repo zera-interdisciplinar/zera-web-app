@@ -13,8 +13,10 @@ export function criarProxy({ administrative, inventory, apiKey, origins = ['http
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Unit-Id')
       res.writeHead(204); res.end(); return
     }
-    const route = new URL(req.url ?? '/', 'http://localhost')
-    const match = route.pathname.match(/^\/(administrative|inventory)(\/api\/v1\/[A-Za-z0-9/_-]+)$/)
+    let route
+    try { route = new URL(req.url ?? '/', 'http://localhost') }
+    catch { res.writeHead(400); res.end(); return }
+    const match = route.pathname.match(/^\/(administrative|inventory)(\/api\/v1\/[A-Za-z0-9/_.%~-]+)$/)
     if (!match || !['GET', 'POST', 'PATCH', 'PUT', 'DELETE'].includes(req.method ?? '')) {
       res.writeHead(404); res.end(); return
     }

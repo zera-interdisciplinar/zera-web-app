@@ -70,7 +70,7 @@ describe('cadastro e remoção no inventário', () => {
     expect(busca).not.toHaveBeenCalled()
   })
   it('envia tipos de dano selecionados e elimina duplicações', async () => {
-    busca.mockResolvedValue(Response.json({ id: 'item-1', ...dados, status: 'DRAFT', model: null, createdAt: '2026-10-07', updatedAt: '2026-10-07' }))
+    busca.mockResolvedValue(Response.json({ id: 'item-1', ...dados, unitId: unidade, status: 'DRAFT', model: null, createdAt: '2026-10-07', updatedAt: '2026-10-07' }))
     const { criarItemReal } = await import('../src/services/itemCadastroService')
     await criarItemReal({ ...dados, hasDamages: true, damages: ['OXIDATION', 'OXIDATION'] })
     expect(JSON.parse(busca.mock.calls[0][1].body)).toMatchObject({ usageIntensity: 4, hasDamages: true, damages: ['OXIDATION'] })

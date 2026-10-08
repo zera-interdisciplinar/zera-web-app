@@ -27,3 +27,12 @@ it('distingue zero publicado de preparação, sem barras com altura inventada', 
   expect(renderToStaticMarkup(createElement(VisaoGeralTab, { snapshot: null }))).toContain('Preparando os dados')
   expect(renderToStaticMarkup(createElement(VisaoGeralTab, { snapshot: null, aguardando: false }))).toBe('')
 })
+
+it('apresenta estado vazio quando os indicadores e distribuições estão vazios', () => {
+  const snapshot = structuredClone(dashboardSnapshotMock)
+  snapshot.kpis.itens_cadastrados.value = 0
+  snapshot.por_categoria = []
+  snapshot.por_status = []
+  const html = renderToStaticMarkup(createElement(VisaoGeralTab, { snapshot }))
+  expect(html).toContain('Ainda não há dados para exibir.')
+})

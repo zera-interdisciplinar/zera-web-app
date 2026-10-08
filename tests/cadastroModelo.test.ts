@@ -17,7 +17,7 @@ afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.resetModules() }
 
 describe('cadastro real de modelos', () => {
   it('envia códigos de material e categoria; autoria vem do token', async () => {
-    busca.mockResolvedValue(Response.json({ id: 'modelo', ...dados, category: { id: categoria, name: 'Monitores' }, materials: [{ name: 'Tela' }], expectedLifespanMonths: null }, { status: 201 }))
+    busca.mockResolvedValue(Response.json({ id: 'modelo', unitId: categoria, ...dados, category: { id: categoria, unitId: categoria, name: 'Monitores', description: null }, materials: [{ id: 'material', code: 'SCREEN', name: 'Tela', recyclable: true, hazardous: false, disposalGuide: null }], expectedLifespanMonths: null, warrantyMonths: null, estimatedWeightKg: null, notes: null, approvalStatus: 'PENDING' }, { status: 201 }))
     const { criarModeloReal } = await import('../src/services/cadastroModeloService')
     expect((await criarModeloReal(dados)).id).toBe('modelo')
     expect(busca.mock.calls[0][0].pathname).toBe('/api/v1/models')
@@ -44,7 +44,7 @@ describe('cadastro real de modelos', () => {
     await expect(criarModeloReal(dados)).rejects.toMatchObject({ status: 409 })
   })
   it('consulta catálogo de materiais pelo contrato documentado com cancelamento', async () => {
-    busca.mockResolvedValue(Response.json([{ id: 'material', code: 'SCREEN', name: 'Tela' }]))
+    busca.mockResolvedValue(Response.json([{ id: 'material', code: 'SCREEN', name: 'Tela', recyclable: true, hazardous: false, disposalGuide: null }]))
     const { listarMateriais } = await import('../src/services/cadastroModeloService')
     const controlador = new AbortController()
     const sinal = controlador.signal

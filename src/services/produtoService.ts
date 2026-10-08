@@ -1,12 +1,13 @@
+import { lerItemApi } from '../utils/guardaItemApi'
 import type { Classificacao, NovoProduto, ProdutoDetalhado } from '../types/produto'
 import { contextualizar, requisitar } from './http'
 import { listarPaginas, modoDemonstracao, requisitarApiReal } from './apiReal'
-import type { ItemResponse, UpdateItemRequest } from '../types/apiReal'
+import type { UpdateItemRequest } from '../types/apiReal'
 import { mapearItem } from './mapeadoresApi'
 
 export async function listarProdutos(sinal?: AbortSignal): Promise<ProdutoDetalhado[]> {
   try {
-    if (!modoDemonstracao) return (await listarPaginas<ItemResponse>('inventory', '/api/v1/items', sinal)).map(mapearItem)
+    if (!modoDemonstracao) return (await listarPaginas<unknown>('inventory', '/api/v1/items', sinal)).map(item => mapearItem(lerItemApi(item)))
     return await requisitar<ProdutoDetalhado[]>('/items', { sinal })
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível carregar os itens.')
@@ -15,7 +16,7 @@ export async function listarProdutos(sinal?: AbortSignal): Promise<ProdutoDetalh
 
 export async function buscarProduto(id: number | string, sinal?: AbortSignal): Promise<ProdutoDetalhado> {
   try {
-    if (!modoDemonstracao) return mapearItem(await requisitarApiReal<ItemResponse>('inventory', `/api/v1/items/${encodeURIComponent(id)}`, { sinal, unidade: true }))
+    if (!modoDemonstracao) return mapearItem(lerItemApi(await requisitarApiReal<unknown>('inventory', `/api/v1/items/${encodeURIComponent(id)}`, { sinal, unidade: true })))
     return await requisitar<ProdutoDetalhado>(`/items/${id}`, { sinal })
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível carregar o item.')
@@ -29,7 +30,7 @@ export async function buscarPorCodigo(codigo: string, sinal?: AbortSignal): Prom
       if (!produto) throw new Error('Código não encontrado no inventário.')
       return produto
     }
-    return mapearItem(await requisitarApiReal<ItemResponse>('inventory', `/api/v1/items/by-barcode/${encodeURIComponent(codigo)}`, { sinal, unidade: true }))
+    return mapearItem(lerItemApi(await requisitarApiReal<unknown>('inventory', `/api/v1/items/by-barcode/${encodeURIComponent(codigo)}`, { sinal, unidade: true })))
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível localizar o código de barras.')
   }
@@ -38,7 +39,7 @@ export async function buscarPorCodigo(codigo: string, sinal?: AbortSignal): Prom
 export async function editarItemReal(id: number | string, dados: UpdateItemRequest): Promise<ProdutoDetalhado> {
   try {
     const { notes, ...campos } = dados
-    return mapearItem(await requisitarApiReal<ItemResponse>('inventory', `/api/v1/items/${encodeURIComponent(id)}`, { metodo: 'PATCH', corpo: notes ? dados : campos, unidade: true }))
+    return mapearItem(lerItemApi(await requisitarApiReal<unknown>('inventory', `/api/v1/items/${encodeURIComponent(id)}`, { metodo: 'PATCH', corpo: notes ? dados : campos, unidade: true })))
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível editar o item.')
   }

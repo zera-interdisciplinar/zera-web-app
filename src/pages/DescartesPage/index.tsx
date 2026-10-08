@@ -8,7 +8,7 @@ import { useListaDescartes } from '../../hooks/useListaDescartes'
 import type { DisposalResponse } from '../../types/apiReal'
 import { formatarData } from '../../utils/formatacao'
 
-const destinos = { RECYCLING: 'Reciclagem', LANDFILL: 'Aterro', DONATION: 'Doação' }
+const destinos: Record<string, string> = { RECYCLING: 'Reciclagem', LANDFILL: 'Aterro', DONATION: 'Doação' }
 
 export default function DescartesPage() {
   const { mostrarResponsavel, modoDemonstracao, descartes } = useListaDescartes()
@@ -23,7 +23,7 @@ export default function DescartesPage() {
       {descartes.dados && descartes.dados.length === 0 && <EmptyState titulo="Nenhum descarte registrado" descricao="A unidade não retornou registros de descarte." />}
       {descartes.dados && descartes.dados.length > 0 && <DataTable dados={descartes.dados} chave={(item) => item.id} legenda="Descartes, destinos, quantidades e pesos" colunas={[
         { titulo: 'Data', render: (item) => formatarData(item.disposedAt) },
-        { titulo: 'Destino', render: (item) => destinos[item.destination] },
+        { titulo: 'Destino', render: (item) => destinos[item.destination] ?? 'Não informado' },
         { titulo: 'Local', render: (item) => item.placeName ?? 'Não informado' },
         { titulo: 'Itens', render: (item) => item.items.length, numerica: true },
         { titulo: 'Peso (kg)', render: (item) => item.totalWeightKg.toLocaleString('pt-BR'), numerica: true },

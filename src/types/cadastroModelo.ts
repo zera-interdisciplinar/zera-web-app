@@ -13,7 +13,7 @@ export interface CadastroModeloReal {
 
 export interface MaterialCatalogo {
   id: string
-  code: CodigoMaterial
+  code: string
   name: string
   recyclable: boolean
   hazardous: boolean

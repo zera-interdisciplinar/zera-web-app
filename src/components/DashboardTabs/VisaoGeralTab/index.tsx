@@ -10,6 +10,7 @@ import { SeloDemonstracao } from '../SeloDemonstracao'
 export function VisaoGeralTab({ snapshot, demo = false, aguardando = true }: VisaoGeralTabProps) {
   if (!snapshot) return aguardando ? <Skeleton descricao="Preparando os dados…" linhas={4} /> : null
   return <div className={estilos.conteudo}>
+    {snapshot.kpis.itens_cadastrados.value === 0 && snapshot.por_categoria.length === 0 && snapshot.por_status.length === 0 && <p role="status">Ainda não há dados para exibir.</p>}
     <section className={estilos.gradeKpis} aria-label="Indicadores gerais">
       <KpiDashboard demo={demo} titulo="Itens cadastrados" valor={formatarNumero(snapshot.kpis.itens_cadastrados.value)} nota={formatarVariacao(snapshot.kpis.itens_cadastrados.change_percent)} />
       <KpiDashboard demo={demo} titulo="Alertas registrados" valor={formatarNumero(snapshot.alertas.abertos)} />

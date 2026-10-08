@@ -1,3 +1,4 @@
+import { ehCodigoMaterial } from '../../utils/guardaModeloApi'
 import estilos from '../../../styles/pages/ModelosPage/ModelosPage.module.css'
 import type { CadastroModeloProps } from '../../types/componentes/CadastroModelo'
 import { Button } from '../Button'
@@ -73,8 +74,8 @@ export function CadastroModelo({ cadastro, categorias }: CadastroModeloProps) {
                 {materiais.erro && <EstadoErro mensagem={materiais.erro} aoTentarNovamente={materiais.recarregar} />}
                 <div className={estilos.listaMateriais}>
                   {(materiais.dados ?? []).map((material) => <label key={material.id} htmlFor={`material-modelo-${material.id}`}>
-                    <input id={`material-modelo-${material.id}`} type="checkbox" checked={form.materiais.includes(material.code)}
-                      onChange={() => alternarMaterial(material.code)} />
+                    <input id={`material-modelo-${material.id}`} type="checkbox" disabled={!ehCodigoMaterial(material.code)} checked={ehCodigoMaterial(material.code) && form.materiais.includes(material.code)}
+                      onChange={() => { if (ehCodigoMaterial(material.code)) alternarMaterial(material.code) }} />
                     {material.name}
                   </label>)}
                 </div>

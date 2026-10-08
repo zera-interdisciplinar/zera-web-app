@@ -125,14 +125,14 @@ describe('serviços e erros das APIs', () => {
     expect(JSON.parse(busca.mock.calls[0][1].body)).toEqual({ name: 'Monitores', description: 'Telas' })
   })
   it('edição usa PATCH e preserva notas quando o campo fica vazio', async () => {
-    busca.mockResolvedValue(new Response(JSON.stringify({ id: 'item', name: 'Nome', status: 'IN_STOCK', barcode: 'etiqueta', condition: 'USED', createdAt: '2026-01-01', updatedAt: '2026-01-01', model: null })))
+    busca.mockResolvedValue(new Response(JSON.stringify({ id: 'item', unitId: 'unidade', name: 'Nome', status: 'IN_STOCK', barcode: 'etiqueta', condition: 'USED', createdAt: '2026-01-01', updatedAt: '2026-01-01', model: null })))
     const { editarItemReal } = await import('../src/services/produtoService')
     await editarItemReal('item', { name: 'Nome', condition: 'USED', notes: '' })
     expect(busca.mock.calls[0][1].method).toBe('PATCH')
     expect(JSON.parse(busca.mock.calls[0][1].body)).toEqual({ name: 'Nome', condition: 'USED' })
   })
   it('busca de etiqueta codifica o identificador sem criar outra operação', async () => {
-    busca.mockResolvedValue(new Response(JSON.stringify({ id: 'item', name: 'Nome', status: 'IN_STOCK', barcode: 'A/B', condition: 'USED', createdAt: '2026-01-01', updatedAt: '2026-01-01', model: null })))
+    busca.mockResolvedValue(new Response(JSON.stringify({ id: 'item', unitId: 'unidade', name: 'Nome', status: 'IN_STOCK', barcode: 'A/B', condition: 'USED', createdAt: '2026-01-01', updatedAt: '2026-01-01', model: null })))
     const { buscarPorCodigo } = await import('../src/services/produtoService')
     expect((await buscarPorCodigo('A/B')).codigoBarras).toBe('A/B')
     expect(busca.mock.calls[0][0].pathname).toBe('/api/v1/items/by-barcode/A%2FB')

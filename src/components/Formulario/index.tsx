@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
-import type { ComponentProps, SubmitEvent } from 'react'
+import type { SubmitEvent } from 'react'
+import type { FormularioProps } from '../../types/componentes/Formulario'
 
-export function Formulario({ onSubmit, onInput, children, ...props }: ComponentProps<'form'>) {
+export function Formulario({ onSubmit, onInput, children, ...props }: FormularioProps) {
   const ref = useRef<HTMLFormElement>(null)
   const [campos, setCampos] = useState<string[]>([])
   function atualizar(focar: boolean) {

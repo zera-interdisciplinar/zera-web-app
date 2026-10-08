@@ -1,20 +1,47 @@
+import type { SetStateAction } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { observarCatalogo } from '../services/catalogoEventos'
-import type { DashboardSnapshot, FiltrosDashboard } from '../types/dashboardAnalytics'
 import { acompanharDashboard } from '../services/dashboardService'
-import type { EstadoConexaoDashboard, FalhaDashboard } from '../services/dashboardSse'
-
-type EstadoPorFiltro<T> = { chave: string; valor: T }
+import type { FiltrosDashboard } from '../types/dashboardAnalytics'
+import type { EstadoLocalDashboardSse } from '../types/controles/EstadoLocalDashboardSse'
 
 export function useDashboardSse(filtros: FiltrosDashboard, habilitado = true) {
-  const [tentativa, setTentativa] = useState(0)
-  const recarregar = useCallback(() => setTentativa((atual) => atual + 1), [])
+  const [estadoLocal, setEstadoLocal] = useState<EstadoLocalDashboardSse>(() => ({
+    tentativa: 0,
+    snapshotAtual: null,
+    estadoAtual: null,
+    indisponivelAtual: null,
+    erroAtual: null,
+  }))
+  const { tentativa, snapshotAtual, estadoAtual, indisponivelAtual, erroAtual } = estadoLocal
+  // Mantém os atualizadores estáveis para efeitos e consumidores do controle.
+  const { setTentativa, setSnapshotAtual, setEstadoAtual, setIndisponivelAtual, setErroAtual } = useMemo(() => ({
+    setTentativa: (valor: SetStateAction<EstadoLocalDashboardSse['tentativa']>) => setEstadoLocal(atual => {
+      const proximo = typeof valor === 'function' ? valor(atual.tentativa) : valor
+      return Object.is(atual.tentativa, proximo) ? atual : { ...atual, tentativa: proximo }
+    }),
+    setSnapshotAtual: (valor: SetStateAction<EstadoLocalDashboardSse['snapshotAtual']>) => setEstadoLocal(atual => {
+      const proximo = typeof valor === 'function' ? valor(atual.snapshotAtual) : valor
+      return Object.is(atual.snapshotAtual, proximo) ? atual : { ...atual, snapshotAtual: proximo }
+    }),
+    setEstadoAtual: (valor: SetStateAction<EstadoLocalDashboardSse['estadoAtual']>) => setEstadoLocal(atual => {
+      const proximo = typeof valor === 'function' ? valor(atual.estadoAtual) : valor
+      return Object.is(atual.estadoAtual, proximo) ? atual : { ...atual, estadoAtual: proximo }
+    }),
+    setIndisponivelAtual: (valor: SetStateAction<EstadoLocalDashboardSse['indisponivelAtual']>) => setEstadoLocal(atual => {
+      const proximo = typeof valor === 'function' ? valor(atual.indisponivelAtual) : valor
+      return Object.is(atual.indisponivelAtual, proximo) ? atual : { ...atual, indisponivelAtual: proximo }
+    }),
+    setErroAtual: (valor: SetStateAction<EstadoLocalDashboardSse['erroAtual']>) => setEstadoLocal(atual => {
+      const proximo = typeof valor === 'function' ? valor(atual.erroAtual) : valor
+      return Object.is(atual.erroAtual, proximo) ? atual : { ...atual, erroAtual: proximo }
+    }),
+  }), [])
+  // Mantém a ação estável para os consumidores e efeitos que a recebem.
+  const recarregar = useCallback(() => setTentativa((atual) => atual + 1), [setTentativa])
   useEffect(() => observarCatalogo(recarregar), [recarregar])
+  // Serializa os filtros uma vez por alteração para controlar a assinatura.
   const chaveFiltros = useMemo(() => JSON.stringify(filtros), [filtros])
-  const [snapshotAtual, setSnapshotAtual] = useState<EstadoPorFiltro<DashboardSnapshot> | null>(null)
-  const [estadoAtual, setEstadoAtual] = useState<EstadoPorFiltro<EstadoConexaoDashboard> | null>(null)
-  const [indisponivelAtual, setIndisponivelAtual] = useState<EstadoPorFiltro<string> | null>(null)
-  const [erroAtual, setErroAtual] = useState<EstadoPorFiltro<FalhaDashboard> | null>(null)
 
   useEffect(() => {
     if (!habilitado) return
@@ -42,7 +69,7 @@ export function useDashboardSse(filtros: FiltrosDashboard, habilitado = true) {
     })
 
     return () => controlador.abort()
-  }, [chaveFiltros, habilitado, tentativa])
+  }, [chaveFiltros, habilitado, setErroAtual, setEstadoAtual, setIndisponivelAtual, setSnapshotAtual, tentativa])
 
   return {
     recarregar,

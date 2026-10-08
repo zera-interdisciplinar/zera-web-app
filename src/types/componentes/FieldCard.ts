@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 
-
 export interface OpcaoCampo {
   valor: string
   rotulo: string

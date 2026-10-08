@@ -1,8 +1,9 @@
 import { useId } from 'react'
-import { formatarNumero } from '../../utils/formatarDashboard'
 import estilos from '../../../styles/components/PesoMensal/PesoMensal.module.css'
+import type { PesoMensalProps } from '../../types/componentes/PesoMensal'
+import { formatarNumero } from '../../utils/formatarDashboard'
 
-export function PesoMensal({ pontos }: { pontos: Array<{ month: string; weightKg: number }> }) {
+export function PesoMensal({ pontos }: PesoMensalProps) {
   const id = useId()
   if (!pontos.some((ponto) => ponto.weightKg > 0)) return <section><h2>Peso descartado por mês</h2><p>Nenhum descarte registrado nos últimos 12 meses</p></section>
   const teto = Math.max(...pontos.map((ponto) => ponto.weightKg)) * 1.15

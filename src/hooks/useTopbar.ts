@@ -1,13 +1,13 @@
 import { useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { listarUsuarios } from '../services/usuarioService'
 import { ROTULO_STATUS } from '../types/produto'
+import type { Usuario } from '../types/usuario'
 import { useAuth } from './useAuth'
 import { useCategorias } from './useCategorias'
 import { useMenuSuspenso } from './useMenuSuspenso'
-import { useRequisicao } from './useRequisicao'
-import { listarUsuarios } from '../services/usuarioService'
-import type { Usuario } from '../types/usuario'
 import { usePermissoes } from './usePermissoes'
+import { useRequisicao } from './useRequisicao'
 
 interface OpcaoFiltro { valor: string; rotulo: string }
 
@@ -54,9 +54,9 @@ export function useTopbar(): RetornoTopbar {
   const { filtrarResponsavel: podeFiltrarResponsavel } = usePermissoes()
   const navegar = useNavigate()
   const categorias = useCategorias()
+  // A referência estável evita reabrir a consulta em useRequisicao.
   const buscarUsuarios = useCallback((sinal: AbortSignal) => listarUsuarios(sinal), [])
   const usuarios = useRequisicao<Usuario[]>(buscarUsuarios, podeFiltrarResponsavel)
-
   const [parametros] = useSearchParams()
   const filtros: FiltrosContexto = {
     periodo: parametros.get('periodo') ?? FILTROS_PADRAO.periodo,
@@ -70,15 +70,12 @@ export function useTopbar(): RetornoTopbar {
     else novos.set(chave, valor)
     navegar(`/itens?${novos}`)
   }
-
   const filtrosSujos =
     filtros.periodo !== FILTROS_PADRAO.periodo ||
     filtros.categoria !== FILTROS_PADRAO.categoria ||
     filtros.status !== FILTROS_PADRAO.status ||
     filtros.responsavel !== FILTROS_PADRAO.responsavel
-
   const limparFiltros = () => navegar('/itens')
-
   const {
     aberto: contaAberta,
     gatilhoRef: gatilhoContaRef,
@@ -93,7 +90,6 @@ export function useTopbar(): RetornoTopbar {
     sair()
     navegar('/login')
   }
-
   const opcoesCategoria = [
     { valor: 'todas', rotulo: 'Todas as categorias' },
     ...(categorias.dados ?? []).map((categoria) => ({
@@ -101,7 +97,6 @@ export function useTopbar(): RetornoTopbar {
       rotulo: categoria.nome,
     })),
   ]
-
   const opcoesResponsavel = [
     { valor: 'todos', rotulo: 'Todos os responsáveis' },
     ...(usuarios.dados ?? []).map((pessoa) => ({ valor: pessoa.nome, rotulo: pessoa.nome })),

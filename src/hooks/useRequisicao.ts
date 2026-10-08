@@ -1,29 +1,30 @@
+import type { SetStateAction } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { mensagemDeErro } from '../types/api'
-
-export interface EstadoRequisicao<T> {
-  dados: T | null
-  carregando: boolean
-  erro: string | null
-  recarregar: () => void
-}
-
-interface IdentificadorRequisicao<T> {
-  buscar: (sinal: AbortSignal) => Promise<T>
-  ativo: boolean
-  gatilho: number
-}
+import type { EstadoLocalRequisicao, EstadoRequisicao } from '../types/controles/EstadoLocalRequisicao'
+export type { EstadoRequisicao } from '../types/controles/EstadoLocalRequisicao'
 
 export function useRequisicao<T>(
   buscar: (sinal: AbortSignal) => Promise<T>,
   ativo: boolean = true,
 ): EstadoRequisicao<T> {
-  const [resultado, setResultado] = useState<{
-    dados: T | null
-    erro: string | null
-    requisicao: IdentificadorRequisicao<T> | null
-  }>({ dados: null, erro: null, requisicao: null })
-  const [gatilho, setGatilho] = useState(0)
+  const [estadoLocal, setEstadoLocal] = useState<EstadoLocalRequisicao<T>>(() => ({
+    resultado: { dados: null, erro: null, requisicao: null },
+    gatilho: 0,
+  }))
+  const { resultado, gatilho } = estadoLocal
+  // Mantém os atualizadores estáveis para efeitos e consumidores do controle.
+  const { setResultado, setGatilho } = useMemo(() => ({
+    setResultado: (valor: SetStateAction<EstadoLocalRequisicao<T>['resultado']>) => setEstadoLocal(atual => {
+      const proximo = typeof valor === 'function' ? valor(atual.resultado) : valor
+      return Object.is(atual.resultado, proximo) ? atual : { ...atual, resultado: proximo }
+    }),
+    setGatilho: (valor: SetStateAction<EstadoLocalRequisicao<T>['gatilho']>) => setEstadoLocal(atual => {
+      const proximo = typeof valor === 'function' ? valor(atual.gatilho) : valor
+      return Object.is(atual.gatilho, proximo) ? atual : { ...atual, gatilho: proximo }
+    }),
+  }), [])
+  // Evita recalcular o valor enquanto suas dependências permanecem iguais.
   const requisicao = useMemo(() => ({ buscar, ativo, gatilho }), [buscar, ativo, gatilho])
 
   useEffect(() => {
@@ -50,12 +51,12 @@ export function useRequisicao<T>(
       vivo = false
       controlador.abort()
     }
-  }, [buscar, ativo, gatilho, requisicao])
+  }, [buscar, ativo, gatilho, requisicao, setResultado])
 
+  // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const recarregar = useCallback(() => {
     setGatilho((valor) => valor + 1)
-  }, [])
-
+  }, [setGatilho])
   const carregando = ativo && resultado.requisicao !== requisicao
 
   return {

@@ -39,3 +39,13 @@ export function iniciais(nome: string): string {
   const ultima = partes.length > 1 ? partes[partes.length - 1][0] : ''
   return `${primeira}${ultima}`.toUpperCase()
 }
+
+export interface ValorAuth {
+  usuario: Usuario | null
+  autenticado: boolean
+  entrando: boolean
+  erro: string | null
+  entrar: (credenciais: Credenciais) => Promise<'autenticado' | 'credenciais-invalidas' | 'falha'>
+  sair: () => void
+  temPerfil: (perfis: Perfil[]) => boolean
+}

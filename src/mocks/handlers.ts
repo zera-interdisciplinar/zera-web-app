@@ -173,7 +173,6 @@ function analisar(produto: Produto): AnalisePreventiva {
     detalhe: `${diasDesde(produto.dataEntrada)} dias parado desde a entrada.`,
     pontos: diasDesde(produto.dataEntrada) > 120 ? 2 : diasDesde(produto.dataEntrada) > 60 ? 1 : 0,
   })
-
   const pontuacao = fatores.reduce((total, fator) => total + fator.pontos, 0)
   const risco = pontuacao >= 7 ? 'alto' : pontuacao >= 4 ? 'medio' : 'baixo'
 

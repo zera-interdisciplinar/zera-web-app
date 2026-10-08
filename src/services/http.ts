@@ -40,7 +40,6 @@ export async function requisitar<T>(caminho: string, opcoes: OpcoesRequisicao = 
   }
 
   if (resposta.status === 204) return undefined as T
-
   const dados = (await resposta.json()) as T
   return sanitizarObjeto(dados)
 }

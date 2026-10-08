@@ -1,11 +1,11 @@
-import { SeloDemonstracao } from './SeloDemonstracao'
-import type { DashboardSnapshot, FiltrosDashboard } from '../../types/dashboardAnalytics'
-import { DataTable } from '../DataTable'
-import { GraficoDados } from '../GraficoDados'
-import { Skeleton } from '../Skeleton'
-import estilos from '../../../styles/components/DashboardTabs/EvolucaoMovimentacoesTab.module.css'
+import estilos from '../../../../styles/components/DashboardTabs/EvolucaoMovimentacoesTab.module.css'
+import type { EvolucaoMovimentacoesTabProps } from '../../../types/componentes/EvolucaoMovimentacoesTab'
+import { DataTable } from '../../DataTable'
+import { GraficoDados } from '../../GraficoDados'
+import { Skeleton } from '../../Skeleton'
+import { SeloDemonstracao } from '../SeloDemonstracao'
 
-export function EvolucaoMovimentacoesTab({ demo = false, snapshot = null, aguardando = false }: { demo?: boolean; filtros?: FiltrosDashboard; snapshot?: DashboardSnapshot | null; aguardando?: boolean } = {}) {
+export function EvolucaoMovimentacoesTab({ demo = false, snapshot = null, aguardando = false }: EvolucaoMovimentacoesTabProps = {}) {
   if (!snapshot && aguardando) return <Skeleton descricao="Preparando os dados…" linhas={3} />
   return (
     <section className={estilos.sourceState} aria-labelledby="fonte-evolucao">

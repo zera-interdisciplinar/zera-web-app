@@ -16,6 +16,7 @@ export function usePreferenciasInventario(): [
     () => carregar<PreferenciasInventario>(CHAVE_PREFERENCIAS_INVENTARIO) ?? PADRAO,
   )
 
+  // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const atualizar = useCallback((parcial: Partial<PreferenciasInventario>) => {
     setPreferencias((atual) => {
       const proximo = { ...atual, ...parcial }

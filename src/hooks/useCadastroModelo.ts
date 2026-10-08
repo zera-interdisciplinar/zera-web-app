@@ -1,18 +1,18 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { usePermissoes } from './usePermissoes'
-import { useAmbiente } from './useAmbiente'
-import { useRequisicao } from './useRequisicao'
-import { useToast } from './useToast'
-import { criarModelo, listarModelos } from '../services/modeloService'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { criarModeloReal, listarMateriais } from '../services/cadastroModeloService'
+import { invalidarCatalogo, observarCatalogo } from '../services/catalogoEventos'
+import { criarModelo, listarModelos } from '../services/modeloService'
 import { mensagemDeErro } from '../types/api'
 import type { CodigoMaterial } from '../types/cadastroModelo'
 import type { EstadoCadastroModelo, FormModelo, RetornoCadastroModelo } from '../types/formularioModelo'
+import type { Modelo } from '../types/modelo'
 import { validarNovoModelo } from '../utils/validacao'
 import { validarCadastroModeloReal } from '../utils/validacaoCadastroModelo'
-import { invalidarCatalogo, observarCatalogo } from '../services/catalogoEventos'
-import type { Modelo } from '../types/modelo'
+import { useAmbiente } from './useAmbiente'
+import { usePermissoes } from './usePermissoes'
+import { useRequisicao } from './useRequisicao'
+import { useToast } from './useToast'
 
 const FORM_INICIAL: FormModelo = {
   nome: '', fabricante: '', categoriaId: '', vidaUtilMeses: '', especificacoes: '',
@@ -40,9 +40,11 @@ export function useCadastroModelo(aoConcluir?: (modelo: Modelo) => void): Retorn
   const { modoDemonstracao } = useAmbiente()
   const [estado, setEstado] = useState<EstadoCadastroModelo>({ modalAberto: false, form: FORM_INICIAL, erros: {}, enviando: false, erroEnvio: null })
   const [toast, mostrarToast] = useToast()
+  // A referência estável evita reabrir a consulta em useRequisicao.
   const buscarModelos = useCallback((sinal: AbortSignal) => listarModelos(sinal), [])
   const modelos = useRequisicao(buscarModelos)
   useEffect(() => observarCatalogo(modelos.recarregar), [modelos.recarregar])
+  // A referência estável evita reabrir a consulta em useRequisicao.
   const buscarMateriais = useCallback((sinal: AbortSignal) => listarMateriais(sinal), [])
   const materiais = useRequisicao(buscarMateriais, !modoDemonstracao)
   const montado = useRef(false)

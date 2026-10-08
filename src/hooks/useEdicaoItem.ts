@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
-import type { FormEvent } from 'react'
-import type { ProdutoDetalhado } from '../types/produto'
-import type { UpdateItemRequest } from '../types/apiReal'
+import type { FormEvent, SetStateAction } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { editarItemReal } from '../services/produtoService'
 import { mensagemDeErro } from '../types/api'
+import type { UpdateItemRequest } from '../types/apiReal'
+import type { EstadoLocalEdicaoItem } from '../types/controles/EstadoLocalEdicaoItem'
+import type { ProdutoDetalhado } from '../types/produto'
 import type { ErrosDeCampo } from '../utils/validacao'
 import { validarEdicaoItem } from '../utils/validacaoInventario'
 import { usePermissoes } from './usePermissoes'
@@ -37,10 +38,24 @@ function formulario(item: ProdutoDetalhado): UpdateItemRequest {
 
 export function useEdicaoItem(item: ProdutoDetalhado, aoConcluir: () => void): RetornoEdicaoItem {
   const { editarItem: permitido } = usePermissoes()
-  const [estado, setEstado] = useState<EstadoEdicaoItem>({ aberto: false, form: formulario(item), erro: null, erros: {}, enviando: false, sucesso: '' })
+  const [estadoLocal, setEstadoLocal] = useState<EstadoLocalEdicaoItem>(() => ({
+    estado: { aberto: false, form: formulario(item), erro: null, erros: {}, enviando: false, sucesso: '' },
+    confirmarDescarte: false,
+  }))
+  const { estado, confirmarDescarte } = estadoLocal
+  // Mantém os atualizadores estáveis para efeitos e consumidores do controle.
+  const { setEstado, setConfirmarDescarte } = useMemo(() => ({
+    setEstado: (valor: SetStateAction<EstadoLocalEdicaoItem['estado']>) => setEstadoLocal(atual => {
+      const proximo = typeof valor === 'function' ? valor(atual.estado) : valor
+      return Object.is(atual.estado, proximo) ? atual : { ...atual, estado: proximo }
+    }),
+    setConfirmarDescarte: (valor: SetStateAction<EstadoLocalEdicaoItem['confirmarDescarte']>) => setEstadoLocal(atual => {
+      const proximo = typeof valor === 'function' ? valor(atual.confirmarDescarte) : valor
+      return Object.is(atual.confirmarDescarte, proximo) ? atual : { ...atual, confirmarDescarte: proximo }
+    }),
+  }), [])
   const montado = useRef(false)
   const emEnvio = useRef(false)
-  const [confirmarDescarte, setConfirmarDescarte] = useState(false)
   const inicial = formulario(item)
   const alterado = estado.form.name !== inicial.name || estado.form.condition !== inicial.condition || estado.form.notes !== inicial.notes
   useEffect(() => {

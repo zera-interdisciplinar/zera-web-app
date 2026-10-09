@@ -16,10 +16,10 @@ async function entrarComApiControlada(page: Page) {
   const userId = randomUUID()
   const token = randomUUID()
   await page.route('**/api/administrative/api/v1/auth/login', (route) => route.fulfill({
-    json: { accessToken: token, userId, expiresIn: 300 },
+    json: { accessToken: token, refreshToken: 'renovacao-sintetica', tokenType: 'Bearer', userId, expiresIn: 300 },
   }))
   await page.route(`**/api/administrative/api/v1/users/${userId}`, (route) => route.fulfill({
-    json: { userId, unitId: 'unit-leste', name: 'Conta de teste local', email: 'teste@zera.com', role: 'MANAGER' },
+    json: { userId, unitId: 'unit-leste', name: 'Conta de teste local', email: 'teste@zera.com', role: 'MANAGER', status: 'ACTIVE' },
   }))
   await page.goto('http://127.0.0.1:5184/login')
   await page.locator('#email').fill('teste@zera.com')

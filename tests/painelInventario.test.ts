@@ -35,3 +35,12 @@ it('preserva materiais e recusa pesos ausentes sem completar com zero', async ()
   busca.mockResolvedValueOnce(Response.json({ ...base, weightByMaterial: [{ material: 'METAL', percent: 100 }] }))
   await expect(painel.obterIndicadoresDescarte()).rejects.toThrow()
 })
+
+it('normaliza taxas omitidas e rejeita tipo inválido', async () => {
+  const { painel, busca } = await preparar({ activeItems: 1, pendingApproval: 0, inMaintenance: 0, awaitingEvaluation: 0, disposalsInWindow: 0 })
+  expect((await painel.obterResumoOperacional()).activeItemsChangePercent).toBeNull()
+  busca.mockResolvedValueOnce(Response.json({ totalWeightKg: 3, monthlyWeightKg: [] }))
+  expect(await painel.obterIndicadoresDescarte()).toMatchObject({ recyclingRatePercent: null, recyclingRateChangePoints: null, totalWeightChangePercent: null })
+  busca.mockResolvedValueOnce(Response.json({ totalWeightKg: '3', monthlyWeightKg: [] }))
+  await expect(painel.obterIndicadoresDescarte()).rejects.toThrow('Tente novamente')
+})

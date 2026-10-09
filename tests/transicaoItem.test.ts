@@ -7,7 +7,7 @@ const unidade = 'bb9e2f7d-b386-440a-ab0e-9a3b29fa2222'
 beforeEach(async () => {
   vi.stubEnv('VITE_USE_MSW', 'false')
   vi.stubEnv('VITE_INVENTORY_API_URL', 'https://inventory.example.invalid')
-  busca = vi.fn().mockImplementation(() => Promise.resolve(Response.json({ id: 'item-1', name: 'Notebook', barcode: 'COD-001', status: 'IN_STOCK', condition: 'USED', model: null, createdAt: '2026-10-07', updatedAt: '2026-10-07' })))
+  busca = vi.fn().mockImplementation(() => Promise.resolve(Response.json({ id: 'item-1', unitId: unidade, name: 'Notebook', barcode: 'COD-001', status: 'IN_STOCK', condition: 'USED', model: null, createdAt: '2026-10-07', updatedAt: '2026-10-07' })))
   vi.stubGlobal('fetch', busca)
   const { definirSessaoApi } = await import('../src/services/apiReal')
   definirSessaoApi('token-de-teste', unidade)
@@ -15,6 +15,11 @@ beforeEach(async () => {
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.resetModules() })
 
 describe('etapas do ciclo do item', () => {
+  it.each([null, {}, [], { id: 'item-1', unitId: unidade, barcode: 123 }])('rejeita resposta de transição inválida %j', async resposta => {
+    busca.mockResolvedValueOnce(Response.json(resposta))
+    const { transicionarItemReal } = await import('../src/services/transicaoItemService')
+    await expect(transicionarItemReal('item-1', 'submit', { reason: '', condition: 'USED' })).rejects.toThrow('Tente novamente')
+  })
   it.each<AcaoItemReal>(['submit', 'approve', 'maintenance/finish'])('%s usa POST sem corpo nem autoria enviada pelo cliente', async (acao) => {
     const { transicionarItemReal } = await import('../src/services/transicaoItemService')
     await transicionarItemReal('item/1', acao, { reason: '', condition: 'USED' })

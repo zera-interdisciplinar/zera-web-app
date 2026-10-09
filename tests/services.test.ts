@@ -90,7 +90,7 @@ describe('serviços e erros das APIs', () => {
     expect(busca).not.toHaveBeenCalled()
   })
   it('pagina eventos com os cabeçalhos e o sinal exigidos', async () => {
-    busca.mockImplementation(async (url: URL) => new Response(JSON.stringify({ content: [{ id: url.searchParams.get('page') }], totalPages: 2, totalElements: 2 })))
+    busca.mockImplementation(async (url: URL) => new Response(JSON.stringify({ content: [{ id: url.searchParams.get('page'), itemId: 'item-id', type: 'CREATED', fromStatus: null, toStatus: 'DRAFT', reason: null, actorId: null, actorName: null, occurredAt: '2026-10-29T10:00:00Z' }], totalPages: 2, totalElements: 2 })))
     const { listarEventos } = await import('../src/services/cicloService')
     const controlador = new AbortController()
     const sinal = controlador.signal
@@ -111,7 +111,7 @@ describe('serviços e erros das APIs', () => {
     await expect(listarDescartes()).rejects.toThrow('Paginação inválida')
   })
   it('consulta capacidade pelo endpoint documentado', async () => {
-    busca.mockResolvedValue(new Response(JSON.stringify({ stockCapacity: 500, configured: true })))
+    busca.mockResolvedValue(new Response(JSON.stringify({ unitId: 'unidade', stockCapacity: 500, configured: true, updatedByName: null, updatedAt: null })))
     const { obterCapacidade } = await import('../src/services/cicloService')
     expect((await obterCapacidade()).stockCapacity).toBe(500)
     expect(busca.mock.calls[0][0].pathname).toBe('/api/v1/unit-settings')

@@ -1,13 +1,13 @@
 import type { NovoUsuario, Usuario } from '../types/usuario'
 import { contextualizar, requisitar } from './http'
 import { modoDemonstracao, requisitarApiReal } from './apiReal'
-import type { UserOutput } from '../types/apiReal'
+import { ehUsuarioApi } from '../utils/guardaUsuarioApi'
+import { lerLista } from '../utils/guardasApi'
 
 export async function listarUsuarios(sinal?: AbortSignal): Promise<Usuario[]> {
   try {
     if (!modoDemonstracao) {
-      const dados = await requisitarApiReal<UserOutput[]>('administrative', '/api/v1/users', { sinal })
-      if (dados.some((pessoa) => pessoa.role !== 'MANAGER' && pessoa.role !== 'EMPLOYEE')) throw new Error('Perfil não previsto no contrato da API.')
+      const dados = lerLista(await requisitarApiReal<unknown>('administrative', '/api/v1/users', { sinal }), ehUsuarioApi)
       return dados.map((pessoa) => ({
         id: pessoa.userId,
         nome: pessoa.name,

@@ -11,6 +11,12 @@ export function configuracaoProxy(env = process.env) {
   }
 }
 
+export function portaProxy(valor) {
+  const porta = Number(valor?.trim() || '8787')
+  if (!Number.isInteger(porta) || porta < 1024 || porta > 65535) throw new Error('Porta de proxy inválida')
+  return porta
+}
+
 // Rewrites explícitos evitam depender de catch-all do framework do front.
 export function restaurarCaminhoProxy(caminho) {
   const url = new URL(caminho, 'http://localhost')

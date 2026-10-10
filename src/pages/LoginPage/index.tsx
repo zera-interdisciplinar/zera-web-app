@@ -5,7 +5,6 @@ import { Button } from '../../components/Button'
 import { FieldCard } from '../../components/FieldCard'
 import { Formulario } from '../../components/Formulario'
 import { Logo } from '../../components/Logo'
-import { SkipLink } from '../../components/SkipLink'
 import { useLogin } from '../../hooks/useLogin'
 
 const emailContato = 'zera.interdisciplinar@gmail.com'
@@ -15,7 +14,6 @@ export default function LoginPage() {
 
   return (
     <>
-      <SkipLink />
       <main className={estilos.pagina} id="conteudo" tabIndex={-1}>
         <aside className={estilos.marca} aria-label="Sobre o Zera">
           <div className={estilos.marcaCentral}>

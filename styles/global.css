@@ -209,6 +209,9 @@ html[data-espacamento='ampliado'] :is(p, h1, h2, h3, label, button, input, texta
 }
 .link-botao:hover { background: var(--ambar-hover); }
 .pagina-falha { padding: var(--sp-8); }
+.cabecalho-publico { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); color: var(--navy); background: var(--branco); }
+.cabecalho-publico nav { display: flex; flex-wrap: wrap; gap: var(--sp-4); }
+.cabecalho-publico a { display: inline-flex; align-items: center; min-height: 2.75rem; }
 .rodape-sistema { padding: var(--sp-4) var(--sp-8); color: var(--texto-secundario); font-size: .75rem; }
 
 .resumo-erros { color: #a51d2d; margin-block: 1rem; font-weight: 700; }

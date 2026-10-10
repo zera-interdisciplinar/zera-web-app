@@ -33,6 +33,24 @@ it('apresenta estado vazio quando os indicadores e distribuições estão vazios
   snapshot.kpis.itens_cadastrados.value = 0
   snapshot.por_categoria = []
   snapshot.por_status = []
+  snapshot.kpis.itens_cadastrados.change_percent = null
+  snapshot.kpis.aguardando_aprovacao = { value: 0, prioritarios: 0 }
+  snapshot.kpis.impacto_recuperado = { kg: 0, tonnes: 0 }
+  snapshot.kpis.taxa_reciclagem = { percent: null, change_points: null }
+  snapshot.circularidade.percent = null
+  snapshot.alertas = { abertos: 0, por_gravidade: [] }
+  snapshot.itens_por_mes = [{ mes: '2026-10', cadastrados: 0, encaminhados: 0 }]
   const html = renderToStaticMarkup(createElement(VisaoGeralTab, { snapshot }))
   expect(html).toContain('Ainda não há dados para exibir.')
+  snapshot.itens_por_mes[0].encaminhados = 1
+  expect(renderToStaticMarkup(createElement(VisaoGeralTab, { snapshot }))).not.toContain('Ainda não há dados para exibir.')
+})
+
+it('destaca valor real de série longa sem precisar rolar até o último ponto', () => {
+  const pontos = ['2026-05', '2026-06', '2026-07', '2026-08', '2026-09'].map(rotulo => ({ rotulo, valor: 0 }))
+  pontos.push({ rotulo: '2026-10 · encaminhado', valor: 1 })
+  const html = renderToStaticMarkup(createElement(GraficoDados, { titulo: 'Movimentos', eixo: 'Mês', unidade: 'itens', pontos, vazio: 'Sem movimentos' }))
+  expect(html).toContain('2026-10 · encaminhado')
+  expect(html).toContain('Último ponto com valor:')
+  expect(html).toContain('1 (itens)')
 })

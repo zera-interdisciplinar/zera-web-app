@@ -5,7 +5,7 @@ import { formatarNumero } from '../../utils/formatarDashboard'
 
 export function PesoMensal({ pontos }: PesoMensalProps) {
   const id = useId()
-  if (!pontos.some((ponto) => ponto.weightKg > 0)) return <section><h2>Peso descartado por mês</h2><p>Nenhum descarte registrado nos últimos 12 meses</p></section>
+  if (!pontos.some((ponto) => ponto.weightKg > 0)) return <section><h2>Peso descartado por mês</h2><p>Nenhum peso positivo registrado nos últimos 12 meses.</p></section>
   const teto = Math.max(...pontos.map((ponto) => ponto.weightKg)) * 1.15
   const largura = Math.max(280, pontos.length * 52 + 70)
   const agora = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit' }).format(new Date())
@@ -26,7 +26,9 @@ export function PesoMensal({ pontos }: PesoMensalProps) {
           const x = 64 + indice * ((largura - 70) / pontos.length)
           const atual = ponto.month === agora
           return <g key={ponto.month}>
-            <rect x={x} y={240 - altura} width="30" height={altura} fill={atual ? `url(#${id}-padrao)` : undefined} className={atual ? undefined : estilos.barra} />
+            <rect x={x} y={240 - altura} width="30" height={altura} fill={atual ? `url(#${id}-padrao)` : undefined} className={atual ? undefined : estilos.barra}>
+              <title>{`${mes(ponto.month)}: ${formatarNumero(ponto.weightKg, 2)} kg`}</title>
+            </rect>
             <text x={x + 15} y={233 - altura} textAnchor="middle" fontSize="12">{formatarNumero(ponto.weightKg, 2)}</text>
             <text x={x + 15} y="264" textAnchor="middle" fontSize="12">{mes(ponto.month)}</text>
             {atual && <text x={x + 15} y="283" textAnchor="middle" fontSize="12">atual</text>}

@@ -79,9 +79,10 @@ export function PainelGestao({ pessoal = false }: PainelGestaoProps) {
 
       <section className={estilos.filtros} aria-label="Filtros do dashboard">
         {filtrosPorAba[aba].filter(definicao => !pessoal || !['unitId', 'responsible'].includes(definicao.key)).map((definicao) => (
-          <label className={estilos.filtro} key={definicao.key}>
+          <label className={estilos.filtro} key={definicao.key} htmlFor={`filtro-painel-${definicao.key}`}>
             <span>{definicao.label}</span>
             <select
+              id={`filtro-painel-${definicao.key}`}
               value={String(filtros[definicao.key] ?? '')}
               onChange={(evento) => alterarFiltro(definicao.key, evento.target.value)}
               aria-label={definicao.label}

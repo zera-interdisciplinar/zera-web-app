@@ -4,11 +4,13 @@ import { formatarPontosPercentuais, formatarVariacao } from '../../../utils/form
 import { EstadoErro } from '../../EstadoErro'
 import { IndicadorInventario } from '../../IndicadorInventario'
 import { PesoMensal } from '../../PesoMensal'
+import { DonutChart } from '../../DonutChart'
 
 export function OperacionalTab() {
   const { resumo, descartes } = usePainelInventario()
   return (
     <section className={estilos.conteudo} aria-label="Painel operacional do inventário" data-estado={resumo.carregando || descartes.carregando ? 'carregando' : resumo.erro || descartes.erro ? 'erro' : 'sucesso'}>
+      <p>Indicadores do inventário da unidade; os filtros da visão geral não se aplicam a esta seção.</p>
       <button type="button" disabled={resumo.carregando || descartes.carregando} onClick={() => { resumo.recarregar(); descartes.recarregar() }}>Atualizar dados</button>
       {(resumo.carregando || descartes.carregando) && <p role="status">Consultando inventário…</p>}
       {resumo.erro && <EstadoErro mensagem={resumo.erro} aoTentarNovamente={resumo.recarregar} />}
@@ -26,6 +28,7 @@ export function OperacionalTab() {
           <IndicadorInventario titulo="Taxa de reciclagem (%)" valor={descartes.dados.recyclingRatePercent} nota={formatarPontosPercentuais(descartes.dados.recyclingRateChangePoints)} />
         </div>
         <PesoMensal pontos={descartes.dados.monthlyWeightKg} />
+        <section aria-label="Taxa de reciclagem do inventário"><h2>Taxa de reciclagem do inventário</h2>{descartes.dados.recyclingRatePercent === null ? <p>A taxa de reciclagem ainda não foi calculada.</p> : <DonutChart percentual={descartes.dados.recyclingRatePercent} />}</section>
       </>}
     </section>
   )

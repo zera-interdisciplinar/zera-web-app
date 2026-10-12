@@ -22,19 +22,23 @@ export function limparRenovacaoSessao() {
 }
 
 export async function renovarSessao(): Promise<string> {
-  const sessao = obterSessaoApi()
-  const anterior = refreshToken
-  if (!anterior || !sessao.accessToken) throw new ApiError('Sessão expirada. Entre novamente.', 401)
-  const token = await requisitarApiReal<unknown>('administrative', '/api/v1/auth/refresh', {
-    metodo: 'POST', corpo: { refreshToken: anterior }, autenticada: false,
-  })
-  if (obterSessaoApi().accessToken !== sessao.accessToken || refreshToken !== anterior) {
-    throw new DOMException('Sessão substituída.', 'AbortError')
+  try {
+    const sessao = obterSessaoApi()
+    const anterior = refreshToken
+    if (!anterior || !sessao.accessToken) throw new ApiError('Sessão expirada. Entre novamente.', 401)
+    const token = await requisitarApiReal<unknown>('administrative', '/api/v1/auth/refresh', {
+      metodo: 'POST', corpo: { refreshToken: anterior }, autenticada: false,
+    })
+    if (obterSessaoApi().accessToken !== sessao.accessToken || refreshToken !== anterior) {
+      throw new DOMException('Sessão substituída.', 'AbortError')
+    }
+    if (!ehTokenApi(token)) throw new ApiError('Resposta de renovação incompleta. Tente novamente.', 0)
+    refreshToken = token.refreshToken
+    definirSessaoApi(token.accessToken, sessao.unitId)
+    return new Date(Date.now() + token.expiresIn * 1000).toISOString()
+  } catch (erro) {
+    throw contextualizar(erro, 'Não foi possível renovar a sessão.')
   }
-  if (!ehTokenApi(token)) throw new ApiError('Resposta de renovação incompleta. Tente novamente.', 0)
-  refreshToken = token.refreshToken
-  definirSessaoApi(token.accessToken, sessao.unitId)
-  return new Date(Date.now() + token.expiresIn * 1000).toISOString()
 }
 
 export async function autenticar(credenciais: Credenciais): Promise<SessaoAutenticada> {

@@ -9,20 +9,24 @@ import { formatarPontosPercentuais, formatarVariacao } from '../utils/formatarDa
 export { acompanharDashboard } from './dashboardSse'
 
 export async function obterSnapshotDashboard(filtros: FiltrosDashboard, sinal?: AbortSignal): Promise<DashboardSnapshot> {
-  const controlador = new AbortController()
-  const timeout = AbortSignal.timeout(195_000)
-  const sinalStream = AbortSignal.any([controlador.signal, timeout, ...(sinal ? [sinal] : [])])
-  const resultado: { snapshot?: DashboardSnapshot; erro?: ApiError } = {}
-  await acompanharDashboard(filtros, sinalStream, {
-    onSnapshot(snapshot) { resultado.snapshot = snapshot; controlador.abort() },
-    onUnavailable(detail) { resultado.erro = new ApiError(`Ainda não há lote de analytics. ${detail}`, 0); controlador.abort() },
-    onError(falha) { resultado.erro = new ApiError(falha.detail, falha.status); controlador.abort() },
-    onState() {},
-  })
-  if (sinal?.aborted) throw new DOMException('Consulta cancelada.', 'AbortError')
-  if (resultado.erro) throw resultado.erro
-  if (resultado.snapshot) return resultado.snapshot
-  throw new ApiError('O serviço de analytics não enviou um snapshot no prazo esperado.', 0)
+  try {
+    const controlador = new AbortController()
+    const timeout = AbortSignal.timeout(195_000)
+    const sinalStream = AbortSignal.any([controlador.signal, timeout, ...(sinal ? [sinal] : [])])
+    const resultado: { snapshot?: DashboardSnapshot; erro?: ApiError } = {}
+    await acompanharDashboard(filtros, sinalStream, {
+      onSnapshot(snapshot) { resultado.snapshot = snapshot; controlador.abort() },
+      onUnavailable(detail) { resultado.erro = new ApiError(`Ainda não há lote de analytics. ${detail}`, 0); controlador.abort() },
+      onError(falha) { resultado.erro = new ApiError(falha.detail, falha.status); controlador.abort() },
+      onState() {},
+    })
+    if (sinal?.aborted) throw new DOMException('Consulta cancelada.', 'AbortError')
+    if (resultado.erro) throw resultado.erro
+    if (resultado.snapshot) return resultado.snapshot
+    throw new ApiError('O serviço de analytics não enviou um snapshot no prazo esperado.', 0)
+  } catch (erro) {
+    throw contextualizar(erro, 'Não foi possível carregar os dados de movimentações.')
+  }
 }
 
 export async function obterResumoDashboard(sinal?: AbortSignal): Promise<ResumoDashboard> {

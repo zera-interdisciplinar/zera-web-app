@@ -23,6 +23,7 @@ import {
   usuarios as usuariosIniciais,
 } from './dados/catalogo'
 import { gerarManutencoes, gerarProdutos } from './dados/produtos'
+import { dashboardOverviewMock, dashboardSnapshotMock, respostaSse } from './dashboardSseFixture'
 import type { ResultadoTriagem } from '../services/produtoService'
 import { autenticarUsuarioDemo } from '../config/demoUsers'
 
@@ -411,6 +412,11 @@ export const handlers = [
     await delay(340)
     return HttpResponse.json(resumoDashboard())
   }),
+
+  http.get(`${BASE}/v1/dashboard/overview`, () => respostaSse('snapshot', dashboardSnapshotMock)),
+
+  // TODO(contrato): endpoint de fixture para campos complementares ausentes do ms-analytics-bff.
+  http.get(`${BASE}/v1/dashboard/overview/supplement`, () => HttpResponse.json(dashboardOverviewMock)),
 
   http.get(`${BASE}/alerts/batches`, async () => {
     await delay(300)

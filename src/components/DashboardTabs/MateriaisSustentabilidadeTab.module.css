@@ -1,0 +1,125 @@
+.pagina {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.filtros {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.filtro {
+  display: grid;
+  grid-template-columns: minmax(125px, 0.6fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 54px;
+  padding: 8px 12px;
+  color: var(--texto);
+  background: var(--branco);
+  border: 1px solid #e6e8ed;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.filtro select {
+  width: 100%;
+  min-height: 40px;
+  padding: 7px 10px;
+  color: var(--texto);
+  background: var(--branco);
+  border: 1px solid var(--borda-controle);
+  border-radius: 7px;
+  font: inherit;
+}
+
+.filtro select:focus-visible {
+  outline: 3px solid var(--azul);
+  outline-offset: 2px;
+}
+
+.filtro select:disabled {
+  color: var(--texto-secundario);
+  background: #f4f5f7;
+  cursor: not-allowed;
+}
+
+.grade {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+
+.cartao {
+  min-width: 0;
+  min-height: 270px;
+  padding: 16px;
+  background: var(--branco);
+  border: 1px solid #e8e9ed;
+  border-radius: 10px;
+}
+
+.cartao h2 {
+  margin: 0 0 8px;
+  color: var(--texto);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.larguraTotal {
+  grid-column: 1 / -1;
+}
+
+.grafico,
+.graficoGrande {
+  width: 100%;
+  height: 260px;
+  min-width: 0;
+  color: var(--texto-secundario);
+  font-size: 0.75rem;
+}
+
+.graficoGrande {
+  height: 310px;
+}
+
+.semFonte {
+  padding: 20px;
+  color: var(--texto-secundario);
+  background: var(--branco);
+  border: 1px solid #e8e9ed;
+  border-radius: 10px;
+  line-height: 1.55;
+}
+
+@media (max-width: 900px) {
+  .filtros,
+  .grade {
+    grid-template-columns: 1fr;
+  }
+
+  .larguraTotal {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .filtro {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .cartao {
+    padding: 12px;
+  }
+
+  .grafico,
+  .graficoGrande {
+    height: 250px;
+  }
+}

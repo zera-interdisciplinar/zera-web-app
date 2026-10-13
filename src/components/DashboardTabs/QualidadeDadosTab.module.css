@@ -1,0 +1,159 @@
+.pagina {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.filtros {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.filtro {
+  display: grid;
+  grid-template-columns: minmax(92px, 0.45fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 54px;
+  padding: 8px 12px;
+  color: var(--texto);
+  background: var(--branco);
+  border: 1px solid #e6e8ed;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.filtro select {
+  width: 100%;
+  min-height: 40px;
+  padding: 7px 10px;
+  color: var(--texto);
+  background: var(--branco);
+  border: 1px solid var(--borda-controle);
+  border-radius: 7px;
+  font: inherit;
+}
+
+.filtro select:focus-visible {
+  outline: 3px solid var(--azul);
+  outline-offset: 2px;
+}
+
+.filtro select:disabled {
+  color: var(--texto-secundario);
+  background: #f4f5f7;
+  cursor: not-allowed;
+}
+
+.grade {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+
+.cartao {
+  min-width: 0;
+  min-height: 228px;
+  padding: 16px;
+  background: var(--branco);
+  border: 1px solid #e8e9ed;
+  border-radius: 10px;
+}
+
+.cartao h2 {
+  margin: 0 0 8px;
+  color: var(--texto);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.destaque {
+  grid-column: 1 / -1;
+}
+
+.grafico {
+  width: 100%;
+  height: 270px;
+  min-width: 0;
+  color: var(--texto-secundario);
+  font-size: 0.75rem;
+}
+
+.notaResolucao {
+  margin: 2px 0 0;
+  color: var(--texto);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.legendaEscala {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  min-height: 20px;
+  color: var(--texto-secundario);
+  font-size: 0.75rem;
+}
+
+.legendaEscala span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legendaEscala i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.amostraEscala3 {
+  background: #087f9c;
+}
+
+.amostraEscala5 {
+  background: #ffa500;
+}
+
+.semFonte {
+  padding: 20px;
+  color: var(--texto-secundario);
+  background: var(--branco);
+  border: 1px solid #e8e9ed;
+  border-radius: 10px;
+  line-height: 1.55;
+}
+
+@media (max-width: 900px) {
+  .filtros {
+    grid-template-columns: 1fr;
+  }
+
+  .grade {
+    grid-template-columns: 1fr;
+  }
+
+  .destaque {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .filtro {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .cartao {
+    padding: 12px;
+  }
+
+  .grafico {
+    height: 250px;
+  }
+}

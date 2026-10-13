@@ -58,7 +58,7 @@ describe('login', () => {
   })
 
   it('preserva a senha exatamente como digitada, inclusive espaços nas pontas', async () => {
-    const senha = ' PREENCHER_NO_VSCODE '
+    const senha = ` ${randomUUID()} `
     const { validarCredenciais } = await import('../src/utils/validacao')
     const resultado = validarCredenciais({ email: 'teste@zera.com', senha })
 

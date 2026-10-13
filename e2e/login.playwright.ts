@@ -7,17 +7,21 @@ const usuariosDemo = [1, 2, 3].map((indice) => ({
   senha: env[`VITE_DEMO_USER_${indice}_PASSWORD`] ?? '',
 }))
 
-test('login apresenta somente os campos de acesso e o botão Entrar', async ({ page }) => {
+test('login preserva a marca e o fluxo de acesso sem os controles removidos', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('http://127.0.0.1:5183/login')
   await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible()
   await expect(page.locator('#email')).toBeVisible()
   await expect(page.locator('#senha')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Entrar', exact: true })).toBeVisible()
+  await expect(page.getByRole('complementary', { name: 'Sobre o Zera' })).toBeVisible()
+  await expect(page.getByText('Preencha seus dados para entrar na sua conta')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Esqueci minha senha' })).toBeVisible()
   await expect(page.getByText('Não tenho cadastro')).toHaveCount(0)
   await expect(page.getByText('Pré-visualização local')).toHaveCount(0)
   await expect(page.getByText('Abrir como')).toHaveCount(0)
   await expect(page.getByText('Voltar', { exact: true })).toHaveCount(0)
-  await expect(page.getByRole('link', { name: 'Esqueci minha senha' })).toHaveCount(0)
+  await page.screenshot({ path: 'test-results/login-restaurada.png', fullPage: true })
 })
 
 for (const [indice, usuario] of usuariosDemo.entries()) {

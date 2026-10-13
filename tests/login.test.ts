@@ -39,7 +39,7 @@ afterEach(() => {
 afterAll(() => server.close())
 
 describe('login', () => {
-  it('remove os links e botões de demonstração da LoginPage', () => {
+  it('remove somente os controles de demonstração e mantém o restante da tela de login', () => {
     const fonte = readFileSync(new URL('../src/pages/LoginPage/index.tsx', import.meta.url), 'utf8')
     for (const texto of [
       'Não tenho cadastro',
@@ -47,14 +47,16 @@ describe('login', () => {
       'Abrir como gestor',
       'Abrir como funcionário',
       'Solicitar%20acesso%20ao%20Zera',
-      'mailto:',
-      'tel:',
-      'instagram.com',
-      'Esqueci minha senha',
       'Voltar',
     ]) {
       expect(fonte).not.toContain(texto)
     }
+    expect(fonte).toContain('className={estilos.marca}')
+    expect(fonte).toContain('className={estilos.subtitulo}')
+    expect(fonte).toContain('Esqueci minha senha')
+    expect(fonte).toContain('mailto:')
+    expect(fonte).toContain('tel:')
+    expect(fonte).toContain('instagram.com')
   })
 
   it('preserva a senha exatamente como digitada, inclusive espaços nas pontas', async () => {

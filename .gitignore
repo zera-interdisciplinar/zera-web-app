@@ -3,9 +3,14 @@ dist
 .env
 .env.*
 !.env.example
+.env.local
+*.pem
+__pycache__/
 fixtures.local/
 *.tsbuildinfo
 artifacts/
+test-results/
+playwright-report/
 .DS_Store
 *.local
 

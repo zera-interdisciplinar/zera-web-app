@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 
 
 export interface OpcaoCampo {
@@ -19,4 +20,7 @@ export interface FieldCardProps {
   maxLength?: number
   autoComplete?: string
   desabilitado?: boolean
+  icone?: ReactNode
+  modoLogin?: boolean
+  autoFocus?: boolean
 }

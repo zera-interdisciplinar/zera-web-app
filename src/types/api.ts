@@ -11,15 +11,19 @@ export interface ApiErroCorpo {
   campo?: string
 }
 
+export type TipoFalhaApi = 'rede' | 'configuracao' | 'resposta'
+
 export class ApiError extends Error {
   readonly status: number
   readonly campo?: string
+  readonly tipoFalha?: TipoFalhaApi
 
-  constructor(mensagem: string, status: number, campo?: string) {
+  constructor(mensagem: string, status: number, campo?: string, tipoFalha?: TipoFalhaApi) {
     super(mensagem)
     this.name = 'ApiError'
     this.status = status
     this.campo = campo
+    this.tipoFalha = tipoFalha
   }
 }
 

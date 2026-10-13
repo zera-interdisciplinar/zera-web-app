@@ -7,7 +7,7 @@ export const modoDemonstracao = import.meta.env.VITE_USE_MSW === 'true'
 type Recurso = 'administrative' | 'inventory'
 
 const bases: Record<Recurso, string | undefined> = {
-  administrative: import.meta.env.VITE_ADMIN_API_URL,
+  administrative: import.meta.env.VITE_ADMIN_API_URL || import.meta.env.VITE_API_BASE_URL,
   inventory: import.meta.env.VITE_INVENTORY_API_URL,
 }
 
@@ -25,19 +25,51 @@ export function definirSessaoApi(token: string | null, unidade: string | null) {
   unitId = unidade
 }
 
+export function obterSessaoApi(): { accessToken: string | null; unitId: string | null } {
+  return { accessToken, unitId }
+}
+
 export interface OpcoesApiReal {
   metodo?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   corpo?: unknown
   sinal?: AbortSignal
   autenticada?: boolean
   unidade?: boolean
+  diagnosticarFalhas?: boolean
 }
 
 export async function requisitarApiReal<T>(recurso: Recurso, caminho: string, opcoes: OpcoesApiReal = {}): Promise<T> {
   const base = bases[recurso]
-  if (!base) throw new ApiError('O serviço está indisponível. Entre em contato com a equipe responsável pelo ZERA.', 0)
+  if (!base) {
+    if (opcoes.diagnosticarFalhas && import.meta.env.DEV) {
+      console.warn('[login] Falha de configuração', { url: '(base da API não configurada)', tipo: 'configuracao' })
+    }
+    const mensagem = recurso === 'administrative'
+      ? 'A base do serviço de autenticação não está configurada.'
+      : 'O serviço está indisponível.'
+    throw new ApiError(mensagem, 0, undefined, 'configuracao')
+  }
   const origem = typeof document === 'undefined' ? 'http://localhost/' : document.baseURI
-  const url = new URL(`${base.replace(/\/$/, '')}${caminho}`, origem)
+  const baseNormalizada = base.replace(/\/+$/, '')
+  const caminhoNormalizado = /\/api$/i.test(baseNormalizada) && /^\/api(?:\/|$)/i.test(caminho)
+    ? caminho.replace(/^\/api/i, '')
+    : caminho
+  const url = new URL(`${baseNormalizada}${caminhoNormalizado}`, origem)
+  const urlParaLog = () => {
+    const segura = new URL(url)
+    segura.username = ''
+    segura.password = ''
+    segura.search = ''
+    segura.hash = ''
+    return segura.toString()
+  }
+  const registrarFalha = (tipo: string) => {
+    if (!opcoes.diagnosticarFalhas || !import.meta.env.DEV) return
+    console.warn('[login] Falha na autenticação', {
+      url: urlParaLog(),
+      tipo,
+    })
+  }
   const local = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)
   if (url.protocol !== 'https:' && !(import.meta.env.DEV && local && url.protocol === 'http:')) {
     throw new ApiError('API remota sem HTTPS. Credenciais e dados não serão enviados por HTTP.', 0)
@@ -63,9 +95,11 @@ export async function requisitarApiReal<T>(recurso: Recurso, caminho: string, op
     })
   } catch (erro) {
     if (erro instanceof DOMException && erro.name === 'AbortError') throw erro
-    throw new ApiError('Não foi possível acessar a API. Verifique a conexão e a configuração.', 0)
+    registrarFalha('rede')
+    throw new ApiError('Não foi possível acessar a API. Verifique a conexão e a configuração.', 0, undefined, 'rede')
   }
   if (!resposta.ok) {
+    registrarFalha('http')
     if (resposta.status === 401 && opcoes.autenticada !== false && accessToken === tokenDaRequisicao) {
       definirSessaoApi(null, null)
       aoExpirar.forEach((observador) => observador())
@@ -79,7 +113,8 @@ export async function requisitarApiReal<T>(recurso: Recurso, caminho: string, op
   try {
     return sanitizarObjeto((await resposta.json()) as T)
   } catch {
-    throw new ApiError('A API retornou uma resposta inválida.', resposta.status)
+    registrarFalha('resposta')
+    throw new ApiError('A API retornou uma resposta inválida.', resposta.status, undefined, 'resposta')
   }
 }
 

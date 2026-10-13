@@ -62,3 +62,82 @@
   font-weight: 700;
   color: var(--perigo);
 }
+
+.campoLogin {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.campoLogin:focus-within {
+  outline: none;
+}
+
+.campoLogin .rotulo {
+  margin-bottom: 0.25rem;
+  color: var(--navy);
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.controleComIcones {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 0.6rem;
+  border: 1.5px solid var(--navy);
+  border-radius: 0.5rem;
+  transition: border-color var(--transicao), box-shadow var(--transicao);
+}
+
+.controleLogin { background: transparent; }
+
+.controleLogin:focus-within {
+  border-color: var(--azul);
+  box-shadow: 0 0 0 3px rgb(42 88 206 / 0.2);
+}
+
+.campoLogin.invalido .controleLogin { border-color: var(--perigo); }
+
+.iconeCampo {
+  display: grid;
+  flex: none;
+  place-items: center;
+  color: var(--navy);
+}
+
+.iconeCampo svg { width: 1.1rem; height: 1.1rem; stroke-width: 1.8; }
+
+.controleComIcones .controle {
+  flex: 1;
+  width: 0;
+  min-height: 2.5rem;
+}
+
+.alternarSenha {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--navy);
+  cursor: pointer;
+}
+
+.alternarSenha:hover:not(:disabled) { background: rgb(22 47 113 / 0.08); }
+.alternarSenha:focus-visible { outline: 2px solid var(--azul); outline-offset: 1px; }
+.alternarSenha svg { width: 1.1rem; height: 1.1rem; }
+.alternarSenha:disabled { cursor: not-allowed; opacity: 0.6; }
+
+@media (max-width: 880px) {
+  .controleComIcones { min-height: 3rem; }
+  .controleComIcones .controle { min-height: 2.75rem; }
+}

@@ -13,7 +13,7 @@ import type {
   StatusItem,
 } from '../types/produto'
 import type { ItemRelatorio, NovaRecicladora, Relatorio } from '../types/relatorio'
-import type { Perfil, NovoUsuario, SessaoAutenticada, Usuario } from '../types/usuario'
+import type { NovoUsuario, SessaoAutenticada, Usuario } from '../types/usuario'
 import { diasDesde, montarCodigoBarras } from '../utils/formatacao'
 import {
 
@@ -24,6 +24,7 @@ import {
 } from './dados/catalogo'
 import { gerarManutencoes, gerarProdutos } from './dados/produtos'
 import type { ResultadoTriagem } from '../services/produtoService'
+import { autenticarUsuarioDemo } from '../config/demoUsers'
 
 const BASE = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
@@ -206,16 +207,44 @@ function itensParaDescarte(): ItemRelatorio[] {
     .slice(0, 40)
 }
 
+const handlersLoginDemo = import.meta.env.VITE_USE_MSW === 'true'
+  ? [http.post(`${BASE}/auth/login`, async ({ request }) => {
+      await delay(320)
+
+      let credenciais: { email?: unknown; senha?: unknown }
+      try {
+        credenciais = (await request.json()) as typeof credenciais
+      } catch {
+        return HttpResponse.json({ mensagem: 'E-mail ou senha inválidos.' }, { status: 401 })
+      }
+
+      const resultado = autenticarUsuarioDemo(
+        typeof credenciais.email === 'string' ? credenciais.email : '',
+        typeof credenciais.senha === 'string' ? credenciais.senha : '',
+      )
+      if (resultado.tipo === 'credenciais-invalidas') {
+        return HttpResponse.json({ mensagem: 'E-mail ou senha inválidos.' }, { status: 401 })
+      }
+      if (resultado.tipo === 'perfil-invalido') {
+        return HttpResponse.json({ mensagem: 'Perfil de demonstração inválido.' }, { status: 400 })
+      }
+
+      const usuarioBase = banco.usuarios.find((usuario) => usuario.perfil === resultado.usuario.perfil)
+      const usuario: Usuario = {
+        id: resultado.usuario.id,
+        nome: resultado.usuario.nome,
+        email: resultado.usuario.email,
+        perfil: resultado.usuario.perfil,
+        unidade: usuarioBase?.unidade ?? '',
+      }
+      const expiraEm = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString()
+      const sessao: SessaoAutenticada = { usuario, expiraEm, demonstracao: true }
+      return HttpResponse.json(sessao)
+    })]
+  : []
+
 export const handlers = [
-  http.post(`${BASE}/auth/demo`, async ({ request }) => {
-    await delay(420)
-    const entrada = (await request.json()) as { perfil?: Perfil }
-    const usuario = banco.usuarios.find((item) => item.perfil === entrada.perfil)
-    if (!usuario) return HttpResponse.json({ mensagem: 'Selecione um perfil para explorar a demonstração.' }, { status: 400 })
-    const expiraEm = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString()
-    const sessao: SessaoAutenticada = { usuario, expiraEm }
-    return HttpResponse.json(sessao)
-  }),
+  ...handlersLoginDemo,
 
   http.get(`${BASE}/categories`, async () => {
     await delay(220)

@@ -19,7 +19,7 @@ const CNPJ = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/
 export function validarCredenciais(entrada: Credenciais): ResultadoValidacao<Credenciais> {
   const dados: Credenciais = {
     email: sanitizarTexto(entrada.email).slice(0, 120).toLowerCase(),
-    senha: entrada.senha.slice(0, 64),
+    senha: entrada.senha.slice(0, 128),
   }
   const erros: ErrosDeCampo<Credenciais> = {}
 
@@ -27,7 +27,7 @@ export function validarCredenciais(entrada: Credenciais): ResultadoValidacao<Cre
   else if (!EMAIL.test(dados.email)) erros.email = 'E-mail inválido. Use o formato nome@empresa.com.'
 
   if (!dados.senha) erros.senha = 'Informe a senha.'
-  else if (dados.senha.length < 6) erros.senha = 'A senha tem no mínimo 6 caracteres.'
+  else if (dados.senha.length < 6) erros.senha = 'Confira a senha e tente novamente.'
 
   return { valido: Object.keys(erros).length === 0, erros, dados }
 }

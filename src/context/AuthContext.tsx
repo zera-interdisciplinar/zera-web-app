@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { abrirDemonstracao, autenticar } from '../services/authService'
+import { autenticar, mensagemErroLogin } from '../services/authService'
 import { definirSessaoApi, modoDemonstracao, observarExpiracaoSessao } from '../services/apiReal'
 import type { Credenciais, Perfil, Usuario } from '../types/usuario'
-import { mensagemDeErro } from '../types/api'
+import { ApiError } from '../types/api'
 import { CHAVE_SESSAO, carregar, remover, salvar } from '../utils/storage'
 import { AuthContext } from './auth'
 import type { ValorAuth } from './auth'
@@ -36,7 +36,7 @@ export function AuthProvider({ children }: Props) {
   const [erro, setErro] = useState<string | null>(null)
   const [expiraEm, setExpiraEm] = useState(() => modoDemonstracao ? carregar<SessaoPersistida>(CHAVE_SESSAO, migracoes)?.expiraEm ?? null : null)
 
-  const entrar = useCallback(async (credenciais: Credenciais): Promise<boolean> => {
+  const entrar = useCallback(async (credenciais: Credenciais): Promise<'autenticado' | 'credenciais-invalidas' | 'falha'> => {
     setEntrando(true)
     setErro(null)
     try {
@@ -44,27 +44,11 @@ export function AuthProvider({ children }: Props) {
       if (modoDemonstracao) salvar<SessaoPersistida>(CHAVE_SESSAO, sessao)
       setUsuario(sessao.usuario)
       setExpiraEm(sessao.expiraEm)
-      return true
+      return 'autenticado'
     } catch (falha) {
-      setErro(mensagemDeErro(falha))
-      return false
-    } finally {
-      setEntrando(false)
-    }
-  }, [])
-
-  const explorar = useCallback(async (perfil: Perfil): Promise<boolean> => {
-    setEntrando(true)
-    setErro(null)
-    try {
-      const sessao = await abrirDemonstracao(perfil)
-      salvar<SessaoPersistida>(CHAVE_SESSAO, sessao)
-      setUsuario(sessao.usuario)
-      setExpiraEm(sessao.expiraEm)
-      return true
-    } catch (falha) {
-      setErro(mensagemDeErro(falha))
-      return false
+      const credenciaisInvalidas = falha instanceof ApiError && (falha.status === 401 || falha.status === 403)
+      setErro(mensagemErroLogin(falha))
+      return credenciaisInvalidas ? 'credenciais-invalidas' : 'falha'
     } finally {
       setEntrando(false)
     }
@@ -101,11 +85,10 @@ export function AuthProvider({ children }: Props) {
       entrando,
       erro,
       entrar,
-      explorar,
       sair,
       temPerfil,
     }),
-    [usuario, entrando, erro, entrar, explorar, sair, temPerfil],
+    [usuario, entrando, erro, entrar, sair, temPerfil],
   )
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>

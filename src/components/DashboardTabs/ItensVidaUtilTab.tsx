@@ -214,7 +214,7 @@ function Dispersao({
         <XAxis type="number" dataKey={xKey} name={xNome} unit={xUnidade} tick={{ fontSize: 10 }} />
         <YAxis type="number" dataKey={yKey} name={yNome} unit={yUnidade} width={46} tick={{ fontSize: 10 }} />
         <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-        <Scatter name="Itens" data={dados} fill={COR} fillOpacity={0.78} />
+        <Scatter name="Itens" data={dados} fill={COR} fillOpacity={0.78} isAnimationActive={false} />
       </ScatterChart>
     </ResponsiveContainer>
   )

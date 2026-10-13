@@ -121,8 +121,8 @@ export function MateriaisSustentabilidadeTab({ demo, filtros }: MateriaisSustent
                   <YAxis type="category" dataKey="material" width={150} />
                   <Tooltip />
                   <Legend verticalAlign="top" align="right" />
-                  <Bar dataKey="nao" name="Material perigoso: Não" stackId="perigo" fill={cores.principal} />
-                  <Bar dataKey="sim" name="Material perigoso: Sim" stackId="perigo" fill={cores.sim} />
+                  <Bar dataKey="nao" name="Material perigoso: Não" stackId="perigo" fill={cores.principal} isAnimationActive={false} />
+                  <Bar dataKey="sim" name="Material perigoso: Sim" stackId="perigo" fill={cores.sim} isAnimationActive={false} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -163,7 +163,7 @@ export function MateriaisSustentabilidadeTab({ demo, filtros }: MateriaisSustent
             <div className={estilos.grafico} role="img" aria-label="Proporção das associações de materiais recicláveis">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={donutReciclavel} dataKey="quantidade" nameKey="nome" innerRadius="52%" outerRadius="78%" paddingAngle={1}>
+                  <Pie data={donutReciclavel} dataKey="quantidade" nameKey="nome" innerRadius="52%" outerRadius="78%" paddingAngle={1} isAnimationActive={false}>
                     {donutReciclavel.map((ponto, indice) => (
                       <Cell key={ponto.nome} fill={coresDonut[indice % coresDonut.length]} />
                     ))}
@@ -200,7 +200,7 @@ function GraficoClassificacao({
           <YAxis allowDecimals={false} label={{ value: 'Quantidade de itens', angle: -90, position: 'insideLeft' }} />
           <Tooltip />
           <Legend verticalAlign="top" align="right" />
-          <Bar dataKey="quantidade" name={nome} radius={[2, 2, 0, 0]}>
+          <Bar dataKey="quantidade" name={nome} radius={[2, 2, 0, 0]} isAnimationActive={false}>
             {dados.map((ponto) => (
               <Cell key={ponto.classificacao} fill={ponto.classificacao === 'Sim' ? cores.sim : cores.principal} />
             ))}
@@ -230,7 +230,7 @@ function GraficoAssociacoes({
           <XAxis type="number" allowDecimals={false} label={{ value: 'Associações de itens', position: 'insideBottom', offset: -4 }} />
           <YAxis type="category" dataKey="material" width={126} />
           <Tooltip />
-          <Bar dataKey="quantidade" name="Associações" fill={cores.principal} />
+          <Bar dataKey="quantidade" name="Associações" fill={cores.principal} isAnimationActive={false} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -253,8 +253,8 @@ function GraficoPorCondicao({
           <YAxis allowDecimals={false} label={{ value: 'Quantidade de itens', angle: -90, position: 'insideLeft' }} />
           <Tooltip />
           <Legend verticalAlign="top" align="right" />
-          <Bar dataKey="nao" name={`${legenda}: Não`} stackId="classificacao" fill={cores.principal} />
-          <Bar dataKey="sim" name={`${legenda}: Sim`} stackId="classificacao" fill={cores.sim} />
+          <Bar dataKey="nao" name={`${legenda}: Não`} stackId="classificacao" fill={cores.principal} isAnimationActive={false} />
+          <Bar dataKey="sim" name={`${legenda}: Sim`} stackId="classificacao" fill={cores.sim} isAnimationActive={false} />
         </BarChart>
       </ResponsiveContainer>
     </div>

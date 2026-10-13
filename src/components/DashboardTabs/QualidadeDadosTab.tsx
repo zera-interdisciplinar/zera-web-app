@@ -81,7 +81,7 @@ export function QualidadeDadosTab({ demo, filtros }: QualidadeDadosTabProps) {
                   <XAxis type="number" allowDecimals={false} label={{ value: 'Alertas registrados', position: 'insideBottom', offset: -2 }} />
                   <YAxis type="category" dataKey="tipo" width={150} />
                   <Tooltip />
-                  <Bar dataKey="quantidade" name="Alertas registrados" fill={cores.alerta} radius={[0, 3, 3, 0]} />
+                  <Bar dataKey="quantidade" name="Alertas registrados" fill={cores.alerta} radius={[0, 3, 3, 0]} isAnimationActive={false} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -97,8 +97,8 @@ export function QualidadeDadosTab({ demo, filtros }: QualidadeDadosTabProps) {
                   <YAxis allowDecimals={false} label={{ value: 'Quantidade de registros', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
                   <Legend verticalAlign="top" align="right" />
-                  <Bar dataKey="ausente" name="Ausente" stackId="total" fill={cores.ausente} />
-                  <Bar dataKey="preenchido" name="Preenchido" stackId="total" fill={cores.preenchido} />
+                  <Bar dataKey="ausente" name="Ausente" stackId="total" fill={cores.ausente} isAnimationActive={false} />
+                  <Bar dataKey="preenchido" name="Preenchido" stackId="total" fill={cores.preenchido} isAnimationActive={false} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -124,7 +124,7 @@ export function QualidadeDadosTab({ demo, filtros }: QualidadeDadosTabProps) {
                   <XAxis dataKey="escala" label={{ value: 'Intensidade de uso', position: 'insideBottom', offset: -8 }} />
                   <YAxis allowDecimals={false} label={{ value: 'Quantidade de itens', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
-                  <Bar dataKey="quantidade" name="Itens" radius={[2, 2, 0, 0]}>
+                  <Bar dataKey="quantidade" name="Itens" radius={[2, 2, 0, 0]} isAnimationActive={false}>
                     {intensidade.map((ponto) => (
                       <Cell key={ponto.escala} fill={ponto.escala === '5' ? cores.escala5 : cores.alerta} />
                     ))}

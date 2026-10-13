@@ -1,4 +1,5 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { randomUUID } from 'node:crypto'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { http } from 'msw'
@@ -12,13 +13,17 @@ import { ItensVidaUtilTab } from '../src/components/DashboardTabs/ItensVidaUtilT
 import { EvolucaoMovimentacoesTab } from '../src/components/DashboardTabs/EvolucaoMovimentacoesTab'
 import { QualidadeDadosTab } from '../src/components/DashboardTabs/QualidadeDadosTab'
 import { MateriaisSustentabilidadeTab } from '../src/components/DashboardTabs/MateriaisSustentabilidadeTab'
+import { definirSessaoApi } from '../src/services/apiReal'
 
 const endpoint = criarUrlDashboardSse({ period: '6m', view: 'todos' } as FiltrosDashboard).origin
   + '/api/v1/dashboard/overview'
 const server = setupServer()
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
-afterEach(() => server.resetHandlers())
+afterEach(() => {
+  server.resetHandlers()
+  definirSessaoApi(null, null)
+})
 afterAll(() => server.close())
 
 describe('parser SSE do dashboard', () => {
@@ -65,11 +70,25 @@ describe('origem dos cards e gráficos', () => {
     const qualidade = renderToStaticMarkup(createElement(QualidadeDadosTab, { demo: true, filtros }))
     const materiais = renderToStaticMarkup(createElement(MateriaisSustentabilidadeTab, { demo: true, filtros }))
 
-    expect(visaoGeral.match(/DEMONSTRAÇÃO/g)).toHaveLength(14)
-    expect(vidaUtil.match(/DEMONSTRAÇÃO/g)).toHaveLength(11)
-    expect(evolucao.match(/DEMONSTRAÇÃO/g)).toHaveLength(9)
-    expect(qualidade.match(/DEMONSTRAÇÃO/g)).toHaveLength(4)
-    expect(materiais.match(/DEMONSTRAÇÃO/g)).toHaveLength(8)
+    for (const tela of [visaoGeral, vidaUtil, evolucao, qualidade, materiais]) {
+      expect(tela.match(/<h2\b/g)?.length).toBeGreaterThan(0)
+      expect(tela.match(/DEMONSTRAÇÃO/g)?.length).toBe(tela.match(/<h2\b/g)?.length)
+    }
+  })
+
+  it('trata todos os percentuais nulos do contrato sem renderizar zero ou NaN', () => {
+    const snapshotNulo = structuredClone(dashboardSnapshotMock)
+    snapshotNulo.kpis.itens_cadastrados.change_percent = null
+    snapshotNulo.kpis.taxa_reciclagem.percent = null
+    snapshotNulo.kpis.taxa_reciclagem.change_points = null
+    snapshotNulo.circularidade.percent = null
+
+    const tela = renderToStaticMarkup(createElement(VisaoGeralTab, { snapshot: snapshotNulo, demo: true }))
+    expect(tela).toContain('Sem comparação disponível')
+    expect(tela).toContain('variação indisponível')
+    expect(tela).not.toContain('NaN')
+    expect(tela).not.toContain('undefined')
+    expect(tela).toContain('Circularidade: —')
   })
 
   it('não renderiza fixtures nem selos no modo real e identifica dados sem fonte', () => {
@@ -135,5 +154,25 @@ describe('integração MSW do stream', () => {
     })
 
     expect(falha).toEqual({ status: 400, detail: 'unit_id inválido' })
+  })
+
+  it('envia o JWT em Authorization e não inclui o token na URL', async () => {
+    const accessToken = randomUUID()
+    definirSessaoApi(accessToken, null)
+    server.use(http.get(endpoint, ({ request }) => {
+      const url = new URL(request.url)
+      expect(request.headers.get('Authorization')).toBe(`Bearer ${accessToken}`)
+      expect(url.searchParams.has('access_token')).toBe(false)
+      expect(url.toString()).not.toContain(accessToken)
+      return respostaSse('unavailable', { detail: 'snapshot not ready' })
+    }))
+    const controlador = new AbortController()
+
+    await acompanharDashboard(filtros, controlador.signal, {
+      onSnapshot: () => undefined,
+      onUnavailable: () => controlador.abort(),
+      onError: () => undefined,
+      onState: () => undefined,
+    })
   })
 })

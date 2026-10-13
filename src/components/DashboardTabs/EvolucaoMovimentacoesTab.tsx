@@ -69,7 +69,7 @@ function GraficoSerieDiaria({ dados, nome }: { dados: Ponto[]; nome: string }) {
         <XAxis dataKey="rotulo" interval="preserveStartEnd" angle={-20} textAnchor="end" height={46} tick={{ fontSize: 9 }} />
         <YAxis allowDecimals={false} width={34} tick={{ fontSize: 10 }} />
         <Tooltip labelFormatter={(rotulo) => <TooltipDate valor={String(rotulo)} />} />
-        <Line type="monotone" dataKey="quantidade" name={nome} stroke={CORES[0]} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
+        <Line type="monotone" dataKey="quantidade" name={nome} stroke={CORES[0]} strokeWidth={2} dot={false} activeDot={{ r: 4 }} isAnimationActive={false} />
       </LineChart>
     </ResponsiveContainer>
   )
@@ -84,7 +84,7 @@ function GraficoPorMes({ dados, nome, tipo = 'bar' }: { dados: Ponto[]; nome: st
           <XAxis dataKey="rotulo" tick={{ fontSize: 10 }} />
           <YAxis allowDecimals={false} width={34} tick={{ fontSize: 10 }} />
           <Tooltip />
-          <Line type="monotone" dataKey="quantidade" name={nome} stroke={CORES[0]} strokeWidth={2} activeDot={{ r: 4 }} />
+          <Line type="monotone" dataKey="quantidade" name={nome} stroke={CORES[0]} strokeWidth={2} activeDot={{ r: 4 }} isAnimationActive={false} />
         </LineChart>
       ) : (
         <BarChart data={dados} margin={{ top: 10, right: 14, bottom: 12, left: 2 }}>
@@ -247,6 +247,7 @@ export function EvolucaoMovimentacoesTab({ demo, filtros }: { demo: boolean; fil
                   strokeWidth={1.7}
                   dot={false}
                   activeDot={{ r: 3 }}
+                  isAnimationActive={false}
                 />
               ))}
             </LineChart>
@@ -260,8 +261,8 @@ export function EvolucaoMovimentacoesTab({ demo, filtros }: { demo: boolean; fil
               <YAxis allowDecimals={false} width={34} tick={{ fontSize: 10 }} />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="novosItens" name="Novos itens" stroke={CORES[0]} strokeWidth={2} activeDot={{ r: 4 }} />
-              <Line type="monotone" dataKey="movimentacoes" name="Movimentações" stroke={CORES[1]} strokeWidth={2} activeDot={{ r: 4 }} />
+              <Line type="monotone" dataKey="novosItens" name="Novos itens" stroke={CORES[0]} strokeWidth={2} activeDot={{ r: 4 }} isAnimationActive={false} />
+              <Line type="monotone" dataKey="movimentacoes" name="Movimentações" stroke={CORES[1]} strokeWidth={2} activeDot={{ r: 4 }} isAnimationActive={false} />
             </LineChart>
           </ResponsiveContainer>
         </CartaoGrafico>

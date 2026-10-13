@@ -70,7 +70,7 @@ function Barras({
         />
         <YAxis type={horizontal ? 'category' : 'number'} dataKey={horizontal ? labelKey : undefined} width={horizontal ? 112 : 44} />
         <Tooltip labelFormatter={(valor) => rotuloStatus(String(valor))} />
-        <Bar dataKey={valueKey} name="Quantidade" fill={cores[0]} radius={[3, 3, 0, 0]}>
+        <Bar dataKey={valueKey} name="Quantidade" fill={cores[0]} radius={[3, 3, 0, 0]} isAnimationActive={false}>
           {data.map((item, index) => <Cell key={String(item[labelKey])} fill={cores[index % cores.length]} />)}
         </Bar>
       </BarChart>

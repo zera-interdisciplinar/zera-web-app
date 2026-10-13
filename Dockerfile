@@ -7,7 +7,7 @@ COPY src ./src
 COPY styles ./styles
 COPY assets ./assets
 COPY public ./public
-ARG VITE_USE_MSW=true
+ARG VITE_USE_MSW=false
 ENV VITE_USE_MSW=$VITE_USE_MSW
 ENV VITE_API_BASE_URL=/api
 ENV VITE_ROUTER_MODE=history

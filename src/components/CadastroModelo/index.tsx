@@ -76,7 +76,7 @@ export function CadastroModelo({ cadastro, categorias }: CadastroModeloProps) {
                   {(materiais.dados ?? []).map((material) => <label key={material.id} htmlFor={`material-modelo-${material.id}`}>
                     <input id={`material-modelo-${material.id}`} type="checkbox" disabled={!ehCodigoMaterial(material.code)} checked={ehCodigoMaterial(material.code) && form.materiais.includes(material.code)}
                       onChange={() => { if (ehCodigoMaterial(material.code)) alternarMaterial(material.code) }} />
-                    {material.name}
+                    {material.code === 'OTHER' ? 'Outro' : material.name}
                   </label>)}
                 </div>
                 {materiais.dados?.length === 0 && <p>Nenhum material disponível para seleção.</p>}

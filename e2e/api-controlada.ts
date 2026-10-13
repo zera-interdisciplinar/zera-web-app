@@ -9,7 +9,7 @@ const modeloId = '44444444-4444-4444-8444-444444444444'
 
 export async function preparar(page: Page, role = 'MANAGER', peso = 0, endereco = base) {
   const categorias = [{ id: categoriaId, unitId: unidade, name: 'Eletrônicos', description: 'Equipamentos usados' }]
-  const materiais = [{ id: 'plastico', code: 'PLASTIC', name: 'Plástico', recyclable: true, hazardous: false, disposalGuide: null }, { id: 'outro', code: 'OTHER', name: 'Outro', recyclable: false, hazardous: false, disposalGuide: null }]
+  const materiais = [{ id: 'plastico', code: 'PLASTIC', name: 'Plástico', recyclable: true, hazardous: false, disposalGuide: null }, { id: 'outro', code: 'OTHER', name: 'Outros', recyclable: false, hazardous: false, disposalGuide: null }]
   const modelos = Array.from({ length: 25 }, (_, i) => ({ id: i === 0 ? modeloId : `modelo-${i}`, unitId: unidade, name: `Modelo ${i + 1}`, manufacturer: 'Fabricante', category: categorias[0], materials: [materiais[0]], expectedLifespanMonths: null, warrantyMonths: null, approvalStatus: i % 2 ? 'PENDING_APPROVAL' : 'APPROVED', notes: null }))
   const item = { id: 'item-proprio', unitId: unidade, barcode: 'ETQ-001', displayCode: 'ETQ-001', name: 'Notebook próprio', model: modelos[0], condition: 'USED', status: 'DRAFT', createdBy: pessoa, createdByName: 'Pessoa local', createdAt: '2026-10-28T14:12:00', updatedAt: '2026-10-28T14:12:00' }
   const itens = [item, { ...item, id: 'item-outro', name: 'Item de outra pessoa', createdBy: 'outra-pessoa', createdByName: 'Outra pessoa' }, { ...item, id: 'item-nulo', name: null, model: null, condition: null, createdByName: null }]

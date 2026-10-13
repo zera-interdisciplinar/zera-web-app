@@ -25,7 +25,12 @@ test('login preserva a marca e o fluxo de acesso sem os controles removidos', as
 })
 
 for (const [indice, usuario] of usuariosDemo.entries()) {
-  test(`usuário demo ${indice + 1} entra no dashboard`, async ({ page }) => {
+  const credencialPendente = !usuario.email || !usuario.senha || usuario.senha === marcador
+  const titulo = credencialPendente
+    ? `PENDENTE_USUARIO: usuário demo ${indice + 1} entra no dashboard`
+    : `usuário demo ${indice + 1} entra no dashboard`
+
+  test(titulo, async ({ page }) => {
     test.skip(
       !usuario.email || !usuario.senha || usuario.senha === marcador,
       'PENDENTE_USUARIO: preencher a senha correspondente no .env',

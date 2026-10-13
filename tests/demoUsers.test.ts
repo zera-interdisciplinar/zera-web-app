@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { randomUUID } from 'node:crypto'
 
 const env = import.meta.env as unknown as Record<string, string | undefined>
 
@@ -41,6 +42,22 @@ describe('autenticação demo por ambiente', () => {
     expect(JSON.stringify(resultados)).not.toContain(credenciais[0].senha)
   })
 
+  it('mapeia ADMIN para MANAGER sem depender das senhas do ambiente local', async () => {
+    const email = 'admin-teste@zera.com'
+    const senha = randomUUID()
+    vi.stubEnv('VITE_DEMO_USER_1_EMAIL', email)
+    vi.stubEnv('VITE_DEMO_USER_1_PASSWORD', senha)
+    vi.stubEnv('VITE_DEMO_USER_1_ROLE', 'ADMIN')
+    vi.stubEnv('VITE_DEMO_USER_1_NAME', 'Admin de teste')
+    vi.resetModules()
+    const { autenticarUsuarioDemo } = await import('../src/config/demoUsers')
+
+    expect(autenticarUsuarioDemo(email, senha)).toMatchObject({
+      tipo: 'autenticado',
+      usuario: { perfil: 'gestor' },
+    })
+  })
+
   it('recusa domínio externo e usuário não cadastrado', async () => {
     const { autenticarUsuarioDemo } = await import('../src/config/demoUsers')
 
@@ -58,24 +75,28 @@ describe('autenticação demo por ambiente', () => {
   })
 
   it('recusa papel vazio ou desconhecido e registra somente a chave da configuração', async () => {
-    const credenciais = credenciaisDemoConfiguradas()[0]
+    const email = 'perfil-teste@zera.com'
+    const senha = randomUUID()
+    vi.stubEnv('VITE_DEMO_USER_1_EMAIL', email)
+    vi.stubEnv('VITE_DEMO_USER_1_PASSWORD', senha)
+    vi.stubEnv('VITE_DEMO_USER_1_NAME', 'Usuário de teste')
     vi.stubEnv('VITE_DEMO_USER_1_ROLE', '')
     vi.resetModules()
     const { autenticarUsuarioDemo } = await import('../src/config/demoUsers')
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
-    expect(autenticarUsuarioDemo(credenciais.email, credenciais.senha).tipo).toBe('perfil-invalido')
+    expect(autenticarUsuarioDemo(email, senha).tipo).toBe('perfil-invalido')
     expect(warn).toHaveBeenCalledWith('VITE_DEMO_USER_1_ROLE')
-    expect(JSON.stringify(warn.mock.calls)).not.toContain(credenciais.senha)
+    expect(JSON.stringify(warn.mock.calls)).not.toContain(senha)
 
     vi.stubEnv('VITE_DEMO_USER_1_ROLE', 'UNKNOWN_ROLE')
     vi.resetModules()
     const segundoAviso = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     const recarregado = await import('../src/config/demoUsers')
-    expect(recarregado.autenticarUsuarioDemo(credenciais.email, credenciais.senha).tipo).toBe('perfil-invalido')
+    expect(recarregado.autenticarUsuarioDemo(email, senha).tipo).toBe('perfil-invalido')
     expect(segundoAviso).toHaveBeenCalledWith('VITE_DEMO_USER_1_ROLE')
     expect(JSON.stringify(segundoAviso.mock.calls)).not.toContain('UNKNOWN_ROLE')
-    expect(JSON.stringify(segundoAviso.mock.calls)).not.toContain(credenciais.senha)
+    expect(JSON.stringify(segundoAviso.mock.calls)).not.toContain(senha)
   })
 
   it('não aceita o marcador de senha não preenchido', async () => {

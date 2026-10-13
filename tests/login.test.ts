@@ -110,8 +110,12 @@ describe('login', () => {
   })
 
   it('recusa perfil vazio ou desconhecido e registra apenas a chave de configuração', async () => {
-    demoCredentials = credenciaisDemoConfiguradas()
+    const email = 'perfil-teste@zera.com'
+    const senha = randomUUID()
+    vi.stubEnv('VITE_DEMO_USER_1_EMAIL', email)
+    vi.stubEnv('VITE_DEMO_USER_1_PASSWORD', senha)
     vi.stubEnv('VITE_DEMO_USER_1_ROLE', 'UNKNOWN_ROLE')
+    vi.stubEnv('VITE_DEMO_USER_1_NAME', 'Usuário de teste')
     vi.resetModules()
     const { handlers } = await import('../src/mocks/handlers')
     server.resetHandlers()
@@ -119,7 +123,7 @@ describe('login', () => {
     const aviso = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     const { autenticar, mensagemErroLogin } = await import('../src/services/authService')
 
-    const falha = await autenticar({ ...demoCredentials[0] }).catch((erro: unknown) => erro)
+    const falha = await autenticar({ email, senha }).catch((erro: unknown) => erro)
     expect(mensagemErroLogin(falha)).toBe('Perfil de demonstração inválido.')
     expect(aviso).toHaveBeenCalledWith('VITE_DEMO_USER_1_ROLE')
     expect(JSON.stringify(aviso.mock.calls)).not.toContain('UNKNOWN_ROLE')

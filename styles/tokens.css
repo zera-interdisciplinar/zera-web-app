@@ -13,6 +13,8 @@
   --fundo: #F2EAD9;
   --branco: #FFFFFF;
   --borda: #E3E7F0;
+  --borda-sutil: color-mix(in srgb, var(--borda) 65%, transparent);
+  --hover-linha: color-mix(in srgb, var(--azul) 6%, transparent);
 
   --texto: #171B2E;
   --texto-secundario: #58647B;

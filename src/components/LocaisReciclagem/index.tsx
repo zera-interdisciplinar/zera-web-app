@@ -30,10 +30,10 @@ export function LocaisReciclagem({ aoSelecionar, selecionadoId }: LocaisReciclag
           {busca.erros[campo.nome] && <p id={`locais-${campo.nome}-erro`} role="alert" className={estilos.erro}>{busca.erros[campo.nome]}</p>}
         </div>)}
       </div>
-      <Button type="submit" disabled={busca.carregando || busca.localizando}>{busca.carregando ? 'Buscando locais…' : 'Buscar locais'}</Button>
+      <Button type="submit" disabled={busca.carregando || busca.localizando}>{busca.carregando ? 'Buscando locais…' : busca.erro ? 'Tentar novamente' : 'Buscar locais'}</Button>
     </Formulario>
     <p role="status" className={estilos.feedback}>{busca.carregando ? 'Consultando os locais próximos…' : busca.locais ? `${busca.locais.length} ${busca.locais.length === 1 ? 'local encontrado' : 'locais encontrados'}.` : ''}</p>
-    {busca.erro && <p role="alert" className={estilos.erro}>{busca.erro} Tente novamente pelo botão de busca.</p>}
+    {busca.erro && <p role="alert" className={estilos.erro}>{busca.erro}</p>}
     {busca.locais?.length === 0 && <EmptyState titulo="Nenhum local encontrado" descricao="Confira as coordenadas ou aumente o raio da busca." />}
     {busca.locais && busca.locais.length > 0 && <ul className={estilos.lista}>
       {busca.locais.map((local) => <li key={local.placeId} className={estilos.local}>

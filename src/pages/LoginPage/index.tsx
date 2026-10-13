@@ -1,17 +1,14 @@
 import { useEffect, useState } from 'react'
-import { AtSign, LockKeyhole, Mail, MessageCircle } from 'lucide-react'
+import { LockKeyhole, Mail } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../../components/Button'
 import { FieldCard } from '../../components/FieldCard'
-import { Logo } from '../../components/Logo'
 import { SkipLink } from '../../components/SkipLink'
 import { useAuth } from '../../hooks/useAuth'
 import type { Credenciais } from '../../types/usuario'
 import { validarCredenciais } from '../../utils/validacao'
 import type { ErrosDeCampo } from '../../utils/validacao'
 import estilos from '../../../styles/pages/LoginPage/LoginPage.module.css'
-
-const emailContato = 'zera.institutojef@gmail.com'
 
 interface EstadoBloqueio {
   falhas: number
@@ -91,38 +88,10 @@ export default function LoginPage() {
     <>
       <SkipLink />
       <main className={estilos.pagina} id="conteudo" tabIndex={-1}>
-        <aside className={estilos.marca} aria-label="Sobre o Zera">
-          <div className={estilos.marcaCentral}>
-            <Logo />
-            <p className={estilos.tagline}>
-              TRANSFORMANDO <span>DESCARTE</span>
-              <br />EM <span>SOLUÇÃO</span>
-            </p>
-          </div>
-          <address className={estilos.contatos}>
-            <a href="https://www.instagram.com/zera.app/" target="_blank" rel="noreferrer">
-              <AtSign aria-hidden="true" />
-              <span>@zera.app</span>
-            </a>
-            <a href="tel:+5511933045181">
-              <MessageCircle aria-hidden="true" />
-              <span>+55 (11) 93304-5181</span>
-            </a>
-            <a href={`mailto:${emailContato}`}>
-              <Mail aria-hidden="true" />
-              <span>{emailContato}</span>
-            </a>
-          </address>
-        </aside>
-
         <section className={estilos.painel} aria-labelledby="titulo-login">
           <div className={estilos.conteudoLogin}>
-            <div className={estilos.marcaMobile}>
-              <Logo />
-            </div>
             <section className={estilos.cartao}>
               <h1 id="titulo-login">Entrar</h1>
-              <p className={estilos.subtitulo}>Preencha seus dados para entrar na sua conta</p>
 
               <form className={estilos.formulario} onSubmit={aoEnviar} noValidate>
                 <FieldCard
@@ -165,10 +134,6 @@ export default function LoginPage() {
                     Muitas tentativas seguidas. Tente novamente em {bloqueio.restante} s.
                   </p>
                 )}
-
-                <a className={estilos.linkAuxiliar} href={`mailto:${emailContato}?subject=Recuperar%20acesso%20ao%20Zera`}>
-                  Esqueci minha senha
-                </a>
 
                 <Button
                   className={estilos.botaoEntrar}

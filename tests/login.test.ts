@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import { randomUUID } from 'node:crypto'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setupServer } from 'msw/node'
 
@@ -46,6 +47,11 @@ describe('login', () => {
       'Abrir como gestor',
       'Abrir como funcionário',
       'Solicitar%20acesso%20ao%20Zera',
+      'mailto:',
+      'tel:',
+      'instagram.com',
+      'Esqueci minha senha',
+      'Voltar',
     ]) {
       expect(fonte).not.toContain(texto)
     }
@@ -79,12 +85,21 @@ describe('login', () => {
   })
 
   it('recusa senha errada, e-mail inexistente e outro domínio com a mesma mensagem', async () => {
+    const senhaConfigurada = randomUUID()
+    vi.stubEnv('VITE_DEMO_USER_1_EMAIL', 'login-teste@zera.com')
+    vi.stubEnv('VITE_DEMO_USER_1_PASSWORD', senhaConfigurada)
+    vi.stubEnv('VITE_DEMO_USER_1_ROLE', 'EMPLOYEE')
+    vi.stubEnv('VITE_DEMO_USER_1_NAME', 'Teste')
+    vi.resetModules()
+    const { handlers } = await import('../src/mocks/handlers')
+    server.resetHandlers()
+    server.use(...handlers)
     const { autenticar, mensagemErroLogin } = await import('../src/services/authService')
-    const emailConfigurado = env.VITE_DEMO_USER_1_EMAIL ?? ''
+    const senhaTentada = randomUUID()
     const tentativas = await Promise.all([
-      autenticar({ email: emailConfigurado, senha: '' }),
-      autenticar({ email: 'nao-cadastrado@zera.com', senha: '' }),
-      autenticar({ email: 'gustavo.amex@example.com', senha: '' }),
+      autenticar({ email: 'login-teste@zera.com', senha: senhaTentada }),
+      autenticar({ email: 'nao-cadastrado@zera.com', senha: senhaTentada }),
+      autenticar({ email: 'usuario@example.com', senha: senhaTentada }),
     ].map((promessa) => promessa.catch((erro: unknown) => erro)))
 
     expect(tentativas.map(mensagemErroLogin)).toEqual([

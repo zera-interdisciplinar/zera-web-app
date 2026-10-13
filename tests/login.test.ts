@@ -84,6 +84,25 @@ describe('login', () => {
     }
   })
 
+  it('handler MSW autentica conta configurada sem backend e marca a sessão como demonstração', async () => {
+    const email = 'fluxo-demo@zera.com'
+    const senha = randomUUID()
+    vi.stubEnv('VITE_DEMO_USER_1_EMAIL', email)
+    vi.stubEnv('VITE_DEMO_USER_1_PASSWORD', senha)
+    vi.stubEnv('VITE_DEMO_USER_1_ROLE', 'EMPLOYEE')
+    vi.stubEnv('VITE_DEMO_USER_1_NAME', 'Usuário local')
+    vi.resetModules()
+    const { handlers } = await import('../src/mocks/handlers')
+    server.resetHandlers()
+    server.use(...handlers)
+    const { autenticar } = await import('../src/services/authService')
+
+    const sessao = await autenticar({ email, senha })
+    expect(sessao.demonstracao).toBe(true)
+    expect(sessao.usuario).toMatchObject({ email, perfil: 'funcionario' })
+    expect(JSON.stringify(sessao)).not.toContain(senha)
+  })
+
   it('recusa senha errada, e-mail inexistente e outro domínio com a mesma mensagem', async () => {
     const senhaConfigurada = randomUUID()
     vi.stubEnv('VITE_DEMO_USER_1_EMAIL', 'login-teste@zera.com')

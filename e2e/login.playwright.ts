@@ -7,6 +7,19 @@ const usuariosDemo = [1, 2, 3].map((indice) => ({
   senha: env[`VITE_DEMO_USER_${indice}_PASSWORD`] ?? '',
 }))
 
+test('login apresenta somente os campos de acesso e o botão Entrar', async ({ page }) => {
+  await page.goto('http://127.0.0.1:5183/login')
+  await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible()
+  await expect(page.locator('#email')).toBeVisible()
+  await expect(page.locator('#senha')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Entrar', exact: true })).toBeVisible()
+  await expect(page.getByText('Não tenho cadastro')).toHaveCount(0)
+  await expect(page.getByText('Pré-visualização local')).toHaveCount(0)
+  await expect(page.getByText('Abrir como')).toHaveCount(0)
+  await expect(page.getByText('Voltar', { exact: true })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Esqueci minha senha' })).toHaveCount(0)
+})
+
 for (const [indice, usuario] of usuariosDemo.entries()) {
   test(`usuário demo ${indice + 1} entra no dashboard`, async ({ page }) => {
     test.skip(

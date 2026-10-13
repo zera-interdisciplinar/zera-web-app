@@ -115,7 +115,35 @@ async function startCompose() {
 function startVite() {
   console.log('[dev] Iniciando Vite (Ctrl+C encerra somente o Vite; os containers continuam ativos).')
   const viteCli = resolve(root, 'node_modules/vite/bin/vite.js')
-  const child = spawn(process.execPath, [viteCli], { cwd: root, stdio: 'inherit', windowsHide: true })
+  const child = spawn(process.execPath, [viteCli], {
+    cwd: root,
+    stdio: ['inherit', 'pipe', 'pipe'],
+    windowsHide: true,
+  })
+  let linhaPendente = ''
+  let urlExibida = false
+
+  const encaminharSaida = (stream, dados) => {
+    const texto = dados.toString()
+    stream.write(texto)
+    linhaPendente += texto
+
+    const linhas = linhaPendente.split(/\r?\n/)
+    linhaPendente = linhas.pop() ?? ''
+    for (const linha of linhas) exibirUrlLocal(linha)
+  }
+
+  const exibirUrlLocal = (linha) => {
+    if (urlExibida) return
+    const limpa = linha.replace(/\u001B\[[0-?]*[ -/]*[@-~]/g, '')
+    const correspondencia = limpa.match(/\bLocal:\s*(https?:\/\/[^\s]+)/)
+    if (!correspondencia) return
+    urlExibida = true
+    console.log(`\n[dev] App em: ${correspondencia[1]}\n`)
+  }
+
+  child.stdout?.on('data', (dados) => encaminharSaida(process.stdout, dados))
+  child.stderr?.on('data', (dados) => encaminharSaida(process.stderr, dados))
 
   const forwardSignal = (signal) => {
     if (!child.killed) child.kill(signal)
@@ -129,6 +157,7 @@ function startVite() {
     process.exitCode = 1
   })
   child.once('close', (code, signal) => {
+    exibirUrlLocal(linhaPendente)
     process.exitCode = code ?? (signal === 'SIGINT' ? 130 : 1)
   })
 }

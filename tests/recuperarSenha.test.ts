@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { validarEmailRecuperacao } from '../src/utils/validacao'
-import { dashboardDemoEnabled } from '../src/config/dashboardMode'
+import { dashboardDemoEnabled } from './mocks/dashboardMode'
 
 describe('recuperação de senha', () => {
   it('aceita somente formato válido no domínio @zera.com', () => {

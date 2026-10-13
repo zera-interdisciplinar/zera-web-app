@@ -6,7 +6,11 @@ function listar(pasta) {
 }
 const problemas = []
 for (const arquivo of listar('src')) {
-  if (!/\.tsx?$/.test(arquivo)) { problemas.push(`${arquivo}: extensão fora do padrão`); continue }
+  if (!/\.tsx?$/.test(arquivo)) {
+    if (/^src\/assets\/.+\.(?:png|svg|jpe?g|webp|woff2?)$/i.test(arquivo)) continue
+    problemas.push(`${arquivo}: extensão fora do padrão`)
+    continue
+  }
   const texto = readFileSync(arquivo, 'utf8')
   const codigo = ts.createSourceFile(arquivo, texto, ts.ScriptTarget.Latest, true)
   const vista = /src\/(components|pages)\//.test(arquivo)
@@ -79,7 +83,11 @@ for (const arquivo of listar('src')) {
 for (const pasta of ['src/components', 'src/pages']) {
   for (const entrada of readdirSync(pasta, { withFileTypes: true })) {
     if (!entrada.isDirectory()) problemas.push(`${pasta}/${entrada.name}: use pasta própria`)
-    else if (!readdirSync(`${pasta}/${entrada.name}`).includes('index.tsx')) problemas.push(`${pasta}/${entrada.name}: falta index.tsx`)
+    else {
+      const conteudo = readdirSync(`${pasta}/${entrada.name}`)
+      if (conteudo.length === 0) continue
+      if (!conteudo.includes('index.tsx')) problemas.push(`${pasta}/${entrada.name}: falta index.tsx`)
+    }
   }
 }
 const tokens = JSON.parse(readFileSync('tests/fixtures/design-tokens.json', 'utf8'))

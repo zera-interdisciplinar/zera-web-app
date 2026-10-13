@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { AxeBuilder } from '@axe-core/playwright'
 import { preparar } from './api-controlada'
-import { dashboardSnapshotMock } from '../src/mocks/dashboardSseFixture'
+import { dashboardSnapshotMock } from '../tests/fixtures/dashboardSseFixture'
 
 for (const largura of [320, 1280]) {
   test(`dados disponíveis das abas do painel em ${largura}px`, async ({ page }) => {

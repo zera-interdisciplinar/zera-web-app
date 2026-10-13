@@ -3,14 +3,18 @@ import { loadEnv } from 'vite'
 
 const root = process.cwd()
 const envFromFile = loadEnv('development', root, '')
-const qaKeys = ['QA_GESTOR_EMAIL', 'QA_GESTOR_PASSWORD', 'QA_OPERARIO_EMAIL', 'QA_OPERARIO_PASSWORD', 'QA_OPERADOR_EMAIL', 'QA_OPERADOR_PASSWORD']
-for (const key of process.env.ZERA_RUN_LIVE_QA === 'true' ? qaKeys : []) {
-  const value = envFromFile[key]
-  if (value) process.env[key] ??= value
-}
 if (process.env.ZERA_RUN_LIVE_QA === 'true') {
-  process.env.QA_OPERARIO_EMAIL ||= envFromFile.ZERA_QA_OPERADOR_EMAIL || envFromFile.QA_OPERADOR_EMAIL
-  process.env.QA_OPERARIO_PASSWORD ||= envFromFile.ZERA_QA_OPERADOR_PASSWORD || envFromFile.QA_OPERADOR_PASSWORD
+  const credenciaisQa: Record<string, string[]> = {
+    QA_GESTOR_EMAIL: ['ZERA_QA_GESTOR_EMAIL', 'QA_GESTOR_EMAIL'],
+    QA_GESTOR_PASSWORD: ['ZERA_QA_GESTOR_PASSWORD', 'QA_GESTOR_PASSWORD'],
+    QA_OPERARIO_EMAIL: ['ZERA_QA_FUNCIONARIO_EMAIL', 'ZERA_QA_OPERADOR_EMAIL', 'QA_OPERADOR_EMAIL', 'QA_OPERARIO_EMAIL'],
+    QA_OPERARIO_PASSWORD: ['ZERA_QA_FUNCIONARIO_PASSWORD', 'ZERA_QA_OPERADOR_PASSWORD', 'QA_OPERADOR_PASSWORD', 'QA_OPERARIO_PASSWORD'],
+  }
+  for (const [destino, alternativas] of Object.entries(credenciaisQa)) {
+    if (process.env[destino]) continue
+    const valor = alternativas.map((chave) => envFromFile[chave]).find((candidato) => candidato !== undefined && candidato.length > 0)
+    if (valor !== undefined) process.env[destino] = destino.endsWith('_EMAIL') ? valor.trim() : valor
+  }
 }
 
 const envTest = {
@@ -20,7 +24,6 @@ const envTest = {
   VITE_ADMIN_API_URL: '/api/administrative',
   VITE_INVENTORY_API_URL: '/api/inventory',
   VITE_USE_MSW: 'true',
-  VITE_DASHBOARD_DEMO_MODE: 'true',
   ZERA_VITE_CACHE_DIR: 'node_modules/.vite-e2e-demo',
 }
 const envReal = {
@@ -30,7 +33,6 @@ const envReal = {
   VITE_ADMIN_API_URL: '/api/administrative',
   VITE_INVENTORY_API_URL: '/api/inventory',
   VITE_USE_MSW: 'false',
-  VITE_DASHBOARD_DEMO_MODE: 'false',
   ZERA_VITE_CACHE_DIR: 'node_modules/.vite-e2e-real',
 }
 

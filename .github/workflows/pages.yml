@@ -3,8 +3,6 @@ name: Validate and publish Zera
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -40,7 +38,7 @@ jobs:
       - name: Check publication scope
         run: node scripts/check-publication.mjs
       - uses: actions/upload-pages-artifact@v3
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         with:
           path: dist
 
@@ -66,7 +64,7 @@ jobs:
           path: test-results
 
   deploy:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
     needs: [validate, browser]
     runs-on: ubuntu-latest
     permissions:

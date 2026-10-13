@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { AxeBuilder } from '@axe-core/playwright'
 import { test, expect, type Page } from '@playwright/test'
-import { dashboardSnapshotMock } from '../src/mocks/dashboardSseFixture'
+import { dashboardSnapshotMock } from '../tests/fixtures/dashboardSseFixture'
 
 const base = 'http://127.0.0.1:5183'
 test.beforeEach(async ({ page }) => {
@@ -87,19 +87,15 @@ for (const status of [401, 403, 503]) {
 
 
 for (const origem of [base, 'http://127.0.0.1:5184']) {
-  test(`demonstração explícita e isolada de áreas privadas em ${origem}`, async ({ page }) => {
+  test(`rota privada e demonstração não oferecem dados fictícios em ${origem}`, async ({ page }) => {
     const chamadas: string[] = []
     page.on('request', (request) => {
       if (new URL(request.url()).pathname.startsWith('/api/')) chamadas.push(request.url())
     })
     await page.goto(`${origem}/login`)
-    await expect(page.getByRole('link', { name: 'Ver demonstração sem fazer login' })).toHaveCount(0)
     await page.goto(`${origem}/demonstracao`)
-    await expect(page.getByRole('heading', { name: 'Painel de demonstração' })).toBeVisible()
-    await expect(page.getByText(/DADOS DE DEMONSTRAÇÃO/)).toBeVisible()
-    for (const titulo of ['Itens e vida útil', 'Evolução e movimentações', 'Qualidade dos dados e alertas', 'Materiais e sustentabilidade']) {
-      await expect(page.getByRole('heading', { name: titulo, exact: true })).toBeVisible()
-    }
+    await expect(page.getByRole('heading', { name: 'Página não encontrada' })).toBeVisible()
+    await expect(page.getByText(/DADOS DE DEMONSTRAÇÃO/)).toHaveCount(0)
     expect(chamadas).toEqual([])
     expect((await new AxeBuilder({ page }).analyze()).violations.map(v => v.id)).toEqual([])
     await page.goto(`${origem}/itens`)

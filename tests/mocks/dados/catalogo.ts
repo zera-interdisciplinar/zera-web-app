@@ -1,7 +1,7 @@
-import type { Categoria } from '../../types/categoria'
-import type { Modelo } from '../../types/modelo'
-import type { Recicladora } from '../../types/relatorio'
-import type { Usuario } from '../../types/usuario'
+import type { Categoria } from '../../../src/types/categoria'
+import type { Modelo } from '../../../src/types/modelo'
+import type { Recicladora } from '../../../src/types/relatorio'
+import type { Usuario } from '../../../src/types/usuario'
 
 export const categorias: Categoria[] = [
   {

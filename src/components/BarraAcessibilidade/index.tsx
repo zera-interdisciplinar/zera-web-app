@@ -1,4 +1,4 @@
-import emblema from '../../../assets/z-mark.png'
+import emblema from '../../assets/z-mark.png'
 import estilos from '../../../styles/components/BarraAcessibilidade/BarraAcessibilidade.module.css'
 import { useControleAcessibilidade } from '../../hooks/useControleAcessibilidade'
 import type { SimulacaoCores } from '../../types/acessibilidade'

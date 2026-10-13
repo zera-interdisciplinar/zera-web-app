@@ -25,7 +25,6 @@ export function AppRoutes() {
       <Routes>
         <Route element={<EstruturaPublica />}>
           <Route path="/login" element={<LoginPage />} />
-          {import.meta.env.DEV && import.meta.env.MODE === 'test' && <Route path="/demonstracao" element={<DashboardPage demonstracao />} />}
           <Route path="/esqueci-senha" element={<RecuperarSenhaPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

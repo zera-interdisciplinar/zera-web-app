@@ -1,20 +1,20 @@
 import { HttpResponse, http, delay } from 'msw'
 
-import type { AlertaLote } from '../types/alerta'
-import type { Categoria, NovaCategoria } from '../types/categoria'
-import type { Configuracoes } from '../types/configuracao'
-import type { ResumoDashboard } from '../types/dashboard'
-import type { AnalisePreventiva, FatorAnalise, Manutencao, NovaManutencao } from '../types/manutencao'
-import type { Modelo, NovoModelo } from '../types/modelo'
+import type { AlertaLote } from '../../src/types/alerta'
+import type { Categoria, NovaCategoria } from '../../src/types/categoria'
+import type { Configuracoes } from '../../src/types/configuracao'
+import type { ResumoDashboard } from '../../src/types/dashboard'
+import type { AnalisePreventiva, FatorAnalise, Manutencao, NovaManutencao } from '../../src/types/manutencao'
+import type { Modelo, NovoModelo } from '../../src/types/modelo'
 import type {
   NovoProduto,
   Produto,
   ProdutoDetalhado,
   StatusItem,
-} from '../types/produto'
-import type { ItemRelatorio, NovaRecicladora, Relatorio } from '../types/relatorio'
-import type { NovoUsuario, SessaoAutenticada, Usuario } from '../types/usuario'
-import { diasDesde, montarCodigoBarras } from '../utils/formatacao'
+} from '../../src/types/produto'
+import type { ItemRelatorio, NovaRecicladora, Relatorio } from '../../src/types/relatorio'
+import type { NovoUsuario, SessaoAutenticada, Usuario } from '../../src/types/usuario'
+import { diasDesde, montarCodigoBarras } from '../../src/utils/formatacao'
 import {
 
   categorias as categoriasIniciais,
@@ -23,9 +23,9 @@ import {
   usuarios as usuariosIniciais,
 } from './dados/catalogo'
 import { gerarManutencoes, gerarProdutos } from './dados/produtos'
-import { dashboardOverviewMock, dashboardSnapshotMock, respostaSse } from './dashboardSseFixture'
-import type { ResultadoTriagem } from '../services/produtoService'
-import { autenticarUsuarioDemo } from '../config/demoUsers'
+import { dashboardOverviewMock, dashboardSnapshotMock, respostaSse } from '../fixtures/dashboardSseFixture'
+import type { ResultadoTriagem } from '../../src/services/produtoService'
+import { autenticarUsuarioDemo } from './demoUsers'
 
 const BASE = import.meta.env.VITE_API_BASE_URL ?? '/api'
 

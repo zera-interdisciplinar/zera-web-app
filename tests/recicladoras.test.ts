@@ -10,7 +10,7 @@ describe('regressão de recicladoras da demonstração', () => {
   it('lista, cadastra e consulta novamente sem perder os registros existentes', async () => {
     vi.stubEnv('VITE_USE_MSW', 'true')
     vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:9000/api')
-    const { handlers } = await import('../src/mocks/handlers')
+    const { handlers } = await import('./mocks/handlers')
     server.use(...handlers)
     const { listarRecicladoras, criarRecicladora } = await import('../src/services/relatorioService')
     const antes = await listarRecicladoras()

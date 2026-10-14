@@ -27,19 +27,25 @@ test('leitor virtual percorre login, erro, painel, aba, itens e modal', async ({
   anuncios.login = falas
   expect(falas.join(' ')).toMatch(/email|e-mail/i)
   expect(falas.join(' ')).toMatch(/senha/i)
+  expect(falas.join(' ')).toMatch(/textbox|edit text/i)
+  expect(falas.join(' ')).toMatch(/button/i)
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page.locator('#email')).toBeFocused()
-  await expect(page.getByRole('alert').first()).toBeVisible()
+  const alertaLogin = page.getByRole('alert').first()
+  await expect(alertaLogin).toBeVisible()
+  await expect(alertaLogin).toMatchAriaSnapshot('- alert')
   falas = await percorrer(page)
   anuncios.erro = falas
   expect(falas.join(' ')).toMatch(/email|e-mail/i)
   expect(falas.join(' ')).toMatch(/alert/i)
+  expect(falas.join(' ')).toMatch(/obrigat|preench|inválid/i)
 
   await preparar(page)
   await expect(page.getByRole('heading', { name: 'Painel do Zera' })).toMatchAriaSnapshot('- heading "Painel do Zera" [level=1]')
   falas = await percorrer(page)
   anuncios.painel = falas
   expect(falas.join(' ')).toMatch(/Painel do Zera/i)
+  expect(falas.join(' ')).toMatch(/main|navigation|heading/i)
   const aba = page.getByRole('tab', { name: 'Visão geral', exact: true })
   await aba.click()
   await expect(aba).toHaveAttribute('aria-selected', 'true')
@@ -48,12 +54,14 @@ test('leitor virtual percorre login, erro, painel, aba, itens e modal', async ({
   anuncios.aba = falas
   expect(falas.join(' ')).toMatch(/Visão geral/i)
   expect(falas.join(' ')).toMatch(/selected/i)
+  expect(falas.join(' ')).toMatch(/tab/i)
 
   await page.getByRole('link', { name: 'Itens', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Gestão de itens' })).toMatchAriaSnapshot('- heading "Gestão de itens" [level=1]')
   falas = await percorrer(page)
   anuncios.itens = falas
   expect(falas.join(' ')).toMatch(/Gestão de itens/i)
+  expect(falas.join(' ')).toMatch(/navigation|main|heading/i)
   const abrir = page.getByRole('button', { name: 'Adicionar item', exact: true })
   await abrir.click()
   const modal = page.getByRole('dialog')
@@ -63,6 +71,8 @@ test('leitor virtual percorre login, erro, painel, aba, itens e modal', async ({
   falas = await percorrer(page)
   anuncios.modal = falas
   expect(falas.join(' ')).toMatch(/dialog|diálogo/i)
+  expect(falas.join(' ')).toMatch(/Cadastrar item/i)
+  expect(falas.join(' ')).toMatch(/textbox|combobox|edit text/i)
   await page.keyboard.press('Escape')
   await expect(modal).toBeHidden()
   await expect(abrir).toBeFocused()

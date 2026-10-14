@@ -28,6 +28,7 @@ interface RetornoTransicao extends EstadoTransicao {
 
 const SUCESSO: Record<AcaoItemReal, string> = {
   submit: 'Cadastro enviado.', approve: 'Item aprovado.', reject: 'Item reprovado.',
+  lend: 'Empréstimo registrado.', return: 'Item devolvido ao estoque.',
   'maintenance/start': 'Manutenção iniciada.', 'maintenance/finish': 'Manutenção concluída. Avalie a condição do item.',
   evaluate: 'Condição avaliada. Item devolvido ao estoque.',
 }

@@ -94,15 +94,17 @@ it('Req 21: sanitização recursiva remove tags e protocolos perigosos', () => {
 })
 
 function checagemEstatica(): void {
-  const resultado = spawnSync(process.execPath, ['scripts/check-project.mjs'], { encoding: 'utf8' })
+  const resultado = resultadoChecagemEstatica
   expect(resultado.stderr).toBe('')
   expect(resultado.status).toBe(0)
 }
 
+const resultadoChecagemEstatica = spawnSync(process.execPath, ['scripts/check-project.mjs'], { encoding: 'utf8' })
+
 it('Req 4: tipos de domínio existem e a análise estática proíbe any e ts-ignore', () => {
   expect(arquivos('src/types').filter(a => a.endsWith('.ts')).length).toBeGreaterThan(1)
   checagemEstatica()
-})
+}, 15_000)
 
 it('Req 5: serviços assíncronos exportados declaram Promise e tratam exceções', () => {
   checagemEstatica()

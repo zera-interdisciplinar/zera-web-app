@@ -13,6 +13,7 @@ export type StatusItem =
   | 'rascunho'
   | 'rejeitado'
   | 'em-manutencao'
+  | 'em-uso'
   | 'aguardando-avaliacao'
   | 'descartado'
   | 'removido'
@@ -62,6 +63,7 @@ export const ROTULO_STATUS: Record<StatusItem, string> = {
   rascunho: 'Rascunho',
   rejeitado: 'Rejeitado',
   'em-manutencao': 'Em manutenção',
+  'em-uso': 'Em uso',
   'aguardando-avaliacao': 'Aguardando avaliação',
   descartado: 'Descartado',
   removido: 'Removido',

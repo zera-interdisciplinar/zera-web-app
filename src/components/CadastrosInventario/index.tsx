@@ -14,9 +14,9 @@ export function CadastrosInventario() {
   }
   const pontos = Array.from(meses, ([rotulo, valor]) => ({ rotulo, valor })).sort((a, b) => a.rotulo.localeCompare(b.rotulo))
   return <section aria-label="Cadastros do inventário">
-    <p>Calculado pela data de cadastro dos itens ativos disponíveis para sua conta; itens descartados ou removidos não estão nesta contagem.</p>
+    <p>Calculado pela data de cadastro dos itens retornados para sua conta, em todos os status disponíveis no inventário.</p>
     {itens.carregando && <Skeleton descricao="Carregando cadastros…" linhas={2} />}
     {itens.erro && <EstadoErro mensagem={itens.erro} aoTentarNovamente={itens.recarregar} />}
-    {itens.dados && <GraficoDados titulo="Evolução mensal dos cadastros" eixo="Mês" unidade="itens ativos" vazio="Nenhum item ativo disponível para sua conta." pontos={pontos} />}
+    {itens.dados && <GraficoDados titulo="Evolução mensal dos cadastros" eixo="Mês" unidade="itens cadastrados" vazio="Nenhum cadastro disponível para sua conta." pontos={pontos} />}
   </section>
 }

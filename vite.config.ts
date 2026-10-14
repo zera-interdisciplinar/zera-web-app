@@ -7,7 +7,7 @@ import { configuracaoProxy, origemPermitida, validarBaseProxy } from './server/c
 const root = process.cwd()
 
 export default defineConfig(({ mode }) => {
-  const envDir = ['production', 'test'].includes(mode) ? resolve(root, 'public') : root
+  const envDir = mode === 'test' ? resolve(root, 'public') : root
   const mswWorker = mode === 'test' ? readFileSync(resolve(root, 'tests/mocks/mockServiceWorker.js')) : undefined
   const privado = configuracaoProxy({ ...loadEnv(mode, root, ''), ...process.env })
   const proxy: Record<string, ProxyOptions> = {}

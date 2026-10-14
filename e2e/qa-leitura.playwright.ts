@@ -21,6 +21,10 @@ for (const site of sites) for (const conta of contas) {
     test.skip(!conta.email || !conta.senha, 'Conta local ausente; não há credencial embutida no teste.')
     test.setTimeout(300_000)
     const nomes = new Set<string>()
+    const modelosPorPagina = new Map<number, number>()
+    let totalModelos: number | null = null
+    let totalPaginasModelos: number | null = null
+    let totalCategorias: number | null = null
     let identidade = ''
     let item: string | undefined
     let bloqueadas = 0
@@ -45,6 +49,21 @@ for (const site of sites) for (const conta of contas) {
           const itens = Array.isArray(dados.content) ? dados.content : []
           item = itens.find((registro: { createdBy?: string }) => conta.perfil === 'gestor' || registro.createdBy === identidade)?.id
           for (const registro of itens) if (typeof registro.createdByName === 'string') nomes.add(registro.createdByName)
+        }
+        if (response.request().method() === 'GET' && pathname.endsWith('/models')) {
+          const dados: unknown = await response.json()
+          if (typeof dados === 'object' && dados !== null && 'content' in dados && Array.isArray(dados.content)
+            && 'totalElements' in dados && typeof dados.totalElements === 'number'
+            && 'totalPages' in dados && typeof dados.totalPages === 'number') {
+            const pagina = Number(new URL(response.url()).searchParams.get('page') ?? '0')
+            modelosPorPagina.set(pagina, dados.content.length)
+            totalModelos = dados.totalElements
+            totalPaginasModelos = dados.totalPages
+          }
+        }
+        if (response.request().method() === 'GET' && pathname.endsWith('/categories')) {
+          const dados: unknown = await response.json()
+          if (Array.isArray(dados)) totalCategorias = dados.length
         }
       } catch { /* Só metadados em memória; nunca gravar respostas privadas. */ }
     })
@@ -83,6 +102,32 @@ for (const site of sites) for (const conta of contas) {
           await navegar(rota)
           await expect(page.getByRole('heading', { level: 1, name: titulo, exact: true })).toBeVisible()
           await expect(page.getByText(/^(Carregando os modelos\.|Carregando os itens do inventário\.)$/)).toHaveCount(0, { timeout: 30_000 })
+          if (rota === '/modelos') {
+            const categorias = page.locator('section[aria-labelledby="titulo-categorias"]')
+            await expect(categorias.getByRole('heading', { name: 'Categorias', exact: true })).toBeVisible()
+            await expect.poll(() => totalCategorias, { timeout: 30_000 }).not.toBeNull()
+            await expect(categorias.locator('article')).toHaveCount(totalCategorias ?? 0)
+            await expect.poll(() => totalModelos, { timeout: 30_000 }).not.toBeNull()
+            await expect.poll(() => modelosPorPagina.size, { timeout: 30_000 }).toBe(totalPaginasModelos)
+            const total = totalModelos ?? 0
+            const exibidosPelaApi = [...modelosPorPagina.values()].reduce((soma, quantidade) => soma + quantidade, 0)
+            expect(exibidosPelaApi).toBe(total)
+            if (total > 0) {
+              await expect(page.getByRole('heading', { name: `Todos os modelos (${total} modelos)`, exact: true })).toBeVisible()
+              await expect(page.getByRole('region', { name: 'Modelos cadastrados com fabricante, categoria e vida útil' }).getByRole('table').getByRole('row')).toHaveCount(total + 1)
+            }
+          }
+          if (rota === '/itens' && conta.perfil === 'gestor') {
+            const adicionar = page.locator('#adicionar-item')
+            await adicionar.click()
+            const formulario = page.getByRole('dialog', { name: 'Cadastrar item' })
+            await expect(formulario).toBeVisible()
+            const categoriasDoFormulario = page.locator('#item-material option')
+            await expect(categoriasDoFormulario).toHaveCount((totalCategorias ?? 0) + 2)
+            await page.keyboard.press('Escape')
+            await expect(formulario).toBeHidden()
+            await expect(adicionar).toBeFocused()
+          }
           await conferir(rota.slice(1), largura)
         }
         await navegar('/')

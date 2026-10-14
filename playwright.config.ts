@@ -41,6 +41,7 @@ export default defineConfig({
   testMatch: '**/*.playwright.ts',
   fullyParallel: false,
   reporter: 'list',
+  outputDir: process.env.ZERA_QA_ARTIFACT_DIR ?? 'test-results',
   use: {
     ...devices['Desktop Chrome'],
     browserName: 'chromium',

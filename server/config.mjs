@@ -1,3 +1,4 @@
+// Centraliza validação de URLs, origens e caminhos do proxy HTTP.
 export function configuracaoProxy(env = process.env) {
   return {
     administrative: env.ZERA_ADMIN_URL || env.ZERA_ADMIN_API_ORIGIN,

@@ -1,3 +1,4 @@
+// Adapta o proxy Node para a função serverless da Vercel.
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { criarProxy } from '../server/proxy.mjs'
 import { configuracaoProxy, restaurarCaminhoProxy } from '../server/config.mjs'

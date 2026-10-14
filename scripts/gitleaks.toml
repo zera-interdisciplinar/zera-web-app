@@ -1,5 +1,6 @@
+# Regras padrão do scanner; exceções históricas ficam em scripts/gitleaks.ignore.
 title = "Zera: regras padrão"
 [extend]
 useDefault = true
-# Exceções restritas a regra, arquivo, commit e linha estão em .gitleaksignore.
+# Exceções restritas a regra, arquivo, commit e linha estão em scripts/gitleaks.ignore.
 # .env.example: atribuições vazias. scripts/verificar_fontes.py: nomes de variáveis.

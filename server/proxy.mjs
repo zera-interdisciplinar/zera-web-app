@@ -1,3 +1,4 @@
+// Encaminha chamadas às APIs e preserva respostas JSON e SSE sem expor segredos.
 import { createServer } from 'node:http'
 import { pathToFileURL } from 'node:url'
 import { Readable } from 'node:stream'

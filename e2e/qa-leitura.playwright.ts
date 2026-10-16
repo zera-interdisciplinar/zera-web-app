@@ -88,15 +88,16 @@ for (const site of sites) for (const conta of contas) {
       const pasta = process.env.ZERA_QA_ARTIFACT_DIR
       if (pasta) {
         mkdirSync(pasta, { recursive: true })
+        const textoDaTabela = nome === 'itens' ? [page.locator('table tbody td:first-child')] : []
         await page.screenshot({ path: path.join(pasta, `${site.nome}-${conta.perfil}-${nome}-${largura}.png`), fullPage: true,
-          mask: [page.locator('header'), page.locator('aside'), page.getByText(/[^\s]+@[^\s]+\.[^\s]+/), ...[...nomes].map(valor => page.getByText(valor, { exact: true }))] })
+          mask: [page.locator('header'), page.locator('aside'), page.getByText(/[^\s]+@[^\s]+\.[^\s]+/), ...textoDaTabela, ...[...nomes].map(valor => page.getByText(valor, { exact: true }))] })
       }
     }
     try {
       await page.goto(site.hash ? site.url + '#/login' : site.url + '/login')
       await entrar()
       await expect(page.getByRole('heading', { level: 1, name: conta.perfil === 'gestor' ? 'Painel do Zera' : 'Meus itens', exact: true })).toBeVisible({ timeout: 35_000 })
-      for (const largura of [1280, 320]) {
+      for (const largura of [1280, 768, 320]) {
         await page.setViewportSize({ width: largura, height: 900 })
         for (const [rota, titulo] of [['/modelos', 'Modelos'], ['/itens', 'Gestão de itens'], ['/descartes', 'Registros de descarte'], ['/recicladoras', 'Locais de reciclagem']]) {
           await navegar(rota)

@@ -15,9 +15,21 @@ function luminancia(hexa: string): number {
   return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722
 }
 
-function razao(primeira: string, segunda: string): number {
-  const valores = [luminancia(cor(primeira)), luminancia(cor(segunda))].sort((a, b) => b - a)
+function razaoHex(primeira: string, segunda: string): number {
+  const valores = [luminancia(primeira), luminancia(segunda)].sort((a, b) => b - a)
   return (valores[0] + 0.05) / (valores[1] + 0.05)
+}
+
+function razao(primeira: string, segunda: string): number {
+  return razaoHex(cor(primeira), cor(segunda))
+}
+
+function misturarComBranco(frente: string, proporcao: number): string {
+  const canais = [1, 3, 5].map((indice) => {
+    const canal = parseInt(frente.slice(indice, indice + 2), 16)
+    return Math.round(canal * proporcao + 255 * (1 - proporcao)).toString(16).padStart(2, '0')
+  })
+  return `#${canais.join('')}`
 }
 
 describe('contraste dos tokens aplicados a textos e controles', () => {
@@ -49,5 +61,10 @@ describe('contraste dos tokens aplicados a textos e controles', () => {
   })
   it('arco do gráfico sobre o trilho alcança 3:1', () => {
     expect(razao('verde-texto', 'azul-claro')).toBeGreaterThanOrEqual(3)
+  })
+
+  it.each(['texto-secundario', 'azul', 'ambar-texto', 'verde-texto', 'perigo'])('%s mantém 4,5:1 no fundo suave das pílulas', (nome) => {
+    const frente = cor(nome)
+    expect(razaoHex(frente, misturarComBranco(frente, 0.05))).toBeGreaterThanOrEqual(4.5)
   })
 })

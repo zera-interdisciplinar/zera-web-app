@@ -84,7 +84,7 @@ export default function ItensPage() {
       { titulo: 'Categoria', render: (produto) => produto.categoriaNome },
       { titulo: 'Status', render: (produto) => <StatusText status={produto.status} /> },
       ...(mostrarResponsavel ? [{ titulo: 'Cadastrado por', render: (produto: ProdutoDetalhado) => produto.responsavel }] : []),
-      { titulo: 'Atualização', render: (produto) => formatarDataRelativa(produto.atualizacao) },
+      { titulo: 'Atualização', numerica: true, render: (produto) => formatarDataRelativa(produto.atualizacao) },
       ...[{
         titulo: 'Ação',
         render: (produto: ProdutoDetalhado) => (

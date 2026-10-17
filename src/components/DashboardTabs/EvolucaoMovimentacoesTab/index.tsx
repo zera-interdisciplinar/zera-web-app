@@ -14,7 +14,7 @@ export function EvolucaoMovimentacoesTab({ demo = false, snapshot = null, aguard
       {snapshot && snapshot.itens_por_mes.length > 0 ? <DataTable
         legenda={demo ? 'Cadastros e encaminhamentos por mês' : 'Encaminhamentos por mês'} dados={snapshot.itens_por_mes} chave={(ponto) => ponto.mes}
         colunas={[
-          { titulo: 'Mês', render: (ponto) => ponto.mes },
+          { titulo: 'Mês', numerica: true, render: (ponto) => ponto.mes },
           ...(demo ? [{ titulo: 'Cadastrados', numerica: true, render: (ponto: typeof snapshot.itens_por_mes[number]) => ponto.cadastrados }] : []),
           { titulo: 'Encaminhados', numerica: true, render: (ponto) => ponto.encaminhados },
         ]}

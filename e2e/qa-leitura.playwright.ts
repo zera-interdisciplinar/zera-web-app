@@ -103,6 +103,16 @@ for (const site of sites) for (const conta of contas) {
           await navegar(rota)
           await expect(page.getByRole('heading', { level: 1, name: titulo, exact: true })).toBeVisible()
           await expect(page.getByText(/^(Carregando os modelos\.|Carregando os itens do inventário\.)$/)).toHaveCount(0, { timeout: 30_000 })
+          if (rota === '/itens' && conta.perfil === 'gestor') {
+            const atualizacao = page.getByRole('columnheader', { name: 'Atualização', exact: true })
+            await expect(atualizacao).toHaveCSS('text-align', 'right')
+            await expect(atualizacao).toHaveCSS('font-variant-numeric', 'tabular-nums')
+          }
+          if (rota === '/descartes' && conta.perfil === 'gestor') {
+            const data = page.getByRole('columnheader', { name: 'Data', exact: true })
+            await expect(data).toHaveCSS('text-align', 'right')
+            await expect(data).toHaveCSS('font-variant-numeric', 'tabular-nums')
+          }
           if (rota === '/modelos') {
             const categorias = page.locator('section[aria-labelledby="titulo-categorias"]')
             await expect(categorias.getByRole('heading', { name: 'Categorias', exact: true })).toBeVisible()

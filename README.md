@@ -1,19 +1,31 @@
 # Zera
 
-Aplicação web para acompanhar equipamentos eletrônicos, do cadastro ao descarte.
+Sistema para acompanhar os equipamentos eletrônicos das empresas e encaminhá-los ao reuso ou descarte correto.
 
-[Vercel](https://zera-web-app-kappa.vercel.app) · [GitHub Pages](https://zera-interdisciplinar.github.io/zera-web-app/)
+Resíduos eletrônicos se acumulam nas empresas quando falta rastreio e um processo seguro de destinação. O Zera organiza esse ciclo: cadastro de categorias, modelos e itens; aprovação, triagem e manutenção; descartes com peso e destino; cadastro de recicladoras e locais de coleta; e painel de indicadores.
 
-## Rodar localmente
+Há dois perfis: **Gestor**, que administra a unidade, e **Funcionário**, que consulta e movimenta os próprios itens.
 
-1. `git clone https://github.com/zera-interdisciplinar/zera-web-app.git`
-2. `cd zera-web-app` e `npm install`
-3. Copie `.env.example` para `.env`
-4. `npm run dev` (porta padrão 5173)
+## Como funciona
 
-O login e os dados dependem de o ambiente de testes das APIs estar no ar.
+O front-end em React e TypeScript conversa com as APIs de identidade, inventário e analytics por um proxy na Vercel. O banco de dados é acessado pelos serviços de API.
 
-Rotas: `/login`, `/` (painel), `/itens`, `/modelos`, `/recicladoras` e `/descartes`.
-Perfis: Gestor e Funcionário; as permissões são aplicadas pelos serviços.
+O projeto usa Vite, React, TypeScript, React Router, CSS Modules e Recharts. `src/` contém páginas, componentes, serviços e regras da aplicação; `styles/` reúne os estilos; `api/` e `server/` implementam o proxy; `public/` contém arquivos públicos.
 
-As contas de teste são informadas na entrega, não ficam no repositório.
+## Executar localmente
+
+```sh
+git clone https://github.com/zera-interdisciplinar/zera-web-app.git
+cd zera-web-app
+npm install
+npm run dev
+```
+
+O acesso depende de o ambiente de testes das APIs estar no ar.
+
+## Publicações
+
+- [Vercel](https://zera-web-app-kappa.vercel.app)
+- [GitHub Pages](https://zera-interdisciplinar.github.io/zera-web-app/)
+
+Autor: EnzoCasares. Licença: MIT.

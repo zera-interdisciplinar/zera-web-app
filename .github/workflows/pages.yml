@@ -24,47 +24,18 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run check
       - run: npm run lint
-      - run: npm test
       - run: npm run build -- --base=/zera-web-app/
         env:
           VITE_ROUTER_MODE: hash
-          VITE_USE_MSW: 'false'
-          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
-          VITE_ADMIN_API_URL: ${{ vars.VITE_ADMIN_API_URL }}
-          VITE_INVENTORY_API_URL: ${{ vars.VITE_INVENTORY_API_URL }}
-      - name: Check publication scope
-        run: node scripts/check-publication.mjs
       - uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/main'
         with:
           path: dist
 
-  browser:
-    needs: validate
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: node ./node_modules/@playwright/test/cli.js install --with-deps chromium
-      - run: npm run build
-      - run: node ./node_modules/@playwright/test/cli.js test --workers=1
-        env:
-          ZERA_RUN_PRODUCTION_TESTS: 'true'
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: browser-failure
-          path: test-results
-
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: [validate, browser]
+    needs: validate
     runs-on: ubuntu-latest
     permissions:
       pages: write

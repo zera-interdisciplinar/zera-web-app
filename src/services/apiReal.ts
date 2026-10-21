@@ -7,8 +7,8 @@ type Recurso = 'administrative' | 'inventory'
 export const modoDemonstracao = import.meta.env.DEV && import.meta.env.MODE === 'test' && import.meta.env.VITE_USE_MSW === 'true'
 
 const bases: Record<Recurso, string | undefined> = {
-  administrative: import.meta.env.VITE_ADMIN_API_URL ?? '/api/administrative',
-  inventory: import.meta.env.VITE_INVENTORY_API_URL ?? '/api/inventory',
+  administrative: import.meta.env.VITE_ADMIN_API_URL || 'https://zera-web-app-kappa.vercel.app/api/administrative',
+  inventory: import.meta.env.VITE_INVENTORY_API_URL || 'https://zera-web-app-kappa.vercel.app/api/inventory',
 }
 
 let accessToken: string | null = null

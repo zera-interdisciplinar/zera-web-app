@@ -2,7 +2,7 @@ import type { DashboardSnapshot, EventoSseDashboard, FiltrosDashboard } from '..
 import { criarUrlApi, expirarSessaoApi, obterSessaoApi } from './apiReal'
 import { ApiError } from '../types/api'
 
-const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL ?? '/api/analytics'
+const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL || 'https://zera-web-app-kappa.vercel.app/api/analytics'
 const CAMINHO_OVERVIEW = '/api/v1/dashboard/overview'
 
 export interface FalhaDashboard {

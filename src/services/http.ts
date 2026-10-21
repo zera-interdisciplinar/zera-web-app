@@ -2,7 +2,7 @@ import { ApiError } from '../types/api'
 import type { ApiErroCorpo } from '../types/api'
 import { sanitizarObjeto } from '../utils/sanitizacao'
 
-const BASE_URL: string = import.meta.env.VITE_API_BASE_URL ?? '/api'
+const BASE_URL: string = import.meta.env.VITE_API_BASE_URL || 'https://zera-web-app-kappa.vercel.app/api/analytics'
 
 interface OpcoesRequisicao {
   metodo?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'

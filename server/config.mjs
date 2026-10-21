@@ -46,7 +46,9 @@ export function origemPermitida(origin, host, origins) {
   if (!origin || origins.includes(origin)) return true
   try {
     const url = new URL(origin)
-    const local = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)
-    return url.host === host && (url.protocol === 'https:' || (local && url.protocol === 'http:'))
+    const local = ['localhost', '127.0.0.1'].includes(url.hostname)
+    if (local && url.protocol === 'http:' && !url.username && !url.password) return true
+    const ipv6Local = url.hostname === '[::1]'
+    return url.host === host && (url.protocol === 'https:' || (ipv6Local && url.protocol === 'http:'))
   } catch { return false }
 }

@@ -11,7 +11,6 @@ O Zera Web é o site do sistema de gestão e controle de lixo eletrônico corpor
 - [Estrutura de pastas](#estrutura-de-pastas)
 - [Stack](#stack)
 - [Executando localmente](#executando-localmente)
-- [Configuração](#configuração)
 - [Publicação](#publicação)
 - [Links úteis](#links-úteis)
 - [Licença](#licença)
@@ -68,36 +67,7 @@ public/    arquivos estáticos públicos, como o favicon
 
 ## Executando localmente
 
-Pré-requisitos: Node.js 22.12.0 ou superior e npm 10 ou superior.
-
-```sh
-npm install
-npm run dev
-npm run lint
-npm run build
-npm run preview
-```
-
-Por padrão, o navegador usa o proxy público da Vercel; não é necessário criar arquivo de configuração. O acesso depende de as APIs remotas estarem disponíveis.
-
-## Configuração
-
-| Variável | Função |
-|---|---|
-| `VITE_API_BASE_URL` | Define a base pública do serviço de analytics no navegador. |
-| `VITE_ADMIN_API_URL` | Define a base pública do proxy administrativo no navegador. |
-| `VITE_INVENTORY_API_URL` | Define a base pública do proxy de inventário no navegador. |
-| `VITE_ROUTER_MODE` | Seleciona o modo de navegação do React Router. |
-| `VITE_USE_MSW` | Flag de execução controlada, efetiva somente em desenvolvimento no modo correspondente. |
-| `ZERA_ADMIN_URL` / `ZERA_ADMIN_API_ORIGIN` | Configuram a origem administrativa usada pelo proxy; a primeira tem precedência. |
-| `ZERA_INVENTORY_API_ORIGIN` | Configura a origem do serviço de inventário no proxy. |
-| `ZERA_ANALYTICS_URL` | Configura a origem do serviço de analytics no proxy. |
-| `ZERA_APP_API_KEY` | Chave que o proxy envia ao serviço, mantida no servidor. |
-| `ZERA_WEB_ORIGINS` | Define as origens aceitas pelo CORS; há padrão local e a Vercel acrescenta suas origens. |
-| `ZERA_PROXY_PORT` | Define a porta do proxy Node local. |
-| `VERCEL_URL` / `VERCEL_PROJECT_PRODUCTION_URL` | Variáveis da Vercel usadas para reconhecer as origens da publicação. |
-
-As URLs do front e as opções locais têm padrões no código. As origens privadas das APIs e a chave do proxy precisam ser configuradas no ambiente de servidor; não há padrão para elas.
+O site usa o proxy público da Vercel por padrão e funciona sem criar nenhum arquivo de configuração.
 
 ## Publicação
 

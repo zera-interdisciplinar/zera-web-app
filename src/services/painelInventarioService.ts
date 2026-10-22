@@ -20,6 +20,18 @@ export interface IndicadoresDescarte {
   weightByMaterial?: Array<{ material: string; weightKg: number; percent: number }>
 }
 
+export interface CategoriaInventarioDashboard {
+  categoryId: string | null
+  name: string | null
+  itemCount: number
+  percent: number | null
+}
+
+export interface DistribuicaoCategoriasInventario {
+  categories: CategoriaInventarioDashboard[]
+  totalItems: number
+}
+
 function objeto(valor: unknown): valor is Record<string, unknown> {
   return typeof valor === 'object' && valor !== null && !Array.isArray(valor)
 }
@@ -44,6 +56,32 @@ function indicadoresValidos(valor: unknown): valor is IndicadoresDescarte {
     return false
   }
   return true
+}
+
+function categoriaDashboardValida(valor: unknown): valor is CategoriaInventarioDashboard {
+  if (!objeto(valor)) return false
+  const itemCount = valor.itemCount
+  return (valor.categoryId === null || typeof valor.categoryId === 'string')
+    && (valor.name === null || typeof valor.name === 'string')
+    && typeof itemCount === 'number' && Number.isFinite(itemCount) && itemCount >= 0
+    && percentual(valor.percent)
+}
+
+function distribuicaoCategoriasValida(valor: unknown): valor is DistribuicaoCategoriasInventario {
+  if (!objeto(valor)) return false
+  const totalItems = valor.totalItems
+  return typeof totalItems === 'number' && Number.isFinite(totalItems) && totalItems >= 0
+    && Array.isArray(valor.categories) && valor.categories.every(categoriaDashboardValida)
+}
+
+export async function obterDistribuicaoPorCategoria(sinal?: AbortSignal): Promise<DistribuicaoCategoriasInventario> {
+  try {
+    const valor = await requisitarApiReal<unknown>('inventory', '/api/v1/dashboard/by-category', { sinal, unidade: true })
+    if (!distribuicaoCategoriasValida(valor)) {
+      throw new ApiError('A distribuição por categoria não corresponde ao contrato esperado. Tente novamente.', 0)
+    }
+    return valor
+  } catch (erro) { throw contextualizar(erro, 'Não foi possível carregar a distribuição por categoria.') }
 }
 
 export async function obterResumoOperacional(sinal?: AbortSignal): Promise<ResumoOperacional> {

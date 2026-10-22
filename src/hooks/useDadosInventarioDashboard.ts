@@ -1,5 +1,5 @@
 import { listarModelos } from '../services/modeloService'
-import { obterIndicadoresDescarte } from '../services/painelInventarioService'
+import { obterDistribuicaoPorCategoria, obterIndicadoresDescarte } from '../services/painelInventarioService'
 import { useRequisicao } from './useRequisicao'
 
 export function useModelosDashboard(ativo: boolean) {
@@ -8,4 +8,8 @@ export function useModelosDashboard(ativo: boolean) {
 
 export function useMateriaisDashboard(ativo: boolean) {
   return useRequisicao(obterIndicadoresDescarte, ativo)
+}
+
+export function useDistribuicaoCategoriasDashboard() {
+  return useRequisicao(obterDistribuicaoPorCategoria)
 }

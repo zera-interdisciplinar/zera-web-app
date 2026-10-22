@@ -31,7 +31,7 @@ it('Vite encaminha login, inventário e SSE com chave privada usando somente ser
   const base = `http://127.0.0.1:${(upstream.address() as AddressInfo).port}/qa`
   vi.stubEnv('ZERA_APP_API_KEY', key)
   vi.stubEnv('ZERA_ADMIN_URL', `${base}/administrative`)
-  vi.stubEnv('ZERA_INVENTORY_API_ORIGIN', `${base}/inventory`)
+  vi.stubEnv('ZERA_INVENTORY_URL', `${base}/inventory`)
   vi.stubEnv('ZERA_ANALYTICS_URL', `${base}/analytics`)
   vite = await createServer({
     configFile: 'vite.config.ts', mode: 'test',
@@ -55,6 +55,9 @@ it('Vite encaminha login, inventário e SSE com chave privada usando somente ser
     expect(new TextDecoder().decode((await reader.read()).value)).toContain('event: unavailable')
     await reader.cancel()
   } finally { clearTimeout(timeout); controller.abort() }
+  // Routes outside the allowlist are refused by the same proxy and never reach the upstream.
+  expect((await fetch(`${url}/api/administrative/api/v1/recycling-places?lat=1&lng=1`)).status).toBe(404)
+  expect((await fetch(`${url}/api/inventory/api/v1/disposals`, { method: 'POST' })).status).toBe(404)
   expect(chamadas).toEqual([
     '/qa/administrative/api/v1/auth/login',
     '/qa/inventory/api/v1/items',

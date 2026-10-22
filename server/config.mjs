@@ -1,8 +1,10 @@
-// Centraliza validação de URLs, origens e caminhos do proxy HTTP.
-export function configuracaoProxy(env = process.env) {
+// Validation of the proxy configuration: service bases, origins and rewritten paths.
+export const SERVICES = ['administrative', 'inventory', 'analytics']
+
+export function proxyConfig(env = process.env) {
   return {
     administrative: env.ZERA_ADMIN_URL || env.ZERA_ADMIN_API_ORIGIN,
-    inventory: env.ZERA_INVENTORY_API_ORIGIN,
+    inventory: env.ZERA_INVENTORY_URL || env.ZERA_INVENTORY_API_ORIGIN,
     analytics: env.ZERA_ANALYTICS_URL,
     apiKey: env.ZERA_APP_API_KEY,
     origins: [
@@ -12,37 +14,37 @@ export function configuracaoProxy(env = process.env) {
   }
 }
 
-export function portaProxy(valor) {
-  const porta = Number(valor?.trim() || '8787')
-  if (!Number.isInteger(porta) || porta < 1024 || porta > 65535) throw new Error('Porta de proxy inválida')
-  return porta
+export function parseProxyPort(value) {
+  const port = Number(value?.trim() || '8787')
+  if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('Invalid proxy port')
+  return port
 }
 
-// Rewrites explícitos evitam depender de catch-all do framework do front.
-export function restaurarCaminhoProxy(caminho) {
-  const url = new URL(caminho, 'http://localhost')
-  if (url.pathname !== '/api/proxy') return caminho
+// Explicit rewrites avoid depending on a framework catch-all route.
+export function restoreProxyPath(path) {
+  const url = new URL(path, 'http://localhost')
+  if (url.pathname !== '/api/proxy') return path
   const services = url.searchParams.getAll('__zera_service')
   const paths = url.searchParams.getAll('__zera_path')
   if (services.length !== 1 || paths.length !== 1
-    || !['administrative', 'inventory', 'analytics'].includes(services[0])
-    || !/^(?:api\/v1\/[A-Za-z0-9/_.%~-]+|health)$/.test(paths[0])) return '/rota-invalida'
+    || !SERVICES.includes(services[0])
+    || !/^(?:api\/v1\/[A-Za-z0-9/_.%~-]+|health)$/.test(paths[0])) return '/invalid-route'
   url.searchParams.delete('__zera_service')
   url.searchParams.delete('__zera_path')
   const query = url.searchParams.toString()
   return `/api/${services[0]}/${paths[0]}${query ? `?${query}` : ''}`
 }
 
-export function validarBaseProxy(base) {
+export function validateProxyBase(base) {
   const url = new URL(base)
   const local = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)
-  if (url.protocol !== 'https:' && !(local && url.protocol === 'http:')) throw new Error('Transporte inseguro')
-  if (url.username || url.password || url.search || url.hash) throw new Error('Base de API invalida')
-  if (/\/(?:api|swagger-ui|api-docs)(?:\/|$)/i.test(url.pathname)) throw new Error('Use a base do servico, sem /api ou Swagger')
+  if (url.protocol !== 'https:' && !(local && url.protocol === 'http:')) throw new Error('Insecure transport')
+  if (url.username || url.password || url.search || url.hash) throw new Error('Invalid API base')
+  if (/\/(?:api|swagger-ui|api-docs)(?:\/|$)/i.test(url.pathname)) throw new Error('Use the service root, without /api or Swagger')
   return url.toString().replace(/\/+$/, '')
 }
 
-export function origemPermitida(origin, host, origins) {
+export function isAllowedOrigin(origin, host, origins) {
   if (!origin || origins.includes(origin)) return true
   try {
     const url = new URL(origin)

@@ -1,59 +1,27 @@
-import { defineConfig, loadEnv, type ProxyOptions } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
-import { configuracaoProxy, origemPermitida, validarBaseProxy } from './server/config.mjs'
+import { createProxy } from './server/proxy.mjs'
+import { proxyConfig } from './server/config.mjs'
 
 const root = process.cwd()
+const API_PATH = /^\/api\/(administrative|inventory|analytics)(\/|$)/
 
 export default defineConfig(({ mode }) => {
-  const privado = configuracaoProxy({ ...loadEnv(mode, root, ''), ...process.env })
-  const proxy: Record<string, ProxyOptions> = {}
-  const ausentes = new Set<string>()
-  for (const servico of ['administrative', 'inventory', 'analytics'] as const) {
-    const prefixo = `/api/${servico}`
-    const base = privado[servico]
-    if (!base || !privado.apiKey) { ausentes.add(prefixo); continue }
-    proxy[prefixo] = {
-      target: validarBaseProxy(base),
-      changeOrigin: true,
-      headers: { apiKey: privado.apiKey },
-      rewrite: (path) => path.slice(prefixo.length),
-      timeout: 0,
-      proxyTimeout: 0,
-      configure(proxyServer) {
-        proxyServer.on('proxyRes', (response) => {
-          if (response.headers['content-type']?.includes('text/event-stream')) {
-            response.headers['cache-control'] = 'no-cache, no-transform'
-            response.headers['x-accel-buffering'] = 'no'
-          }
-        })
-      },
-    }
-  }
+  const proxy = createProxy(proxyConfig({ ...loadEnv(mode, root, ''), ...process.env }))
 
   return {
     cacheDir: process.env.ZERA_VITE_CACHE_DIR ?? 'node_modules/.vite',
+    // Pre-bundled up front so the first e2e page load does not trigger a reload mid-test.
+    optimizeDeps: mode === 'test' ? { include: ['@guidepup/virtual-screen-reader'] } : undefined,
     plugins: [
       react(),
       {
-        name: 'report-missing-api-proxy',
+        // Same allowlisted proxy that runs on Vercel, so dev and production cannot diverge.
+        name: 'zera-api-proxy',
         configureServer(server) {
           server.middlewares.use((req, res, next) => {
-            const path = req.url?.split('?')[0] ?? ''
-            if (!/^\/api\/(administrative|inventory|analytics)(\/|$)/.test(path)) return next()
-            const url = new URL(req.url ?? '/', 'http://localhost')
-            const analytics = path.startsWith('/api/analytics/')
-            const origin = req.headers.origin
-            if (!origemPermitida(origin, req.headers.host, privado.origins)) {
-              res.writeHead(403); res.end(); return
-            }
-            if (url.searchParams.has('access_token')
-              || (analytics && (req.method !== 'GET' || !['/api/analytics/health', '/api/analytics/api/v1/dashboard/overview'].includes(path)))) {
-              res.writeHead(400, { 'Content-Type': 'application/json' })
-              res.end(JSON.stringify({ detail: 'Rota invalida. Use GET e envie o JWT no header Authorization.' })); return
-            }
-            if (![...ausentes].some((prefixo) => path === prefixo || path.startsWith(`${prefixo}/`))) return next()
-            res.writeHead(503, { 'Content-Type': 'application/json' })
-            res.end(JSON.stringify({ detail: 'Proxy nao configurado: confirme a base privada e ZERA_APP_API_KEY no servidor.' }))
+            if (!API_PATH.test(req.url?.split('?')[0] ?? '')) return next()
+            void proxy(req, res)
           })
         },
       },
@@ -61,7 +29,6 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       strictPort: true,
-      proxy,
     },
   }
 })

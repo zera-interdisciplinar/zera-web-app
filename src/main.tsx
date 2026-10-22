@@ -7,20 +7,11 @@ import '@fontsource/jetbrains-mono/latin-500.css'
 import '../styles/global.css'
 import { App } from './App'
 
-function preparar() {
-  const raiz = document.getElementById('root')
-  if (!raiz) throw new Error('Elemento #root não encontrado.')
+const raiz = document.getElementById('root')
+if (!raiz) throw new Error('Elemento #root não encontrado.')
 
-  createRoot(raiz).render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  )
-}
-
-if (import.meta.env.DEV && import.meta.env.MODE === 'test' && import.meta.env.VITE_USE_MSW === 'true') {
-  void import('../tests/mocks/browser').then(({ worker }) => worker.start({
-    onUnhandledRequest: 'bypass',
-    serviceWorker: { url: '/tests/mocks/mockServiceWorker.js', options: { scope: '/' } },
-  })).then(preparar)
-} else preparar()
+createRoot(raiz).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)

@@ -3,14 +3,13 @@ import { randomUUID } from 'node:crypto'
 import { AxeBuilder } from '@axe-core/playwright'
 import { test, expect } from '@playwright/test'
 
-const baseDemo = 'http://127.0.0.1:5183'
 const baseReal = 'http://127.0.0.1:5184'
 const operario = { email: process.env.QA_OPERARIO_EMAIL ?? '', senha: process.env.QA_OPERARIO_PASSWORD ?? '' }
 
 test('login preserva a marca e o formulário sem controles de demonstração ou voltar', async ({ page }) => {
   mkdirSync('test-results', { recursive: true })
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto(`${baseDemo}/login`)
+  await page.goto(`${baseReal}/login`)
   await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible()
   await expect(page.locator('#email')).toBeVisible()
   await expect(page.locator('#senha')).toBeVisible()
@@ -82,7 +81,7 @@ test('rota privada sem sessão retorna para o login', async ({ page }) => {
 })
 
 test('recuperação valida formato e domínio sem afirmar envio', async ({ page }) => {
-  await page.goto(`${baseDemo}/esqueci-senha`)
+  await page.goto(`${baseReal}/esqueci-senha`)
   await page.getByLabel('Email').fill('alguem@example.com')
   await page.getByRole('button', { name: 'Continuar' }).click()
   await expect(page.locator('#email-erro')).toContainText('@zera.com')

@@ -5,17 +5,15 @@ import { formatarNumero } from '../../../utils/formatarDashboard'
 import { DataTable } from '../../DataTable'
 import { EstadoErro } from '../../EstadoErro'
 import { GraficoDados } from '../../GraficoDados'
-import { SeloDemonstracao } from '../SeloDemonstracao'
 
 const materiais: Record<string, string> = { PLASTIC: 'Plástico', METAL: 'Metal', GLASS: 'Vidro', PAPER: 'Papel', BATTERY: 'Bateria', CIRCUIT_BOARD: 'Placa de circuito', CABLE: 'Cabo', SCREEN: 'Tela', OTHER: 'Outro' }
 
-export function MateriaisSustentabilidadeTab({ demo = false, ativo = false }: MateriaisSustentabilidadeTabProps = {}) {
+export function MateriaisSustentabilidadeTab({ ativo = false }: MateriaisSustentabilidadeTabProps = {}) {
   const indicadores = useMateriaisDashboard(ativo)
   const pontos = indicadores.dados?.weightByMaterial
   return (
     <section className={estilos.semFonte} aria-labelledby="fonte-materiais" data-estado={indicadores.carregando ? 'carregando' : indicadores.erro ? 'erro' : 'sucesso'}>
       <h2 id="fonte-materiais">Materiais e sustentabilidade</h2>
-      {demo && <SeloDemonstracao />}
       {indicadores.carregando && <p role="status">Carregando materiais descartados…</p>}
       {indicadores.erro && <EstadoErro mensagem={indicadores.erro} aoTentarNovamente={indicadores.recarregar} />}
       {pontos && pontos.length > 0 ? <DataTable legenda="Peso descartado por material" dados={pontos} chave={(ponto) => ponto.material}

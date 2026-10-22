@@ -17,22 +17,12 @@ if (process.env.ZERA_RUN_LIVE_QA === 'true') {
   }
 }
 
-const envTest = {
-  ...process.env,
-  ...loadEnv('development', root, 'VITE_'),
-  VITE_API_BASE_URL: '/api',
-  VITE_ADMIN_API_URL: '/api/administrative',
-  VITE_INVENTORY_API_URL: '/api/inventory',
-  VITE_USE_MSW: 'true',
-  ZERA_VITE_CACHE_DIR: 'node_modules/.vite-e2e-demo',
-}
 const envReal = {
   ...process.env,
   ...loadEnv('development', root, 'VITE_'),
   VITE_API_BASE_URL: '/api/analytics',
   VITE_ADMIN_API_URL: '/api/administrative',
   VITE_INVENTORY_API_URL: '/api/inventory',
-  VITE_USE_MSW: 'false',
   ZERA_VITE_CACHE_DIR: 'node_modules/.vite-e2e-real',
 }
 
@@ -47,18 +37,10 @@ export default defineConfig({
     browserName: 'chromium',
     channel: process.platform === 'win32' ? 'msedge' : undefined,
     headless: true,
-    serviceWorkers: 'allow',
   },
   webServer: [
     {
-      command: 'node ./node_modules/vite/bin/vite.js --mode test --host 127.0.0.1 --port 5183 --strictPort',
-      url: 'http://127.0.0.1:5183',
-      reuseExistingServer: false,
-      timeout: 30_000,
-      env: envTest,
-    },
-    {
-      command: 'node ./node_modules/vite/bin/vite.js --mode test --host 127.0.0.1 --port 5184 --strictPort',
+      command: 'node ./node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5184 --strictPort',
       url: 'http://127.0.0.1:5184',
       reuseExistingServer: false,
       timeout: 30_000,

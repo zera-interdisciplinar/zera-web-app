@@ -6,7 +6,7 @@ import { useAuth } from './useAuth'
 import type { EstadoRequisicao } from './useRequisicao'
 import { useRequisicao } from './useRequisicao'
 
-export function useProduto(id: number | string | null): EstadoRequisicao<ProdutoDetalhado> {
+export function useProduto(id: string | null): EstadoRequisicao<ProdutoDetalhado> {
   const { usuario } = useAuth()
   // A referência estável evita reabrir a consulta em useRequisicao.
   const buscar = useCallback(

@@ -13,7 +13,7 @@ export function useListaModelos() {
 
   function setBusca(valor: string) { setParametros(valor ? { q: valor } : {}, { replace: true }) }
   const cadastro = useCadastroModelo()
-  const { modelos, permitido, modoDemonstracao, toast, abrir, alterar } = cadastro
+  const { modelos, permitido, toast, abrir, alterar } = cadastro
 
   // Filtra novamente apenas quando os dados ou o termo de busca mudam.
   const visiveis = useMemo<Modelo[]>(() => {
@@ -27,5 +27,5 @@ export function useListaModelos() {
         normalizarBusca(modelo.categoriaNome ?? '').includes(termo),
     )
   }, [modelos.dados, busca])
-  return { categorias, busca, setBusca, cadastro, modelos, permitido, modoDemonstracao, toast, abrir, alterar, visiveis }
+  return { categorias, busca, setBusca, cadastro, modelos, permitido, toast, abrir, alterar, visiveis }
 }

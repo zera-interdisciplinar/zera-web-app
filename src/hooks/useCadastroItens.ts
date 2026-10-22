@@ -1,16 +1,13 @@
 import type { FormEvent, SetStateAction } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { modoDemonstracao } from '../services/apiReal'
 import { observarCatalogo } from '../services/catalogoEventos'
 import { criarItemReal, removerItemReal } from '../services/itemCadastroService'
 import { listarModelos } from '../services/modeloService'
-import { atualizarProduto, criarProduto, excluirProduto } from '../services/produtoService'
 import { mensagemDeErro } from '../types/api'
 import type { CadastroItemReal, DanoItemReal } from '../types/cadastroItem'
 import type { EstadoFormularioItem, FormItem, RetornoCadastroItens } from '../types/formularioItem'
 import type { EstadoLocalCadastroItens } from '../types/controles/EstadoLocalCadastroItens'
-import type { Condicao, ProdutoDetalhado } from '../types/produto'
-import { validarNovoProduto } from '../utils/validacao'
+import type { ProdutoDetalhado } from '../types/produto'
 import { validarCadastroItemReal } from '../utils/validacaoItemReal'
 import { usePermissoes } from './usePermissoes'
 import { useRequisicao } from './useRequisicao'
@@ -21,7 +18,7 @@ const FORM_INICIAL: FormItem = {
   usageIntensity: '', hasDamages: '', damages: '',
 }
 const ESTADO_INICIAL: EstadoFormularioItem = {
-  modalAberto: false, editando: null, form: FORM_INICIAL, formInicial: FORM_INICIAL,
+  modalAberto: false, form: FORM_INICIAL, formInicial: FORM_INICIAL,
   erros: {}, enviando: false, erroEnvio: null, confirmandoDescarte: false,
 }
 const CONDICOES: Record<string, CadastroItemReal['condition']> = {
@@ -35,7 +32,7 @@ const ERROS_POR_CAMPO: Record<keyof FormItem, string[]> = {
 }
 
 export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens {
-  const { cadastrarItem: podeCadastrar, editarItem: podeEditar, excluirItem: podeExcluir } = usePermissoes()
+  const { cadastrarItem: podeCadastrar, excluirItem: podeExcluir } = usePermissoes()
   const [estadoLocal, setEstadoLocal] = useState<EstadoLocalCadastroItens>(() => ({
     criado: null,
     estado: ESTADO_INICIAL,
@@ -64,7 +61,7 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
   const restaurarFoco = useRef(false)
   // A referência estável evita reabrir a consulta em useRequisicao.
   const buscarModelos = useCallback((sinal: AbortSignal) => listarModelos(sinal), [])
-  const modelos = useRequisicao(buscarModelos, !modoDemonstracao)
+  const modelos = useRequisicao(buscarModelos)
   useEffect(() => observarCatalogo(modelos.recarregar), [modelos.recarregar])
 
   useEffect(() => {
@@ -83,16 +80,6 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
 
   // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const abrirCadastro = useCallback(() => { if (podeCadastrar) setEstado({ ...ESTADO_INICIAL, modalAberto: true }) }, [podeCadastrar, setEstado])
-  // Mantém a ação estável para os consumidores e efeitos que a recebem.
-  const abrirEdicao = useCallback((produto: ProdutoDetalhado) => {
-    if (!podeEditar) return
-    const form: FormItem = {
-      nome: produto.nome, categoriaId: String(produto.categoriaId), marca: produto.marca,
-      condicao: produto.condicao, modelId: '',
-      usageIntensity: '', hasDamages: '', damages: '',
-    }
-    setEstado({ ...ESTADO_INICIAL, modalAberto: true, editando: produto, form, formInicial: form })
-  }, [podeEditar, setEstado])
   // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const setForm = useCallback((atualizar: SetStateAction<FormItem>) => {
     if (salvando.current) return
@@ -129,18 +116,16 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
 
   async function aoSalvar(evento: FormEvent<HTMLFormElement>): Promise<void> {
     evento.preventDefault()
-    if (salvando.current || !podeCadastrar || (estado.editando && !podeEditar)) return
-    const { form, editando } = estado
+    if (salvando.current || !podeCadastrar) return
+    const { form } = estado
     const dano = DANOS.find((opcao) => opcao === form.damages)
-    const validacao = modoDemonstracao
-      ? validarNovoProduto({ nome: form.nome, categoriaId: Number(form.categoriaId), marca: form.marca, condicao: form.condicao as Condicao })
-      : validarCadastroItemReal({
-        name: form.nome, barcode: crypto.randomUUID(), modelId: form.modelId,
-        condition: CONDICOES[form.condicao],
-        usageIntensity: form.usageIntensity === '' ? Number.NaN : Number(form.usageIntensity),
-        hasDamages: form.hasDamages === 'sim' ? true : form.hasDamages === 'nao' ? false : null,
-        damages: form.hasDamages === 'sim' && dano ? [dano] : [],
-      })
+    const validacao = validarCadastroItemReal({
+      name: form.nome, barcode: crypto.randomUUID(), modelId: form.modelId,
+      condition: CONDICOES[form.condicao],
+      usageIntensity: form.usageIntensity === '' ? Number.NaN : Number(form.usageIntensity),
+      hasDamages: form.hasDamages === 'sim' ? true : form.hasDamages === 'nao' ? false : null,
+      damages: form.hasDamages === 'sim' && dano ? [dano] : [],
+    })
     setEstado((atual) => ({ ...atual, erroEnvio: null, erros: validacao.erros }))
     if (!validacao.valido) {
       const ids: Record<string, string> = {
@@ -154,26 +139,12 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
     salvando.current = true
     setEstado((atual) => ({ ...atual, enviando: true }))
     try {
-      if (!modoDemonstracao && 'name' in validacao.dados) {
-        const criado = await criarItemReal(validacao.dados)
-        if (!montado.current) return
-        mostrarToast('Item cadastrado como rascunho. Acompanhe a aprovação nos detalhes.')
-        setEstado((atual) => ({ ...atual, modalAberto: false }))
-        aoAtualizar()
-        setCriado(criado)
-      } else if ('nome' in validacao.dados) {
-        if (editando) {
-          await atualizarProduto(editando.id, validacao.dados)
-          if (!montado.current) return
-          mostrarToast(`"${validacao.dados.nome}" atualizado.`)
-        } else {
-          const criado = await criarProduto(validacao.dados)
-          if (!montado.current) return
-          mostrarToast(`"${criado.nome}" cadastrado.`)
-        }
-        setEstado((atual) => ({ ...atual, modalAberto: false }))
-        aoAtualizar()
-      }
+      const criado = await criarItemReal(validacao.dados)
+      if (!montado.current) return
+      mostrarToast('Item cadastrado como rascunho. Acompanhe a aprovação nos detalhes.')
+      setEstado((atual) => ({ ...atual, modalAberto: false }))
+      aoAtualizar()
+      setCriado(criado)
     } catch (falha: unknown) {
       if (montado.current) setEstado((atual) => ({ ...atual, erroEnvio: mensagemDeErro(falha) }))
     } finally {
@@ -188,8 +159,7 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
     removendo.current = true
     setExclusao((atual) => ({ ...atual, processandoExclusao: true, erroExclusao: null }))
     try {
-      if (modoDemonstracao) await excluirProduto(item.id)
-      else await removerItemReal(item.id)
+      await removerItemReal(item.id)
       if (!montado.current) return
       mostrarToast(`"${item.nome}" removido do inventário.`)
       setExclusao((atual) => ({ ...atual, excluindo: null }))
@@ -204,8 +174,8 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
   }
 
   return {
-    ...estado, ...exclusao, criado, limparSucesso: () => setCriado(null), modoDemonstracao, modelos, toast, formularioSujo, podeCadastrar, podeExcluir,
-    abrirCadastro, abrirEdicao, setForm, setModalAberto, setConfirmandoDescarte,
+    ...estado, ...exclusao, criado, limparSucesso: () => setCriado(null), modelos, toast, formularioSujo, podeCadastrar, podeExcluir,
+    abrirCadastro, setForm, setModalAberto, setConfirmandoDescarte,
     setExcluindo, tentarFecharModal, aoSalvar, aoConfirmarExclusao,
   }
 }

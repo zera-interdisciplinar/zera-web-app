@@ -59,23 +59,6 @@ export interface ItemResponse {
   updatedAt: string
 }
 
-export interface HomeSummaryResponse {
-  activeItems: number
-  activeItemsChangePercent: number | null
-  pendingApproval: number
-  inMaintenance: number
-  awaitingEvaluation: number
-  disposalsInWindow: number
-}
-
-export interface DisposalIndicatorsResponse {
-  totalWeightKg: number
-  recyclingRatePercent: number | null
-  recyclingRateChangePoints: number | null
-  totalWeightChangePercent: number | null
-  monthlyWeightKg: Array<{ month: string; weightKg: number }>
-}
-
 export interface EventResponse {
   readonly id: string
   readonly itemId: string
@@ -86,20 +69,6 @@ export interface EventResponse {
   readonly actorId: string | null
   readonly actorName: string | null
   readonly occurredAt: string
-}
-
-export interface DisposalResponse {
-  id: string
-  unitId: string
-  destination: string
-  placeId: string | null
-  placeName: string | null
-  disposedAt: string
-  notes: string | null
-  items: Array<{ itemId: string; displayCode: string | null; name: string | null; weightKg: number | null }>
-  totalWeightKg: number
-  createdByName: string | null
-  createdAt: string
 }
 
 export interface UnitSettingsResponse {

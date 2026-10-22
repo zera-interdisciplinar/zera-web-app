@@ -1,14 +1,12 @@
 import { Link, useParams } from 'react-router-dom'
 import { DetalheItem } from '../../components/DetalheItem'
 import { EmptyState } from '../../components/EmptyState'
-import { useAmbiente } from '../../hooks/useAmbiente'
 
 
 export default function ItemDetalhePage() {
-  const { modoDemonstracao } = useAmbiente()
   const { id } = useParams<{ id: string }>()
 
-  if (!id || (modoDemonstracao && !Number.isFinite(Number(id)))) {
+  if (!id) {
     return (
       <EmptyState
         nivelTitulo="h1"
@@ -21,5 +19,5 @@ export default function ItemDetalhePage() {
     )
   }
 
-  return <DetalheItem key={id} produtoId={modoDemonstracao ? Number(id) : id} />
+  return <DetalheItem key={id} produtoId={id} />
 }

@@ -3,7 +3,7 @@ import { AxeBuilder } from '@axe-core/playwright'
 import { test, expect, type Page } from '@playwright/test'
 import { dashboardSnapshotMock } from '../tests/fixtures/dashboardSseFixture'
 
-const base = 'http://127.0.0.1:5183'
+const base = 'http://127.0.0.1:5184'
 test.beforeEach(async ({ page }) => {
   await page.route('**/*', (route) => {
     const url = new URL(route.request().url())
@@ -86,8 +86,8 @@ for (const status of [401, 403, 503]) {
 }
 
 
-for (const origem of [base, 'http://127.0.0.1:5184']) {
-  test(`rota privada e demonstração não oferecem dados fictícios em ${origem}`, async ({ page }) => {
+for (const origem of [base]) {
+  test(`rota inexistente e rota privada não oferecem dados fictícios em ${origem}`, async ({ page }) => {
     const chamadas: string[] = []
     page.on('request', (request) => {
       if (new URL(request.url()).pathname.startsWith('/api/')) chamadas.push(request.url())

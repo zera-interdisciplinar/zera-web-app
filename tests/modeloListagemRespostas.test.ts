@@ -3,7 +3,6 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 const modelo = { id: 'm', unitId: 'u', name: 'Modelo', manufacturer: 'Marca', expectedLifespanMonths: null, warrantyMonths: null, notes: null, materials: [], category: { id: 'c', unitId: 'u', name: 'Categoria', description: null }, approvalStatus: 'APPROVED' }
 let busca: ReturnType<typeof vi.fn>
 beforeEach(async () => {
-  vi.stubEnv('VITE_USE_MSW', 'false')
   vi.stubEnv('VITE_INVENTORY_API_URL', 'https://inventory.example.invalid')
   busca = vi.fn()
   vi.stubGlobal('fetch', busca)
@@ -12,11 +11,11 @@ beforeEach(async () => {
 })
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.resetModules() })
 
-it('lê todas as páginas e filtra por categoria', async () => {
+it('lê todas as páginas', async () => {
   busca.mockResolvedValueOnce(Response.json({ content: [modelo], totalElements: 2, totalPages: 2 }))
     .mockResolvedValueOnce(Response.json({ content: [{ ...modelo, id: 'm2' }], totalElements: 2, totalPages: 2 }))
-  const { listarModelosPorCategoria } = await import('../src/services/modeloService')
-  expect(await listarModelosPorCategoria('c')).toHaveLength(2)
+  const { listarModelos } = await import('../src/services/modeloService')
+  expect(await listarModelos()).toHaveLength(2)
   expect(busca).toHaveBeenCalledTimes(2)
 })
 it('aceita lista vazia', async () => {

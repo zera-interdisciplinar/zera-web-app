@@ -88,6 +88,8 @@ for (const pasta of ['src/components', 'src/pages']) {
     else {
       const conteudo = readdirSync(`${pasta}/${entrada.name}`)
       if (conteudo.length === 0) continue
+      // Pastas que apenas agrupam componentes (só subpastas) não precisam de index.tsx.
+      if (readdirSync(`${pasta}/${entrada.name}`, { withFileTypes: true }).every((filho) => filho.isDirectory())) continue
       if (!conteudo.includes('index.tsx')) problemas.push(`${pasta}/${entrada.name}: falta index.tsx`)
     }
   }

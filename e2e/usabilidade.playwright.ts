@@ -113,7 +113,7 @@ for (const peso of [0, 12.5]) test(`painel com peso ${peso}, modo foco, navegaç
     await expect(page.getByRole('cell', { name: '12,5', exact: true })).toBeVisible()
   }
   await page.evaluate(() => document.documentElement.dataset.modoFoco = 'ativo')
-  for (const nome of ['Itens', 'Modelos', 'Locais de reciclagem', 'Descartes']) {
+  for (const nome of ['Itens', 'Modelos']) {
     await page.getByRole('link', { name: nome, exact: true }).click()
     await expect(page.getByRole('navigation', { name: 'Seções do sistema' })).toBeVisible()
   }
@@ -131,14 +131,6 @@ test.describe('gráfico de peso em tela sensível ao toque', () => {
     await page.getByRole('button', { name: /12,5 kg/ }).tap()
     await expect(page.getByRole('tooltip')).toContainText('12,5 kg')
   })
-})
-
-test('rota de demonstração não apresenta dados fictícios', async ({ page }) => {
-  await page.route('https://**/*', (route) => route.abort())
-  await page.goto('http://127.0.0.1:5183/demonstracao')
-  await expect(page.getByRole('heading', { name: 'Página não encontrada' })).toBeVisible()
-  await expect(page.getByText('DEMONSTRAÇÃO', { exact: true })).toHaveCount(0)
-  await axe(page)
 })
 
 test('busca de itens fica na URL e não herda filtros invisíveis de outra sessão', async ({ page }) => {

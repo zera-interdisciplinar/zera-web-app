@@ -53,6 +53,3 @@ export function remover(chave: string): void {
     return
   }
 }
-
-export const CHAVE_SESSAO = 'zera.sessao'
-export const CHAVE_PREFERENCIAS_INVENTARIO = 'zera.inventario.preferencias'

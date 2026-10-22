@@ -7,21 +7,14 @@ export interface PermissoesZera {
   cadastrarModelo: boolean
   cadastrarCategoria: boolean
   excluirItem: boolean
-  gerirEstoque: boolean
-  consultarUsuarios: boolean
-  consultarRelatorios: boolean
-  consultarDescartes: boolean
-  consultarConfiguracoes: boolean
   filtrarResponsavel: boolean
-  realizarTriagem: boolean
-  enviarRelatorio: boolean
 }
 
 export type PermissaoZera = keyof PermissoesZera
 
-export function permissoesDoPerfil(perfil: Perfil | null | undefined, demonstracao = false): PermissoesZera {
-  const autenticado = perfil === 'funcionario' || perfil === 'gestor' || (demonstracao && perfil === 'administrador')
-  const gestor = perfil === 'gestor' || (demonstracao && perfil === 'administrador')
+export function permissoesDoPerfil(perfil: Perfil | null | undefined): PermissoesZera {
+  const autenticado = perfil === 'funcionario' || perfil === 'gestor'
+  const gestor = perfil === 'gestor'
   return {
     ler: autenticado,
     cadastrarItem: autenticado,
@@ -29,13 +22,6 @@ export function permissoesDoPerfil(perfil: Perfil | null | undefined, demonstrac
     cadastrarModelo: autenticado,
     cadastrarCategoria: gestor,
     excluirItem: gestor,
-    gerirEstoque: gestor,
-    consultarUsuarios: gestor,
-    consultarRelatorios: demonstracao && gestor,
-    consultarDescartes: autenticado,
-    consultarConfiguracoes: demonstracao && gestor,
     filtrarResponsavel: gestor,
-    realizarTriagem: demonstracao && autenticado,
-    enviarRelatorio: demonstracao && gestor,
   }
 }

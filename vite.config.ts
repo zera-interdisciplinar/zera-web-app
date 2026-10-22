@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import { defineConfig, loadEnv, type ProxyOptions } from 'vite'
 import react from '@vitejs/plugin-react'
 import { configuracaoProxy, origemPermitida, validarBaseProxy } from './server/config.mjs'
@@ -7,8 +5,6 @@ import { configuracaoProxy, origemPermitida, validarBaseProxy } from './server/c
 const root = process.cwd()
 
 export default defineConfig(({ mode }) => {
-  const envDir = mode === 'test' ? resolve(root, 'public') : root
-  const mswWorker = mode === 'test' ? readFileSync(resolve(root, 'tests/mocks/mockServiceWorker.js')) : undefined
   const privado = configuracaoProxy({ ...loadEnv(mode, root, ''), ...process.env })
   const proxy: Record<string, ProxyOptions> = {}
   const ausentes = new Set<string>()
@@ -35,31 +31,9 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-    envDir,
     cacheDir: process.env.ZERA_VITE_CACHE_DIR ?? 'node_modules/.vite',
-    optimizeDeps: mode === 'test' ? { include: ['@guidepup/virtual-screen-reader'] } : undefined,
-    resolve: {
-      alias: mode === 'production'
-        ? [{ find: '../tests/mocks/browser', replacement: resolve(root, 'tests/mocks/browser.disabled.ts') }]
-        : [],
-    },
     plugins: [
       react(),
-      {
-        name: 'serve-test-only-msw-worker',
-        configureServer(server) {
-          if (!mswWorker) return
-          server.middlewares.use((req, res, next) => {
-            if (req.url?.split('?')[0] !== '/tests/mocks/mockServiceWorker.js') return next()
-            res.writeHead(200, {
-              'Content-Type': 'application/javascript; charset=utf-8',
-              'Service-Worker-Allowed': '/',
-              'Cache-Control': 'no-store',
-            })
-            res.end(mswWorker)
-          })
-        },
-      },
       {
         name: 'report-missing-api-proxy',
         configureServer(server) {
@@ -87,7 +61,6 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       strictPort: true,
-      headers: mode === 'test' ? { 'Service-Worker-Allowed': '/' } : undefined,
       proxy,
     },
   }

@@ -1,13 +1,11 @@
 import estilos from '../../../../styles/components/DashboardTabs/VisaoGeralTab.module.css'
 import type { VisaoGeralTabProps } from '../../../types/componentes/VisaoGeralTab'
-import { formatarNumero, formatarPontosPercentuais, formatarVariacao } from '../../../utils/formatarDashboard'
+import { formatarNumero } from '../../../utils/formatarDashboard'
 import { rotuloDashboard } from '../../../utils/rotulosDashboard'
-import { DonutChart } from '../../DonutChart'
 import { GraficoDados } from '../../GraficoDados'
 import { KpiDashboard } from '../../KpiDashboard'
 import { Skeleton } from '../../Skeleton'
-import { SeloDemonstracao } from '../SeloDemonstracao'
-export function VisaoGeralTab({ snapshot, demo = false, aguardando = true }: VisaoGeralTabProps) {
+export function VisaoGeralTab({ snapshot, aguardando = true }: VisaoGeralTabProps) {
   if (!snapshot) return aguardando ? <Skeleton descricao="Preparando os dados…" linhas={4} /> : null
   const semDados = snapshot.kpis.itens_cadastrados.value === 0
     && snapshot.kpis.itens_cadastrados.change_percent === null
@@ -20,21 +18,14 @@ export function VisaoGeralTab({ snapshot, demo = false, aguardando = true }: Vis
     && snapshot.itens_por_mes.every(p => p.cadastrados === 0 && p.encaminhados === 0)
   return <div className={estilos.conteudo}>
     {semDados && <p role="status">Ainda não há dados para exibir. Os indicadores de movimentações não receberam dados.</p>}
-    {!demo && <p>Os indicadores de movimentações abaixo seguem os filtros selecionados.</p>}
+    <p>Os indicadores de movimentações abaixo seguem os filtros selecionados.</p>
     <section className={estilos.gradeKpis} aria-label="Indicadores gerais">
-      {demo && <KpiDashboard demo={demo} titulo="Itens cadastrados" valor={formatarNumero(snapshot.kpis.itens_cadastrados.value)} nota={formatarVariacao(snapshot.kpis.itens_cadastrados.change_percent)} />}
-      <KpiDashboard demo={demo} titulo="Alertas registrados" valor={formatarNumero(snapshot.alertas.abertos)} />
-      {demo && <KpiDashboard demo titulo="Taxa de reciclagem (%)" valor={formatarNumero(snapshot.kpis.taxa_reciclagem.percent, 2)} nota={`Variação: ${formatarPontosPercentuais(snapshot.kpis.taxa_reciclagem.change_points)} · Circularidade: ${formatarNumero(snapshot.circularidade.percent, 2)}${snapshot.circularidade.percent === null ? "" : "%"}`} />}
-      {demo && <KpiDashboard demo={demo} titulo="Aguardando aprovação" valor={formatarNumero(snapshot.kpis.aguardando_aprovacao.value)} nota={`Prioritários: ${formatarNumero(snapshot.kpis.aguardando_aprovacao.prioritarios)}`} />}
-      {demo && <KpiDashboard demo titulo="Impacto recuperado (t)" valor={formatarNumero(snapshot.kpis.impacto_recuperado.tonnes, 3)} nota={`${formatarNumero(snapshot.kpis.impacto_recuperado.kg, 2)} kg`} />}
-      <KpiDashboard demo={demo} titulo="Circularidade (%)" valor={formatarNumero(snapshot.circularidade.percent, 2)} />
+      <KpiDashboard titulo="Alertas registrados" valor={formatarNumero(snapshot.alertas.abertos)} />
+      <KpiDashboard titulo="Circularidade (%)" valor={formatarNumero(snapshot.circularidade.percent, 2)} />
     </section>
     <section className={estilos.gradeGraficos} aria-label="Gráficos de visão geral">
-      {demo && <GraficoDados demo titulo="Itens por situação" eixo="Situação" unidade="itens" vazio="Nenhum item contabilizado por situação neste período." pontos={snapshot.por_status.map(p => ({ rotulo: rotuloDashboard(p.nome), valor: p.quantidade }))} />}
-      {demo && <GraficoDados demo titulo="Itens por categoria" eixo="Categoria" unidade="itens" vazio="Nenhum item contabilizado por categoria neste período." pontos={snapshot.por_categoria.map(p => ({ rotulo: p.nome, valor: p.quantidade }))} />}
-      <GraficoDados demo={demo} titulo="Encaminhamentos por mês" eixo="Mês" unidade="itens" vazio="Nenhum encaminhamento contabilizado neste período." pontos={snapshot.itens_por_mes.map(p => ({ rotulo: p.mes, valor: p.encaminhados }))} />
-      <GraficoDados demo={demo} titulo="Alertas por gravidade" eixo="Gravidade" unidade="alertas" vazio="Nenhum alerta aberto neste período." pontos={snapshot.alertas.por_gravidade.map(p => ({ rotulo: rotuloDashboard(p.gravidade), valor: p.quantidade }))} />
-      {demo && <section aria-label="Taxa de reciclagem"><h2>Taxa de reciclagem</h2><SeloDemonstracao />{snapshot.kpis.taxa_reciclagem.percent === null ? <p>A taxa de reciclagem ainda não foi calculada para este período.</p> : <DonutChart percentual={snapshot.kpis.taxa_reciclagem.percent} />}</section>}
+      <GraficoDados titulo="Encaminhamentos por mês" eixo="Mês" unidade="itens" vazio="Nenhum encaminhamento contabilizado neste período." pontos={snapshot.itens_por_mes.map(p => ({ rotulo: p.mes, valor: p.encaminhados }))} />
+      <GraficoDados titulo="Alertas por gravidade" eixo="Gravidade" unidade="alertas" vazio="Nenhum alerta aberto neste período." pontos={snapshot.alertas.por_gravidade.map(p => ({ rotulo: rotuloDashboard(p.gravidade), valor: p.quantidade }))} />
     </section>
   </div>
 }

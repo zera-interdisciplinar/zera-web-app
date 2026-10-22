@@ -196,10 +196,6 @@ it('Req 22: formulários validam dados tipados antes de enviar aos serviços', (
     ['useCadastroModelo.ts', 'validarCadastroModeloReal'],
     ['useCadastroItens.ts', 'validarCadastroItemReal'],
     ['useEdicaoItem.ts', 'validarEdicaoItem'],
-    ['useRegistroDescarte.ts', 'validarNovoDescarte'],
-    ['useCadastroRecicladoras.ts', 'validarNovaRecicladora'],
-    ['useFuncionarios.ts', 'validarNovoUsuario'],
-    ['useConfiguracoes.ts', 'validarConfiguracoes'],
     ['useTransicaoItem.ts', 'validarTransicaoItem'],
   ]
   for (const [arquivo, validador] of formularios) {

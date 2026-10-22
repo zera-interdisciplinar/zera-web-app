@@ -2,19 +2,15 @@ import estilos from '../../../../styles/components/DashboardTabs/ItensVidaUtilTa
 import { useModelosDashboard } from '../../../hooks/useDadosInventarioDashboard'
 import type { ItensVidaUtilTabProps } from '../../../types/componentes/ItensVidaUtilTab'
 import { formatarNumero } from '../../../utils/formatarDashboard'
-import { CondicoesDashboard } from '../../CondicoesDashboard'
 import { DataTable } from '../../DataTable'
 import { EstadoErro } from '../../EstadoErro'
 import { GraficoDados } from '../../GraficoDados'
-import { SeloDemonstracao } from '../SeloDemonstracao'
 
-export function ItensVidaUtilTab({ demo = false, ativo = false }: ItensVidaUtilTabProps = {}) {
+export function ItensVidaUtilTab({ ativo = false }: ItensVidaUtilTabProps = {}) {
   const modelos = useModelosDashboard(ativo)
   return (
     <section className={estilos.sourceState} aria-labelledby="fonte-vida-util" data-estado={modelos.carregando ? 'carregando' : modelos.erro ? 'erro' : 'sucesso'}>
       <h2 id="fonte-vida-util">Itens e vida útil</h2>
-      {demo && <SeloDemonstracao />}
-      {ativo && <CondicoesDashboard />}
       {modelos.carregando && <p role="status">Carregando características dos modelos…</p>}
       {modelos.erro && <EstadoErro mensagem={modelos.erro} aoTentarNovamente={modelos.recarregar} />}
       {modelos.dados && modelos.dados.length > 0 ? <DataTable

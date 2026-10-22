@@ -5,7 +5,7 @@ import type { CadastroModeloReal, MaterialCatalogo } from '../types/cadastroMode
 import type { Modelo } from '../types/modelo'
 import { validarCadastroModeloReal } from '../utils/validacaoCadastroModelo'
 import { requisitarApiReal } from './apiReal'
-import { contextualizar } from './http'
+import { contextualizar } from './contextualizar'
 import { mapearModelo } from './mapeadoresApi'
 
 export async function listarMateriais(sinal?: AbortSignal): Promise<MaterialCatalogo[]> {

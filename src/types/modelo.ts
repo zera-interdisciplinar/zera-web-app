@@ -11,11 +11,3 @@ export interface Modelo {
   materiais?: string[]
   aprovacao?: string
 }
-
-export interface NovoModelo {
-  categoriaId: number | string
-  fabricante: string
-  nome: string
-  especificacoes: Record<string, string>
-  vidaUtilMeses: number
-}

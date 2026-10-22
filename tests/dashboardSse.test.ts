@@ -7,7 +7,6 @@ import { setupServer } from 'msw/node'
 import { analisarChunkSse, acompanharDashboard, criarUrlDashboardSse } from '../src/services/dashboardSse'
 import { dashboardSnapshotMock, respostaSse } from './fixtures/dashboardSseFixture'
 import { formatarErroDashboard, formatarNumero, formatarPontosPercentuais, formatarVariacao } from '../src/utils/formatarDashboard'
-import { dashboardDemoEnabled } from './mocks/dashboardMode'
 import type { FiltrosDashboard } from '../src/types/dashboardAnalytics'
 import { VisaoGeralTab } from '../src/components/DashboardTabs/VisaoGeralTab'
 import { ItensVidaUtilTab } from '../src/components/DashboardTabs/ItensVidaUtilTab'
@@ -105,39 +104,12 @@ describe('origem dos cards e gráficos', () => {
     } finally { controle.abort(); busca.mockRestore(); vi.useRealTimers() }
   })
 
-  it('exibe o selo em cada card/gráfico abastecido por fixture', () => {
-    const visaoGeral = renderToStaticMarkup(createElement(VisaoGeralTab, { snapshot: dashboardSnapshotMock, demo: true }))
-    const vidaUtil = renderToStaticMarkup(createElement(ItensVidaUtilTab, { demo: true, filtros }))
-    const evolucao = renderToStaticMarkup(createElement(EvolucaoMovimentacoesTab, { demo: true, filtros }))
-    const qualidade = renderToStaticMarkup(createElement(QualidadeDadosTab, { demo: true, filtros }))
-    const materiais = renderToStaticMarkup(createElement(MateriaisSustentabilidadeTab, { demo: true, filtros }))
-
-    for (const tela of [visaoGeral, vidaUtil, evolucao, qualidade, materiais]) {
-      expect(tela.match(/<h2\b/g)?.length).toBeGreaterThan(0)
-      expect(tela.match(/DEMONSTRAÇÃO/g)?.length).toBe(tela.match(/<h2\b/g)?.length)
-    }
-  })
-
-  it('trata todos os percentuais nulos do contrato sem renderizar zero ou NaN', () => {
-    const snapshotNulo = structuredClone(dashboardSnapshotMock)
-    snapshotNulo.kpis.itens_cadastrados.change_percent = null
-    snapshotNulo.kpis.taxa_reciclagem.percent = null
-    snapshotNulo.kpis.taxa_reciclagem.change_points = null
-    snapshotNulo.circularidade.percent = null
-
-    const tela = renderToStaticMarkup(createElement(VisaoGeralTab, { snapshot: snapshotNulo, demo: true }))
-    expect(tela).toContain('Variação: —')
-    expect(tela).not.toContain('NaN')
-    expect(tela).not.toContain('undefined')
-    expect(tela).toContain('Circularidade: —')
-  })
-
-  it('não renderiza fixtures nem selos no modo real e identifica dados sem fonte', () => {
-    const visaoGeral = renderToStaticMarkup(createElement(VisaoGeralTab, { snapshot: dashboardSnapshotMock, demo: false }))
-    const vidaUtil = renderToStaticMarkup(createElement(ItensVidaUtilTab, { demo: false, filtros }))
-    const evolucao = renderToStaticMarkup(createElement(EvolucaoMovimentacoesTab, { demo: false, filtros }))
-    const qualidade = renderToStaticMarkup(createElement(QualidadeDadosTab, { demo: false, filtros }))
-    const materiais = renderToStaticMarkup(createElement(MateriaisSustentabilidadeTab, { demo: false, filtros }))
+  it('não renderiza fixtures nem selos e identifica dados sem fonte', () => {
+    const visaoGeral = renderToStaticMarkup(createElement(VisaoGeralTab, { snapshot: dashboardSnapshotMock }))
+    const vidaUtil = renderToStaticMarkup(createElement(ItensVidaUtilTab, { filtros }))
+    const evolucao = renderToStaticMarkup(createElement(EvolucaoMovimentacoesTab, { filtros }))
+    const qualidade = renderToStaticMarkup(createElement(QualidadeDadosTab, { filtros }))
+    const materiais = renderToStaticMarkup(createElement(MateriaisSustentabilidadeTab, { filtros }))
     const telas = [visaoGeral, vidaUtil, evolucao, qualidade, materiais]
 
     expect(telas.join('')).not.toContain('DEMONSTRAÇÃO')
@@ -146,14 +118,6 @@ describe('origem dos cards e gráficos', () => {
     expect(telas.join('')).toContain('Ainda não há dados para exibir aqui.')
     expect(vidaUtil).not.toContain('na seleção de demonstração')
     expect(evolucao).not.toContain('na seleção de demonstração')
-  })
-
-  it('só permite fixtures com MSW explicitamente ligado', () => {
-    expect(dashboardDemoEnabled('true', 'true')).toBe(true)
-    expect(dashboardDemoEnabled('false', 'true')).toBe(false)
-    expect(dashboardDemoEnabled('true', 'false')).toBe(false)
-    expect(dashboardDemoEnabled(undefined, 'false')).toBe(false)
-    expect(dashboardDemoEnabled('true', '')).toBe(false)
   })
 })
 

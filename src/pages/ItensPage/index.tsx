@@ -1,4 +1,4 @@
-import { Pencil, RotateCcw, Trash2 } from 'lucide-react'
+import { RotateCcw, Trash2 } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import estilos from '../../../styles/pages/ItensPage/ItensPage.module.css'
@@ -35,11 +35,9 @@ export default function ItensPage() {
     produtos,
     categorias,
     modelos,
-    modoDemonstracao,
     criado,
     limparSucesso,
     modalAberto,
-    editando,
     form,
     setForm,
     erros,
@@ -52,7 +50,6 @@ export default function ItensPage() {
     processandoExclusao,
     erroExclusao,
     abrirCadastro,
-    abrirEdicao,
     tentarFecharModal,
     aoSalvar,
     aoConfirmarExclusao,
@@ -89,18 +86,14 @@ export default function ItensPage() {
         titulo: 'Ação',
         render: (produto: ProdutoDetalhado) => (
           <span className={estilos.acoes}>
-            {modoDemonstracao && <IconButton rotulo={`Editar ${produto.nome}`} onClick={() => abrirEdicao(produto)}>
-              <Pencil size={18} aria-hidden="true" />
-            </IconButton>}
-            {podeExcluir && <><span className={estilos.divisor} aria-hidden="true" />
-            <IconButton rotulo={`Excluir ${produto.nome}`} onClick={() => setExcluindo(produto)}>
+            {podeExcluir && <IconButton rotulo={`Excluir ${produto.nome}`} onClick={() => setExcluindo(produto)}>
               <Trash2 size={18} aria-hidden="true" />
-            </IconButton></>}
+            </IconButton>}
           </span>
         ),
       }],
     ],
-    [abrirEdicao, setExcluindo, modoDemonstracao, podeExcluir, mostrarResponsavel],
+    [setExcluindo, podeExcluir, mostrarResponsavel],
   )
 
   return (
@@ -197,7 +190,7 @@ export default function ItensPage() {
 
       <Modal
         aberto={modalAberto}
-        titulo={editando ? `Editar ${editando.nome}` : 'Cadastrar item'}
+        titulo="Cadastrar item"
         aoFechar={tentarFecharModal}
       >
         {confirmandoDescarte ? (
@@ -229,7 +222,7 @@ export default function ItensPage() {
                 rotulo="Item"
                 valor={form.nome}
                 aoMudar={(valor) => setForm((atual) => ({ ...atual, nome: valor }))}
-                erro={erros.nome ?? erros.name}
+                erro={erros.name}
                 placeholder="Nome do item"
                 maxLength={80}
                 desabilitado={enviando}
@@ -240,7 +233,6 @@ export default function ItensPage() {
                 tipo="select"
                 valor={form.categoriaId}
                 aoMudar={(valor) => valor === '__nova__' ? categoriaRapida.abrir() : setForm((atual) => ({ ...atual, categoriaId: valor, modelId: '' }))}
-                erro={erros.categoriaId}
                 desabilitado={enviando}
                 opcoes={[
                   { valor: '', rotulo: 'Selecione uma categoria' },
@@ -251,55 +243,44 @@ export default function ItensPage() {
                   ...(permissoes.cadastrarCategoria ? [{ valor: '__nova__', rotulo: '+ Nova categoria' }] : []),
                 ]}
               />
-              {modoDemonstracao ? <FieldCard
-                id="item-marca"
-                rotulo="Marca"
-                valor={form.marca}
-                aoMudar={(valor) => setForm((atual) => ({ ...atual, marca: valor }))}
-                erro={erros.marca}
-                placeholder="Ex.: Apple, Dell ou Samsung"
-                maxLength={60}
-                desabilitado={enviando}
-              /> : <>
-                <FieldCard id="item-modelo" obrigatorio rotulo="Modelo" tipo="select" valor={form.modelId}
-                  aoMudar={(valor) => { if (valor === '__novo__') { modeloRapido.abrir(); modeloRapido.alterar('categoriaId', form.categoriaId) } else setForm((atual) => ({ ...atual, modelId: valor })) }}
-                  erro={erros.modelId} desabilitado={enviando || modelos.carregando}
-                  opcoes={[{ valor: '', rotulo: 'Selecione um modelo cadastrado' }, ...(modelos.dados ?? []).filter((modelo) => !form.categoriaId || String(modelo.categoriaId) === form.categoriaId).map((modelo) => ({ valor: String(modelo.id), rotulo: `${modelo.fabricante} ${modelo.nome}` })), ...(permissoes.cadastrarModelo ? [{ valor: '__novo__', rotulo: '+ Novo modelo' }] : [])]} />
-                {modelos.carregando && <p className={estilos.statusModal} role="status">Carregando modelos…</p>}
-                {modelos.erro && <EstadoErro mensagem={modelos.erro} aoTentarNovamente={modelos.recarregar} />}
-                <FieldCard id="item-intensidade" obrigatorio rotulo="Intensidade de uso" tipo="select" valor={form.usageIntensity}
-                  aoMudar={(valor) => setForm((atual) => ({ ...atual, usageIntensity: valor }))}
-                  erro={erros.usageIntensity} desabilitado={enviando}
-                  opcoes={[{ valor: '', rotulo: 'Selecione de 0 a 10' }, ...Array.from({ length: 11 }, (_, numero) => ({ valor: String(numero), rotulo: String(numero) }))]} />
-                <FieldCard id="item-tem-danos" obrigatorio rotulo="O item apresenta danos?" tipo="select" valor={form.hasDamages}
-                  aoMudar={(valor) => setForm((atual) => ({ ...atual, hasDamages: valor, damages: '' }))}
-                  erro={erros.hasDamages} desabilitado={enviando}
-                  opcoes={[{ valor: '', rotulo: 'Selecione uma opção' }, { valor: 'sim', rotulo: 'Sim' }, { valor: 'nao', rotulo: 'Não' }]} />
-                {form.hasDamages === 'sim' && <FieldCard id="item-danos" obrigatorio rotulo="Dano identificado" tipo="select" valor={form.damages}
-                  aoMudar={(valor) => setForm((atual) => ({ ...atual, damages: valor }))}
-                  erro={erros.damages} desabilitado={enviando}
-                  opcoes={[
-                    { valor: '', rotulo: 'Selecione o dano' },
-                    { valor: 'BROKEN_SCREEN', rotulo: 'Tela quebrada' },
-                    { valor: 'MISSING_PART', rotulo: 'Peça ausente' },
-                    { valor: 'DOES_NOT_POWER_ON', rotulo: 'Não liga' },
-                    { valor: 'OXIDATION', rotulo: 'Oxidação' },
-                    { valor: 'OTHER', rotulo: 'Outro dano' },
-                  ]} />}
-              </>}
+            <FieldCard id="item-modelo" obrigatorio rotulo="Modelo" tipo="select" valor={form.modelId}
+                aoMudar={(valor) => { if (valor === '__novo__') { modeloRapido.abrir(); modeloRapido.alterar('categoriaId', form.categoriaId) } else setForm((atual) => ({ ...atual, modelId: valor })) }}
+                erro={erros.modelId} desabilitado={enviando || modelos.carregando}
+                opcoes={[{ valor: '', rotulo: 'Selecione um modelo cadastrado' }, ...(modelos.dados ?? []).filter((modelo) => !form.categoriaId || String(modelo.categoriaId) === form.categoriaId).map((modelo) => ({ valor: String(modelo.id), rotulo: `${modelo.fabricante} ${modelo.nome}` })), ...(permissoes.cadastrarModelo ? [{ valor: '__novo__', rotulo: '+ Novo modelo' }] : [])]} />
+              {modelos.carregando && <p className={estilos.statusModal} role="status">Carregando modelos…</p>}
+              {modelos.erro && <EstadoErro mensagem={modelos.erro} aoTentarNovamente={modelos.recarregar} />}
+              <FieldCard id="item-intensidade" obrigatorio rotulo="Intensidade de uso" tipo="select" valor={form.usageIntensity}
+                aoMudar={(valor) => setForm((atual) => ({ ...atual, usageIntensity: valor }))}
+                erro={erros.usageIntensity} desabilitado={enviando}
+                opcoes={[{ valor: '', rotulo: 'Selecione de 0 a 10' }, ...Array.from({ length: 11 }, (_, numero) => ({ valor: String(numero), rotulo: String(numero) }))]} />
+              <FieldCard id="item-tem-danos" obrigatorio rotulo="O item apresenta danos?" tipo="select" valor={form.hasDamages}
+                aoMudar={(valor) => setForm((atual) => ({ ...atual, hasDamages: valor, damages: '' }))}
+                erro={erros.hasDamages} desabilitado={enviando}
+                opcoes={[{ valor: '', rotulo: 'Selecione uma opção' }, { valor: 'sim', rotulo: 'Sim' }, { valor: 'nao', rotulo: 'Não' }]} />
+              {form.hasDamages === 'sim' && <FieldCard id="item-danos" obrigatorio rotulo="Dano identificado" tipo="select" valor={form.damages}
+                aoMudar={(valor) => setForm((atual) => ({ ...atual, damages: valor }))}
+                erro={erros.damages} desabilitado={enviando}
+                opcoes={[
+                  { valor: '', rotulo: 'Selecione o dano' },
+                  { valor: 'BROKEN_SCREEN', rotulo: 'Tela quebrada' },
+                  { valor: 'MISSING_PART', rotulo: 'Peça ausente' },
+                  { valor: 'DOES_NOT_POWER_ON', rotulo: 'Não liga' },
+                  { valor: 'OXIDATION', rotulo: 'Oxidação' },
+                  { valor: 'OTHER', rotulo: 'Outro dano' },
+                ]} />}
               <FieldCard
                 id="item-condicao" obrigatorio
                 rotulo="Condição"
                 tipo="select"
                 valor={form.condicao}
                 aoMudar={(valor) => setForm((atual) => ({ ...atual, condicao: valor }))}
-                erro={erros.condicao ?? erros.condition}
+                erro={erros.condition}
                 desabilitado={enviando}
                 opcoes={[
                   { valor: '', rotulo: 'Novo, usado ou danificado' },
                   { valor: 'novo', rotulo: ROTULO_CONDICAO.novo },
                   { valor: 'usado', rotulo: ROTULO_CONDICAO.usado },
-                  ...(!modoDemonstracao ? [{ valor: 'semidanificado', rotulo: ROTULO_CONDICAO.semidanificado }] : []),
+                  { valor: 'semidanificado', rotulo: ROTULO_CONDICAO.semidanificado },
                   { valor: 'danificado', rotulo: ROTULO_CONDICAO.danificado },
                 ]}
               />
@@ -313,7 +294,7 @@ export default function ItensPage() {
 
             <div className={estilos.acoesModal}>
               <Button variante="primario" tamanho="grande" type="submit" disabled={enviando}>
-                {enviando ? 'Salvando…' : editando ? 'Salvar alterações' : 'Concluir cadastro'}
+                {enviando ? 'Salvando…' : 'Concluir cadastro'}
               </Button>
               <Button
                 variante="secundario"
@@ -338,7 +319,7 @@ export default function ItensPage() {
           <div>
             <p className={estilos.textoModal}>Excluir {excluindo.nome} do inventário?</p>
             <p className={estilos.detalheModal}>
-              {modoDemonstracao ? 'O item será excluído dos dados desta demonstração.' : 'O item será marcado como removido. Seu histórico será preservado.'}
+              O item será marcado como removido. Seu histórico será preservado.
             </p>
             {erroExclusao && <p className={estilos.erroModal} role="alert">{erroExclusao}</p>}
             <p role="status">{processandoExclusao ? 'Excluindo item…' : ''}</p>

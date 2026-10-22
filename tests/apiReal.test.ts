@@ -45,20 +45,6 @@ describe('cliente das APIs reais', () => {
     await expect(requisitarApiReal('administrative', '/api/v1/auth/login', { metodo: 'POST', autenticada: false })).rejects.toThrow('não está configurada')
     expect(busca).not.toHaveBeenCalled()
   })
-  it('não ativa mocks em um build de produção mesmo se a flag estiver ligada', async () => {
-    vi.stubEnv('DEV', false)
-    vi.stubEnv('VITE_USE_MSW', 'true')
-    const { modoDemonstracao } = await import('../src/services/apiReal')
-    expect(modoDemonstracao).toBe(false)
-  })
-
-  it('não ativa mocks no desenvolvimento comum mesmo se a flag estiver ligada', async () => {
-    vi.stubEnv('MODE', 'development')
-    vi.stubEnv('VITE_USE_MSW', 'true')
-    const { modoDemonstracao } = await import('../src/services/apiReal')
-    expect(modoDemonstracao).toBe(false)
-  })
-
   it('recusa transporte HTTP remoto antes de chamar fetch', async () => {
     vi.stubEnv('VITE_ADMIN_API_URL', 'http://example.invalid/qa/administrative/swagger-ui')
     vi.stubGlobal('window', { location: { origin: 'http://localhost:5173' } })

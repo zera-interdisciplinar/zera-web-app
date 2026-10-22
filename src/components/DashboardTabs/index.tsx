@@ -1,5 +1,0 @@
-export { EvolucaoMovimentacoesTab } from './EvolucaoMovimentacoesTab'
-export { ItensVidaUtilTab } from './ItensVidaUtilTab'
-export { MateriaisSustentabilidadeTab } from './MateriaisSustentabilidadeTab'
-export { QualidadeDadosTab } from './QualidadeDadosTab'
-export { VisaoGeralTab } from './VisaoGeralTab'

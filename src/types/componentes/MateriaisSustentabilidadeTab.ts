@@ -1,3 +1,3 @@
 import type { FiltrosDashboard } from '../dashboardAnalytics';
 
-export interface MateriaisSustentabilidadeTabProps { demo?: boolean; filtros?: FiltrosDashboard; ativo?: boolean }
+export interface MateriaisSustentabilidadeTabProps { filtros?: FiltrosDashboard; ativo?: boolean }

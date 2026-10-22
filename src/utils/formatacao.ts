@@ -35,16 +35,6 @@ export function formatarDataRelativa(iso: string, referencia: Date = new Date(),
   return data.toLocaleDateString('pt-BR', { timeZone })
 }
 
-export function diasDesde(iso: string, referencia: Date = new Date()): number {
-  const data = new Date(`${iso.slice(0, 10)}T00:00:00`)
-  if (Number.isNaN(data.getTime())) return 0
-  return Math.max(0, Math.floor((referencia.getTime() - data.getTime()) / DIA_MS))
-}
-
 export function pluralizar(quantidade: number, singular: string, plural: string): string {
   return quantidade === 1 ? singular : plural
-}
-
-export function montarCodigoBarras(produtoId: number, categoriaCodigo: string): string {
-  return `${String(produtoId).padStart(5, '0')}-${categoriaCodigo}`
 }

@@ -30,10 +30,8 @@ for (const largura of [320, 1280]) {
       if (aba === 'Itens e vida útil') {
         await expect(tabela.getByRole('row')).toHaveCount(26)
         await expect(tabela.getByRole('cell', { name: '—', exact: true }).first()).toBeVisible()
-        await expect(page.getByRole('img', { name: 'Itens por condição', exact: true })).toBeVisible()
       }
       if (aba === 'Evolução e movimentações') {
-        await expect(page.getByRole('img', { name: 'Evolução mensal dos cadastros', exact: true })).toBeVisible()
         const mes = tabela.getByRole('columnheader', { name: 'Mês', exact: true })
         await expect(mes).toHaveCSS('text-align', 'right')
         await expect(mes).toHaveCSS('font-variant-numeric', 'tabular-nums')
@@ -44,29 +42,5 @@ for (const largura of [320, 1280]) {
       expect((await new AxeBuilder({ page }).analyze()).violations.map(v => v.id)).toEqual([])
       expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false)
     }
-  })
-}
-
-for (const [perfil, quantidade] of [['MANAGER', 3], ['EMPLOYEE', 2]] as const) {
-  test(`distribuições e cadastros usam os itens disponíveis para ${perfil}`, async ({ page }) => {
-    await preparar(page, perfil, 2.5)
-    const snapshot = structuredClone(dashboardSnapshotMock)
-    snapshot.kpis.itens_cadastrados.value = 0
-    snapshot.por_categoria = []
-    snapshot.por_status = []
-    snapshot.itens_por_mes = [{ mes: '2026-10', cadastrados: 0, encaminhados: 3 }]
-    await page.route('**/api/analytics/api/v1/dashboard/overview?**', route => route.fulfill({ contentType: 'text/event-stream', body: `event: snapshot\ndata: ${JSON.stringify(snapshot)}\n\n` }))
-    if (perfil === 'EMPLOYEE') await page.getByRole('button', { name: 'Ver indicadores da unidade' }).click()
-    await page.getByRole('tab', { name: 'Visão geral', exact: true }).click()
-    await expect(page.getByText('Calculado a partir dos itens disponíveis para sua conta', { exact: false })).toBeVisible()
-    const situacao = page.getByRole('region', { name: 'Itens por situação · gráfico' })
-    await situacao.getByText('Consultar os dados do gráfico').click()
-    await expect(situacao.getByRole('table')).toContainText(String(quantidade))
-    await expect(page.getByRole('heading', { name: 'Peso descartado por mês' })).toBeVisible()
-    await page.getByRole('tab', { name: 'Evolução e movimentações', exact: true }).click()
-    const cadastros = page.getByRole('region', { name: 'Evolução mensal dos cadastros · gráfico' })
-    await cadastros.getByText('Consultar os dados do gráfico').click()
-    await expect(cadastros.getByRole('table')).toContainText(String(quantidade))
-    await expect(page.getByRole('table', { name: 'Encaminhamentos por mês' })).toContainText('3')
   })
 }

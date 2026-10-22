@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 import type { CadastroModeloReal, CodigoMaterial, MaterialCatalogo } from './cadastroModelo'
-import type { Modelo, NovoModelo } from './modelo'
+import type { Modelo } from './modelo'
 import type { EstadoRequisicao } from '../hooks/useRequisicao'
 import type { ErrosDeCampo } from '../utils/validacao'
 
@@ -9,7 +9,6 @@ export interface FormModelo {
   fabricante: string
   categoriaId: string
   vidaUtilMeses: string
-  especificacoes: string
   materiais: CodigoMaterial[]
   garantiaMeses: string
   pesoEstimadoKg: string
@@ -20,14 +19,13 @@ export interface FormModelo {
 export interface EstadoCadastroModelo {
   modalAberto: boolean
   form: FormModelo
-  erros: ErrosDeCampo<NovoModelo> & ErrosDeCampo<CadastroModeloReal> & { outroMaterial?: string }
+  erros: ErrosDeCampo<CadastroModeloReal> & { outroMaterial?: string }
   enviando: boolean
   erroEnvio: string | null
 }
 
 export interface RetornoCadastroModelo extends EstadoCadastroModelo {
   permitido: boolean
-  modoDemonstracao: boolean
   modelos: EstadoRequisicao<Modelo[]>
   materiais: EstadoRequisicao<MaterialCatalogo[]>
   toast: string | null

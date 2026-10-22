@@ -1,39 +1,17 @@
-import type { Modelo, NovoModelo } from '../types/modelo'
-import { contextualizar, requisitar } from './http'
-import { listarPaginas, modoDemonstracao } from './apiReal'
+import type { Modelo } from '../types/modelo'
+import { listarPaginas } from './apiReal'
+import { contextualizar } from './contextualizar'
 import { lerModeloApi } from '../utils/guardaModeloApi'
 import { mapearModelo } from './mapeadoresApi'
 
 export async function listarModelos(sinal?: AbortSignal): Promise<Modelo[]> {
   try {
-    if (!modoDemonstracao) return (await listarPaginas<unknown>('inventory', '/api/v1/models', sinal)).map(item => {
+    return (await listarPaginas<unknown>('inventory', '/api/v1/models', sinal)).map(item => {
       const modelo = lerModeloApi(item)
       const aprovacao = ['APPROVED', 'PENDING_APPROVAL', 'PENDING', 'REJECTED'].includes(modelo.approvalStatus) ? modelo.approvalStatus : 'Não informado'
       return mapearModelo({ ...modelo, approvalStatus: aprovacao })
     })
-    return await requisitar<Modelo[]>('/models', { sinal })
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível carregar os modelos.')
-  }
-}
-
-export async function listarModelosPorCategoria(
-  categoriaId: number | string,
-  sinal?: AbortSignal,
-): Promise<Modelo[]> {
-  try {
-    if (!modoDemonstracao) return (await listarModelos(sinal)).filter((modelo) => modelo.categoriaId === categoriaId)
-    return await requisitar<Modelo[]>(`/models?categoryId=${categoriaId}`, { sinal })
-  } catch (erro) {
-    throw contextualizar(erro, 'Não foi possível carregar os modelos da categoria.')
-  }
-}
-
-export async function criarModelo(novo: NovoModelo): Promise<Modelo> {
-  try {
-    if (!modoDemonstracao) throw new Error('Cadastro de modelo exige materiais e revisão no contrato real. Operação indisponível nesta interface.')
-    return await requisitar<Modelo>('/models', { metodo: 'POST', corpo: novo })
-  } catch (erro) {
-    throw contextualizar(erro, 'Não foi possível criar o modelo.')
   }
 }

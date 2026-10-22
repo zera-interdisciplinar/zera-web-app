@@ -40,13 +40,6 @@ export interface ProdutoDetalhado extends Produto {
   diasEmEstoque: number
 }
 
-export interface NovoProduto {
-  nome: string
-  categoriaId: number | string
-  marca: string
-  condicao: Condicao
-}
-
 export interface FiltroItens {
   busca: string
   status: StatusItem | 'todos'

@@ -1,9 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { dashboardSnapshotMock, respostaSse } from './fixtures/dashboardSseFixture'
 
 let busca: ReturnType<typeof vi.fn>
 beforeEach(async () => {
-  vi.stubEnv('VITE_USE_MSW', 'false')
   vi.stubEnv('VITE_INVENTORY_API_URL', 'https://inventory.example.invalid')
   vi.stubEnv('VITE_ADMIN_API_URL', 'https://admin.example.invalid')
   busca = vi.fn()
@@ -107,14 +105,8 @@ describe('serviços e erros das APIs', () => {
   })
   it('recusa paginação malformada', async () => {
     busca.mockResolvedValue(new Response(JSON.stringify({ content: {}, totalPages: -1 })))
-    const { listarDescartes } = await import('../src/services/cicloService')
-    await expect(listarDescartes()).rejects.toThrow('Paginação inválida')
-  })
-  it('consulta capacidade pelo endpoint documentado', async () => {
-    busca.mockResolvedValue(new Response(JSON.stringify({ unitId: 'unidade', stockCapacity: 500, configured: true, updatedByName: null, updatedAt: null })))
-    const { obterCapacidade } = await import('../src/services/cicloService')
-    expect((await obterCapacidade()).stockCapacity).toBe(500)
-    expect(busca.mock.calls[0][0].pathname).toBe('/api/v1/unit-settings')
+    const { listarProdutos } = await import('../src/services/produtoService')
+    await expect(listarProdutos()).rejects.toThrow('Paginação inválida')
   })
   it('cadastro de categoria envia somente campos do schema real', async () => {
     busca.mockResolvedValue(new Response(JSON.stringify({ id: 'categoria', name: 'Monitores', description: 'Telas', unitId: 'unidade' })))
@@ -151,20 +143,3 @@ describe('serviços e erros das APIs', () => {
     expect(busca).not.toHaveBeenCalled()
   })
 })
-
-  it('exibe taxa e peso reais sem inventar uma meta de reciclagem', async () => {
-    const snapshot = structuredClone(dashboardSnapshotMock)
-    snapshot.kpis.impacto_recuperado = { kg: 2500, tonnes: 2.5 }
-    snapshot.kpis.taxa_reciclagem = { percent: 60, change_points: -2 }
-    snapshot.circularidade.percent = 72
-    busca.mockResolvedValueOnce(respostaSse('snapshot', snapshot))
-    const { obterResumoDashboard } = await import('../src/services/dashboardService')
-    const resumo = await obterResumoDashboard()
-    expect(resumo.kpis.impactoToneladas).toBe(2.5)
-    expect(resumo.kpis.deltaReciclagem).toBe('-2 p.p.')
-    expect(resumo.circularidade).toEqual({ percentual: 72 })
-    expect(resumo.serie[0].total).toBe(snapshot.itens_por_mes[0].cadastrados)
-    expect(busca).toHaveBeenCalledOnce()
-    expect(busca.mock.calls[0][0].pathname).toBe('/api/analytics/api/v1/dashboard/overview')
-    expect(busca.mock.calls[0][1].headers.get('Authorization')).toBeTruthy()
-  })

@@ -4,7 +4,7 @@ import type { ProdutoDetalhado } from '../types/produto'
 import type { AcaoItemReal, DadosTransicaoItem } from '../types/transicaoItem'
 import { validarTransicaoItem } from '../utils/validacaoTransicaoItem'
 import { requisitarApiReal } from './apiReal'
-import { contextualizar } from './http'
+import { contextualizar } from './contextualizar'
 import { mapearItem } from './mapeadoresApi'
 
 const ACOES: AcaoItemReal[] = ['submit', 'approve', 'reject', 'lend', 'return', 'maintenance/start', 'maintenance/finish', 'evaluate']

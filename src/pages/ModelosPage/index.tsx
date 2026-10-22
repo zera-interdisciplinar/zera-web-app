@@ -17,7 +17,7 @@ import { normalizarBusca } from '../../utils/busca'
 import { pluralizar } from '../../utils/formatacao'
 
 export default function ModelosPage() {
-  const { categorias, busca, setBusca, cadastro, modelos, permitido, modoDemonstracao, toast, abrir, alterar, visiveis } = useListaModelos()
+  const { categorias, busca, setBusca, cadastro, modelos, permitido, toast, abrir, alterar, visiveis } = useListaModelos()
 
   // Preserva as definições da tabela enquanto o formulário é atualizado.
   const colunas = useMemo<Coluna<Modelo>[]>(
@@ -32,14 +32,12 @@ export default function ModelosPage() {
         render: (modelo) => modelo.vidaUtilMeses === null ? 'Não informada' : `${modelo.vidaUtilMeses} meses`,
       },
       {
-        titulo: modoDemonstracao ? 'Especificações' : 'Materiais',
+        titulo: 'Materiais',
         numerica: true,
-        render: (modelo) => modoDemonstracao
-          ? `${Object.keys(modelo.especificacoes).length} ${pluralizar(Object.keys(modelo.especificacoes).length, 'campo', 'campos')}`
-          : modelo.materiais?.join(', ') || 'Não informados',
+        render: (modelo) => modelo.materiais?.join(', ') || 'Não informados',
       },
     ],
-    [modoDemonstracao],
+    [],
   )
 
   return (

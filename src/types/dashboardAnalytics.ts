@@ -63,11 +63,6 @@ export interface DashboardSnapshot {
   alertas: { abertos: number; por_gravidade: Array<{ gravidade: string; quantidade: number }> }
 }
 
-export type EventoSseDashboard =
-  | { event: 'snapshot'; data: DashboardSnapshot }
-  | { event: 'unavailable'; data: { detail: string } }
-  | { event: 'error'; data: { status: number; detail: string } }
-
 /** Estrutura usada exclusivamente pelos fixtures dos testes. */
 export interface DashboardMockVisaoGeral {
   eventosRegistrados: number

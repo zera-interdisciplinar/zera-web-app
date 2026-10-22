@@ -1,3 +1,3 @@
 import type { FiltrosDashboard } from '../dashboardAnalytics';
 
-export interface ItensVidaUtilTabProps { demo?: boolean; filtros?: FiltrosDashboard; ativo?: boolean }
+export interface ItensVidaUtilTabProps { filtros?: FiltrosDashboard; ativo?: boolean }

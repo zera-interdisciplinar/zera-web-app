@@ -22,10 +22,10 @@ export function useListaItens() {
   const categorias = useCategorias()
   const [parametros, setParametros] = useSearchParams()
   const {
-    modelos, modoDemonstracao, criado, limparSucesso,
-    modalAberto, editando, form, setForm, erros, enviando, erroEnvio,
+    modelos, criado, limparSucesso,
+    modalAberto, form, setForm, erros, enviando, erroEnvio,
     confirmandoDescarte, setConfirmandoDescarte, excluindo, setExcluindo,
-    processandoExclusao, erroExclusao, abrirCadastro, abrirEdicao, tentarFecharModal,
+    processandoExclusao, erroExclusao, abrirCadastro, tentarFecharModal,
     aoSalvar, aoConfirmarExclusao, setModalAberto, toast,
     podeCadastrar, podeExcluir,
   } = useCadastroItens(produtos.recarregar)
@@ -86,11 +86,9 @@ export function useListaItens() {
     produtos,
     categorias,
     modelos,
-    modoDemonstracao,
     criado,
     limparSucesso,
     modalAberto,
-    editando,
     form,
     setForm,
     erros,
@@ -103,7 +101,6 @@ export function useListaItens() {
     processandoExclusao,
     erroExclusao,
     abrirCadastro,
-    abrirEdicao,
     tentarFecharModal,
     aoSalvar,
     aoConfirmarExclusao,

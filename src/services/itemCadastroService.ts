@@ -4,7 +4,7 @@ import type { CadastroItemEntrada, CadastroItemReal } from '../types/cadastroIte
 import type { ProdutoDetalhado } from '../types/produto'
 import { validarCadastroItemReal } from '../utils/validacaoItemReal'
 import { requisitarApiReal } from './apiReal'
-import { contextualizar } from './http'
+import { contextualizar } from './contextualizar'
 import { mapearItem } from './mapeadoresApi'
 
 export async function criarItemReal(entrada: CadastroItemEntrada): Promise<ProdutoDetalhado> {

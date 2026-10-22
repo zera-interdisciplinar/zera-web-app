@@ -1,7 +1,7 @@
 import type { SetStateAction } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { observarCatalogo } from '../services/catalogoEventos'
-import { acompanharDashboard } from '../services/dashboardService'
+import { acompanharDashboard } from '../services/dashboardSse'
 import type { FiltrosDashboard } from '../types/dashboardAnalytics'
 import type { EstadoLocalDashboardSse } from '../types/controles/EstadoLocalDashboardSse'
 

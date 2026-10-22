@@ -2,42 +2,29 @@ import type { FormEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { criarModeloReal, listarMateriais } from '../services/cadastroModeloService'
 import { invalidarCatalogo, observarCatalogo } from '../services/catalogoEventos'
-import { criarModelo, listarModelos } from '../services/modeloService'
+import { listarModelos } from '../services/modeloService'
 import { mensagemDeErro } from '../types/api'
 import type { CodigoMaterial } from '../types/cadastroModelo'
 import type { EstadoCadastroModelo, FormModelo, RetornoCadastroModelo } from '../types/formularioModelo'
 import type { Modelo } from '../types/modelo'
-import { validarNovoModelo } from '../utils/validacao'
 import { validarCadastroModeloReal } from '../utils/validacaoCadastroModelo'
-import { useAmbiente } from './useAmbiente'
 import { usePermissoes } from './usePermissoes'
 import { useRequisicao } from './useRequisicao'
 import { useToast } from './useToast'
 
 const FORM_INICIAL: FormModelo = {
-  nome: '', fabricante: '', categoriaId: '', vidaUtilMeses: '', especificacoes: '',
+  nome: '', fabricante: '', categoriaId: '', vidaUtilMeses: '',
   materiais: [], garantiaMeses: '', pesoEstimadoKg: '', observacoes: '', outroMaterial: '',
 }
 const ERROS_POR_CAMPO: Record<keyof FormModelo, string[]> = {
   nome: ['nome', 'name'], fabricante: ['fabricante', 'manufacturer'], categoriaId: ['categoriaId', 'categoryId'],
-  vidaUtilMeses: ['vidaUtilMeses', 'expectedLifespanMonths'], especificacoes: ['especificacoes'], materiais: ['materials'],
+  vidaUtilMeses: ['vidaUtilMeses', 'expectedLifespanMonths'], materiais: ['materials'],
   garantiaMeses: ['warrantyMonths'], pesoEstimadoKg: ['estimatedWeightKg'], observacoes: ['notes'],
   outroMaterial: ['outroMaterial', 'notes'],
 }
 
-function interpretarEspecificacoes(texto: string): Record<string, string> {
-  return Object.fromEntries(texto.split('\n').flatMap((linha) => {
-    const corte = linha.indexOf(':')
-    if (corte <= 0) return []
-    const chave = linha.slice(0, corte).trim()
-    const valor = linha.slice(corte + 1).trim()
-    return chave && valor ? [[chave, valor]] : []
-  }))
-}
-
 export function useCadastroModelo(aoConcluir?: (modelo: Modelo) => void): RetornoCadastroModelo {
   const { cadastrarModelo: permitido } = usePermissoes()
-  const { modoDemonstracao } = useAmbiente()
   const [estado, setEstado] = useState<EstadoCadastroModelo>({ modalAberto: false, form: FORM_INICIAL, erros: {}, enviando: false, erroEnvio: null })
   const [toast, mostrarToast] = useToast()
   // A referência estável evita reabrir a consulta em useRequisicao.
@@ -46,7 +33,7 @@ export function useCadastroModelo(aoConcluir?: (modelo: Modelo) => void): Retorn
   useEffect(() => observarCatalogo(modelos.recarregar), [modelos.recarregar])
   // A referência estável evita reabrir a consulta em useRequisicao.
   const buscarMateriais = useCallback((sinal: AbortSignal) => listarMateriais(sinal), [])
-  const materiais = useRequisicao(buscarMateriais, !modoDemonstracao)
+  const materiais = useRequisicao(buscarMateriais)
   const montado = useRef(false)
   const enviando = useRef(false)
   useEffect(() => {
@@ -77,14 +64,14 @@ export function useCadastroModelo(aoConcluir?: (modelo: Modelo) => void): Retorn
     evento.preventDefault()
     if (!permitido || enviando.current) return
     const { form } = estado
-    const validacao = modoDemonstracao
-      ? validarNovoModelo({ nome: form.nome, fabricante: form.fabricante, categoriaId: Number(form.categoriaId), vidaUtilMeses: Number(form.vidaUtilMeses), especificacoes: interpretarEspecificacoes(form.especificacoes) })
-      : validarCadastroModeloReal({ name: form.nome, manufacturer: form.fabricante, categoryId: form.categoriaId,
-        materials: form.materiais, notes: [form.materiais.includes('OTHER') && form.outroMaterial.trim() ? `Outro material: ${form.outroMaterial.trim()}` : '', form.observacoes].filter(Boolean).join('\n') || undefined,
-        warrantyMonths: form.garantiaMeses === '' ? undefined : Number(form.garantiaMeses),
-        expectedLifespanMonths: form.vidaUtilMeses === '' ? undefined : Number(form.vidaUtilMeses),
-        estimatedWeightKg: form.pesoEstimadoKg === '' ? undefined : Number(form.pesoEstimadoKg),
-      })
+    const validacao = validarCadastroModeloReal({
+      name: form.nome, manufacturer: form.fabricante, categoryId: form.categoriaId,
+      materials: form.materiais,
+      notes: [form.materiais.includes('OTHER') && form.outroMaterial.trim() ? `Outro material: ${form.outroMaterial.trim()}` : '', form.observacoes].filter(Boolean).join('\n') || undefined,
+      warrantyMonths: form.garantiaMeses === '' ? undefined : Number(form.garantiaMeses),
+      expectedLifespanMonths: form.vidaUtilMeses === '' ? undefined : Number(form.vidaUtilMeses),
+      estimatedWeightKg: form.pesoEstimadoKg === '' ? undefined : Number(form.pesoEstimadoKg),
+    })
     if (form.materiais.includes('OTHER') && !form.outroMaterial.trim()) {
       setEstado((atual) => ({ ...atual, erros: { ...validacao.erros, outroMaterial: 'Descreva o outro material.' } }))
       document.getElementById('modelo-outro-material')?.focus()
@@ -103,7 +90,7 @@ export function useCadastroModelo(aoConcluir?: (modelo: Modelo) => void): Retorn
     enviando.current = true
     setEstado((atual) => ({ ...atual, enviando: true }))
     try {
-      const criado = 'name' in validacao.dados ? await criarModeloReal(validacao.dados) : await criarModelo(validacao.dados)
+      const criado = await criarModeloReal(validacao.dados)
       invalidarCatalogo()
       aoConcluir?.(criado)
       if (!montado.current) return
@@ -117,5 +104,5 @@ export function useCadastroModelo(aoConcluir?: (modelo: Modelo) => void): Retorn
       if (montado.current) setEstado((atual) => ({ ...atual, enviando: false }))
     }
   }
-  return { ...estado, permitido, modoDemonstracao, modelos, materiais, toast, abrir, fechar, alterar, alternarMaterial, aoSalvar }
+  return { ...estado, permitido, modelos, materiais, toast, abrir, fechar, alterar, alternarMaterial, aoSalvar }
 }

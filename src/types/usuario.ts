@@ -1,4 +1,4 @@
-export type Perfil = 'funcionario' | 'gestor' | 'administrador'
+export type Perfil = 'funcionario' | 'gestor'
 
 export interface Usuario {
   id: number | string
@@ -15,22 +15,13 @@ export interface Credenciais {
 }
 
 export interface SessaoAutenticada {
-  demonstracao?: boolean
   usuario: Usuario
   expiraEm: string
-}
-
-export interface NovoUsuario {
-  nome: string
-  email: string
-  perfil: Perfil
-  unidade: string
 }
 
 export const ROTULO_PERFIL: Record<Perfil, string> = {
   funcionario: 'Funcionário',
   gestor: 'Gestor',
-  administrador: 'Administrador',
 }
 
 export function iniciais(nome: string): string {

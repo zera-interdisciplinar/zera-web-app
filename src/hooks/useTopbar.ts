@@ -1,18 +1,12 @@
-import { useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { listarUsuarios } from '../services/usuarioService'
 import { ROTULO_STATUS } from '../types/produto'
-import type { Usuario } from '../types/usuario'
 import { useAuth } from './useAuth'
 import { useCategorias } from './useCategorias'
 import { useMenuSuspenso } from './useMenuSuspenso'
-import { usePermissoes } from './usePermissoes'
-import { useRequisicao } from './useRequisicao'
 
 interface OpcaoFiltro { valor: string; rotulo: string }
 
 interface RetornoTopbar {
-  podeFiltrarResponsavel: boolean
   usuario: ReturnType<typeof useAuth>['usuario']
   filtros: FiltrosContexto
   filtrosSujos: boolean
@@ -25,18 +19,14 @@ interface RetornoTopbar {
   aoTeclarMenuConta: ReturnType<typeof useMenuSuspenso>['aoTeclarMenu']
   encerrarSessao: () => void
   opcoesCategoria: OpcaoFiltro[]
-  opcoesResponsavel: OpcaoFiltro[]
   periodos: OpcaoFiltro[]
   status: OpcaoFiltro[]
-  carregandoUsuarios: boolean
-  erroUsuarios: string | null
 }
 
 interface FiltrosContexto {
   periodo: string
   categoria: string
   status: string
-  responsavel: string
 }
 
 const PERIODOS = ['todo o período', 'últimos 6 meses', 'últimos 3 meses', 'último ano']
@@ -46,23 +36,17 @@ const FILTROS_PADRAO: FiltrosContexto = {
   periodo: PERIODOS[0],
   categoria: 'todas',
   status: 'todos',
-  responsavel: 'todos',
 }
 
 export function useTopbar(): RetornoTopbar {
   const { usuario, sair } = useAuth()
-  const { filtrarResponsavel: podeFiltrarResponsavel } = usePermissoes()
   const navegar = useNavigate()
   const categorias = useCategorias()
-  // A referência estável evita reabrir a consulta em useRequisicao.
-  const buscarUsuarios = useCallback((sinal: AbortSignal) => listarUsuarios(sinal), [])
-  const usuarios = useRequisicao<Usuario[]>(buscarUsuarios, podeFiltrarResponsavel)
   const [parametros] = useSearchParams()
   const filtros: FiltrosContexto = {
     periodo: parametros.get('periodo') ?? FILTROS_PADRAO.periodo,
     categoria: parametros.get('categoria') ?? FILTROS_PADRAO.categoria,
     status: parametros.get('status') ?? FILTROS_PADRAO.status,
-    responsavel: parametros.get('responsavel') ?? FILTROS_PADRAO.responsavel,
   }
   function aplicar(chave: keyof FiltrosContexto, valor: string) {
     const novos = new URLSearchParams(parametros)
@@ -73,8 +57,7 @@ export function useTopbar(): RetornoTopbar {
   const filtrosSujos =
     filtros.periodo !== FILTROS_PADRAO.periodo ||
     filtros.categoria !== FILTROS_PADRAO.categoria ||
-    filtros.status !== FILTROS_PADRAO.status ||
-    filtros.responsavel !== FILTROS_PADRAO.responsavel
+    filtros.status !== FILTROS_PADRAO.status
   const limparFiltros = () => navegar('/itens')
   const {
     aberto: contaAberta,
@@ -97,18 +80,12 @@ export function useTopbar(): RetornoTopbar {
       rotulo: categoria.nome,
     })),
   ]
-  const opcoesResponsavel = [
-    { valor: 'todos', rotulo: 'Todos os responsáveis' },
-    ...(usuarios.dados ?? []).map((pessoa) => ({ valor: pessoa.nome, rotulo: pessoa.nome })),
-  ]
 
   return {
-    usuario, filtros, filtrosSujos, aplicar, limparFiltros, contaAberta, podeFiltrarResponsavel,
+    usuario, filtros, filtrosSujos, aplicar, limparFiltros, contaAberta,
     gatilhoContaRef, menuContaRef, alternarConta, aoTeclarMenuConta,
-    encerrarSessao, opcoesCategoria, opcoesResponsavel,
+    encerrarSessao, opcoesCategoria,
     periodos: PERIODOS.map((periodo) => ({ valor: periodo, rotulo: periodo })),
     status: STATUS.map((status) => ({ valor: status, rotulo: ROTULO_STATUS[status as keyof typeof ROTULO_STATUS] ?? 'Todos' })),
-    carregandoUsuarios: usuarios.carregando,
-    erroUsuarios: usuarios.erro,
   }
 }

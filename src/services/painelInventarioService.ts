@@ -1,6 +1,6 @@
 import { ApiError } from '../types/api'
 import { requisitarApiReal } from './apiReal'
-import { contextualizar } from './http'
+import { contextualizar } from './contextualizar'
 
 export interface ResumoOperacional {
   activeItems: number

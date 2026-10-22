@@ -1,4 +1,4 @@
-import type { DashboardSnapshot, EventoSseDashboard, FiltrosDashboard } from '../types/dashboardAnalytics'
+import type { DashboardSnapshot, FiltrosDashboard } from '../types/dashboardAnalytics'
 import { criarUrlApi, expirarSessaoApi, obterSessaoApi } from './apiReal'
 import { ApiError } from '../types/api'
 
@@ -308,8 +308,4 @@ export async function acompanharDashboard(
       await esperar(Math.min(1000 * 2 ** Math.min(falhasDeRede - 1, 4), 15000), sinal)
     }
   }
-}
-
-export function ehEventoDashboard(evento: EventoSseDashboard): boolean {
-  return evento.event === 'snapshot' || evento.event === 'unavailable' || evento.event === 'error'
 }

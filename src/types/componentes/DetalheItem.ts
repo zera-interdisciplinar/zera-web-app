@@ -1,2 +1,2 @@
 
-export interface DetalheItemProps { produtoId: number | string }
+export interface DetalheItemProps { produtoId: string }

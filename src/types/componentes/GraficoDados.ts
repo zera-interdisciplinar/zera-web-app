@@ -7,5 +7,4 @@ export interface GraficoDadosProps {
   eixo: string
   vazio: string
   semDados?: string
-  demo?: boolean
 }

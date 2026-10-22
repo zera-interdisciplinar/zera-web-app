@@ -8,7 +8,7 @@ import { Formulario } from '../Formulario'
 import { Modal } from '../Modal'
 
 export function CadastroModelo({ cadastro, categorias }: CadastroModeloProps) {
-  const { materiais, modoDemonstracao, modalAberto, form, erros, enviando, erroEnvio, fechar, alterar, alternarMaterial, aoSalvar } = cadastro
+  const { materiais, modalAberto, form, erros, enviando, erroEnvio, fechar, alterar, alternarMaterial, aoSalvar } = cadastro
   return (
       <Modal aberto={modalAberto} titulo="Adicionar modelo" aoFechar={fechar}>
         <Formulario onSubmit={aoSalvar} noValidate>
@@ -18,9 +18,9 @@ export function CadastroModelo({ cadastro, categorias }: CadastroModeloProps) {
               rotulo="Modelo"
               valor={form.nome}
               aoMudar={(valor) => alterar('nome', valor)}
-              erro={erros.nome ?? erros.name}
+              erro={erros.name}
               placeholder="Ex: Inspiron 15 3000"
-              maxLength={modoDemonstracao ? 80 : 120}
+              maxLength={120}
               desabilitado={enviando}
             />
             <FieldCard
@@ -28,9 +28,9 @@ export function CadastroModelo({ cadastro, categorias }: CadastroModeloProps) {
               rotulo="Fabricante"
               valor={form.fabricante}
               aoMudar={(valor) => alterar('fabricante', valor)}
-              erro={erros.fabricante ?? erros.manufacturer}
+              erro={erros.manufacturer}
               placeholder="Ex: Dell"
-              maxLength={modoDemonstracao ? 60 : 120}
+              maxLength={120}
               desabilitado={enviando}
             />
             <FieldCard
@@ -39,7 +39,7 @@ export function CadastroModelo({ cadastro, categorias }: CadastroModeloProps) {
               tipo="select"
               valor={form.categoriaId}
               aoMudar={(valor) => alterar('categoriaId', valor)}
-              erro={erros.categoriaId ?? erros.categoryId}
+              erro={erros.categoryId}
               desabilitado={enviando}
               opcoes={[
                 { valor: '', rotulo: 'Selecione uma categoria' },
@@ -51,20 +51,15 @@ export function CadastroModelo({ cadastro, categorias }: CadastroModeloProps) {
             />
             <FieldCard
               id="modelo-vida-util"
-              rotulo={modoDemonstracao ? "Vida útil (meses)" : "Vida útil estimada (meses, opcional)"}
+              rotulo="Vida útil estimada (meses, opcional)"
               tipo="numero"
               valor={form.vidaUtilMeses}
               aoMudar={(valor) => alterar('vidaUtilMeses', valor)}
-              erro={erros.vidaUtilMeses ?? erros.expectedLifespanMonths}
+              erro={erros.expectedLifespanMonths}
               placeholder="Ex: 60"
               desabilitado={enviando}
             />
-            {modoDemonstracao ? <FieldCard
-              id="modelo-especificacoes" rotulo="Especificações" tipo="textarea"
-              valor={form.especificacoes} aoMudar={(valor) => alterar('especificacoes', valor)}
-              placeholder={'Uma por linha, no formato Chave: valor\nEx: Memória: 8 GB DDR4'}
-              desabilitado={enviando} maxLength={2000}
-            /> : <>
+            <>
               <fieldset id="modelo-materiais" tabIndex={-1} className={estilos.materiais} disabled={enviando}
                 aria-invalid={Boolean(erros.materials)}
                 aria-describedby={erros.materials ? 'modelo-materiais-erro' : 'modelo-materiais-ajuda'}>
@@ -90,7 +85,7 @@ export function CadastroModelo({ cadastro, categorias }: CadastroModeloProps) {
                 aoMudar={(valor) => alterar('pesoEstimadoKg', valor)} erro={erros.estimatedWeightKg} desabilitado={enviando} />
               <FieldCard id="modelo-observacoes" rotulo="Observações (opcional)" tipo="textarea" valor={form.observacoes}
                 aoMudar={(valor) => alterar('observacoes', valor)} erro={erros.notes} maxLength={500} desabilitado={enviando} />
-            </>}
+            </>
           </div>
 
           {erroEnvio && (

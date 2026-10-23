@@ -1,9 +1,9 @@
 import { ApiError } from '../types/api'
 import type { NovaRecicladora, Recicladora } from '../types/relatorio'
 import { validarNovaRecicladora } from '../utils/validacao'
-import { requisitarApiReal } from './apiReal'
+import { modoDemonstracao, requisitarApiReal } from './apiReal'
 import { ehObjeto, ehTexto, lerLista } from '../utils/guardasApi'
-import { contextualizar } from './http'
+import { contextualizar, requisitar } from './http'
 
 interface EmpresaReciclagem { id: string; name: string; cnpj: string; email: string | null }
 function empresaValida(valor: unknown): valor is EmpresaReciclagem {
@@ -33,5 +33,23 @@ export async function cadastrarEmpresaReciclagem(entrada: NovaRecicladora): Prom
     return mapear(valor)
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível cadastrar a recicladora.')
+  }
+}
+
+export async function listarRecicladoras(sinal?: AbortSignal): Promise<Recicladora[]> {
+  try {
+    if (!modoDemonstracao) return await listarEmpresasReciclagem(sinal)
+    return await requisitar<Recicladora[]>('/recyclers', { sinal })
+  } catch (erro) {
+    throw contextualizar(erro, 'Não foi possível carregar as cooperativas.')
+  }
+}
+
+export async function criarRecicladora(nova: NovaRecicladora): Promise<Recicladora> {
+  try {
+    if (!modoDemonstracao) return await cadastrarEmpresaReciclagem(nova)
+    return await requisitar<Recicladora>('/recyclers', { metodo: 'POST', corpo: nova })
+  } catch (erro) {
+    throw contextualizar(erro, 'Não foi possível cadastrar a cooperativa.')
   }
 }

@@ -3,9 +3,9 @@ import { useCallback, useMemo, useState } from 'react'
 import {
 enviarRelatorio,
 gerarPrevia,
-listarRecicladoras,
 listarRelatorios,
 } from '../services/relatorioService'
+import { listarRecicladoras } from '../services/recicladorasService'
 import { mensagemDeErro } from '../types/api'
 import type { EstadoLocalRelatorios } from '../types/controles/EstadoLocalRelatorios'
 import type { PreviaRelatorio, Recicladora, Relatorio } from '../types/relatorio'

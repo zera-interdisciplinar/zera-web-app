@@ -1,11 +1,10 @@
 import { lerItemApi } from '../utils/guardaItemApi'
-import { lerDescarteApi, ehLocalApi } from '../utils/guardaDescarteApi'
-import { lerLista } from '../utils/guardasApi'
+import { lerDescarteApi } from '../utils/guardaDescarteApi'
 import { ApiError } from '../types/api'
 import type { DisposalResponse } from '../types/apiReal'
 import type { ProdutoDetalhado } from '../types/produto'
-import type { BuscaLocaisReciclagem, LocalReciclagem, NovoDescarte } from '../types/descarte'
-import { validarBuscaLocais, validarNovoDescarte } from '../utils/validacaoDescarte'
+import type { NovoDescarte } from '../types/descarte'
+import { validarNovoDescarte } from '../utils/validacaoDescarte'
 import { listarPaginas, requisitarApiReal } from './apiReal'
 import { contextualizar } from './http'
 import { mapearItem } from './mapeadoresApi'
@@ -28,19 +27,5 @@ export async function registrarDescarte(entrada: NovoDescarte): Promise<Disposal
     }))
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível registrar o descarte.')
-  }
-}
-
-export async function buscarLocaisReciclagem(entrada: BuscaLocaisReciclagem, sinal?: AbortSignal): Promise<LocalReciclagem[]> {
-  try {
-    const validacao = validarBuscaLocais(entrada)
-    if (!validacao.valido) throw new ApiError(Object.values(validacao.erros)[0] ?? 'Revise a localização.', 422)
-    const { lat, lng, radiusMeters } = validacao.dados
-    const params = new URLSearchParams({ lat: String(lat), lng: String(lng) })
-    if (radiusMeters !== undefined) params.set('radiusMeters', String(radiusMeters))
-    const locais = await requisitarApiReal<unknown>('administrative', `/api/v1/recycling-places?${params}`, { sinal })
-    return lerLista(locais, ehLocalApi).map(({ placeId, name, address, lat: latitude, lng: longitude, distanceMeters, isOpen, description, openingHours }) => ({ placeId, name, address, lat: latitude, lng: longitude, distanceMeters, isOpen, description, openingHours }))
-  } catch (erro) {
-    throw contextualizar(erro, 'Não foi possível consultar os pontos de reciclagem.')
   }
 }

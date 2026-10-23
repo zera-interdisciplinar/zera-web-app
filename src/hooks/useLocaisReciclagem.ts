@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { buscarLocaisReciclagem } from '../services/descarteService'
+import { buscarLocaisReciclagem } from '../services/locaisReciclagemService'
 import { validarBuscaLocais } from '../utils/validacaoDescarte'
 import { mensagemDeErro } from '../types/api'
 import type { EstadoBuscaLocais, FormBuscaLocais, RetornoBuscaLocais } from '../types/locaisReciclagem'

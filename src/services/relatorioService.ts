@@ -1,30 +1,6 @@
-import type {
-  NovaRecicladora,
-  PreviaRelatorio,
-  Recicladora,
-  Relatorio,
-} from '../types/relatorio'
+import type { PreviaRelatorio, Relatorio } from '../types/relatorio'
 import { contextualizar, requisitar } from './http'
 import { modoDemonstracao } from './apiReal'
-import { listarEmpresasReciclagem, cadastrarEmpresaReciclagem } from './recicladoraService'
-
-export async function listarRecicladoras(sinal?: AbortSignal): Promise<Recicladora[]> {
-  try {
-    if (!modoDemonstracao) return await listarEmpresasReciclagem(sinal)
-    return await requisitar<Recicladora[]>('/recyclers', { sinal })
-  } catch (erro) {
-    throw contextualizar(erro, 'Não foi possível carregar as cooperativas.')
-  }
-}
-
-export async function criarRecicladora(nova: NovaRecicladora): Promise<Recicladora> {
-  try {
-    if (!modoDemonstracao) return await cadastrarEmpresaReciclagem(nova)
-    return await requisitar<Recicladora>('/recyclers', { metodo: 'POST', corpo: nova })
-  } catch (erro) {
-    throw contextualizar(erro, 'Não foi possível cadastrar a cooperativa.')
-  }
-}
 
 export async function listarRelatorios(sinal?: AbortSignal): Promise<Relatorio[]> {
   try {

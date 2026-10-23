@@ -1,7 +1,7 @@
 import type { SetStateAction } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { modoDemonstracao } from '../services/apiReal'
-import { criarRecicladora, listarRecicladoras } from '../services/relatorioService'
+import { criarRecicladora, listarRecicladoras } from '../services/recicladorasService'
 import { mensagemDeErro } from '../types/api'
 import type { EstadoLocalCadastroRecicladoras } from '../types/controles/EstadoLocalCadastroRecicladoras'
 import type { NovaRecicladora, Recicladora } from '../types/relatorio'

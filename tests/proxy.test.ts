@@ -1,10 +1,8 @@
 import { createServer, request as httpRequest } from 'node:http'
 import type { AddressInfo } from 'node:net'
-import { readFileSync } from 'node:fs'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createProxy } from '../server/proxy.mjs'
-import vercelHandler from '../api/proxy'
-import { proxyConfig, parseProxyPort, restoreProxyPath } from '../server/config.mjs'
+import { proxyConfig, parseProxyPort } from '../server/config.mjs'
 
 const servers: ReturnType<typeof createServer>[] = []
 
@@ -34,33 +32,9 @@ describe('proxy configuration', () => {
     expect(proxyConfig({ ZERA_INVENTORY_URL: 'https://inventory.example.invalid', ZERA_INVENTORY_API_ORIGIN: 'https://old.example.invalid' }).inventory).toBe('https://inventory.example.invalid')
     expect(proxyConfig({ ZERA_INVENTORY_API_ORIGIN: 'https://old.example.invalid' }).inventory).toBe('https://old.example.invalid')
   })
-
-  it('restores the rewritten destination, keeps filters and refuses injected destinations', () => {
-    const query = new URLSearchParams({ __zera_service: 'inventory', __zera_path: 'api/v1/items/A%2FB', page: '2' })
-    expect(restoreProxyPath(`/api/proxy?${query}`)).toBe('/api/inventory/api/v1/items/A%2FB?page=2')
-    expect(restoreProxyPath('/api/proxy?__zera_service=https%3A%2F%2Fevil.invalid&__zera_path=health')).toBe('/invalid-route')
-    expect(restoreProxyPath('/api/proxy?__zera_service=inventory&__zera_service=analytics&__zera_path=health')).toBe('/invalid-route')
-  })
-
-  it('declares the explicit rewrite used by Vercel', () => {
-    const deployment = JSON.parse(readFileSync(new URL('../vercel.json', import.meta.url), 'utf8'))
-    expect(deployment.rewrites).toContainEqual({ source: '/api/:service(administrative|inventory|analytics)/:path*', destination: '/api/proxy?__zera_service=:service&__zera_path=:path*' })
-  })
 })
 
 describe('forwarding', () => {
-  it('routes the Vercel rewrite to the upstream and preserves filters', async () => {
-    const upstream = await start((req, res) => {
-      expect(req.url).toBe('/api/v1/models?page=2&size=20')
-      res.writeHead(200); res.end('{}')
-    })
-    vi.stubEnv('ZERA_INVENTORY_URL', upstream)
-    vi.stubEnv('ZERA_APP_API_KEY', crypto.randomUUID())
-    const proxy = await start(vercelHandler)
-    expect((await fetch(`${proxy}/api/proxy?__zera_service=inventory&__zera_path=api%2Fv1%2Fmodels&page=2&size=20`)).status).toBe(200)
-    expect((await fetch(`${proxy}/api/proxy?__zera_service=https%3A%2F%2Fevil.invalid&__zera_path=health`)).status).toBe(404)
-  })
-
   it.each([401, 503])('preserves the HTTP %s of the login and injects the key without exposing it', async (status) => {
     const key = crypto.randomUUID()
     const upstream = await start(async (req, res) => {
@@ -107,7 +81,7 @@ describe('forwarding', () => {
     ])
   })
 
-  it('serves SSE through the Vercel function before the response ends and cancels the upstream on exit', async () => {
+  it('serves SSE before the response ends and cancels the upstream on exit', async () => {
     const key = crypto.randomUUID()
     let disconnected = false
     const upstream = await start((req, res) => {
@@ -119,9 +93,7 @@ describe('forwarding', () => {
       res.writeHead(200, { 'Content-Type': 'text/event-stream' })
       res.write('event: unavailable\ndata: {"detail":"snapshot not ready"}\n\n')
     })
-    vi.stubEnv('ZERA_ANALYTICS_URL', `${upstream}/qa/analytics`)
-    vi.stubEnv('ZERA_APP_API_KEY', key)
-    const proxy = await start(vercelHandler)
+    const proxy = await start(createProxy({ analytics: `${upstream}/qa/analytics`, apiKey: key }))
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 2000)
     try {

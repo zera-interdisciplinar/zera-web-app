@@ -11,7 +11,6 @@ const contas = [
   { perfil: 'funcionario', email: env.ZERA_QA_FUNCIONARIO_EMAIL || env.QA_OPERADOR_EMAIL || env.QA_OPERARIO_EMAIL, senha: env.ZERA_QA_FUNCIONARIO_PASSWORD || env.QA_OPERADOR_PASSWORD || env.QA_OPERARIO_PASSWORD },
 ]
 const sites = [
-  { nome: 'vercel', url: 'https://zera-web-app-kappa.vercel.app', hash: false },
   { nome: 'pages', url: 'https://zera-interdisciplinar.github.io/zera-web-app/', hash: true },
   ...(process.env.ZERA_QA_LOCAL_URL ? [{ nome: 'clone-limpo', url: process.env.ZERA_QA_LOCAL_URL, hash: false }] : []),
 ]

@@ -10,7 +10,7 @@ import { useLogin } from '../../hooks/useLogin'
 const emailContato = 'zera.interdisciplinar@gmail.com'
 
 export default function LoginPage() {
-  const { entrando, erro, paginaEstatica, formulario, erros, mostrarErro, bloqueio, aoEnviar, alterarCampo } = useLogin()
+  const { entrando, erro, formulario, erros, mostrarErro, bloqueio, aoEnviar, alterarCampo } = useLogin()
 
   return (
     <>
@@ -77,7 +77,6 @@ export default function LoginPage() {
                     {erro}
                   </p>
                 )}
-                {mostrarErro && erro && paginaEstatica && <p>Se não conseguir entrar por esta versão, <a href="https://zera-web-app-kappa.vercel.app/login">acesse o Zera na Vercel</a> e tente novamente.</p>}
 
                 {bloqueio.restante > 0 && (
                   <p className={estilos.contador} role="status" aria-live="polite">

@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       {
-        // Same allowlisted proxy that runs on Vercel, so dev and production cannot diverge.
+        // The same allowlisted proxy served by `npm run api:proxy`, so dev and standalone cannot diverge.
         name: 'zera-api-proxy',
         configureServer(server) {
           server.middlewares.use((req, res, next) => {

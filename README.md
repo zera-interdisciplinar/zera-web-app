@@ -2,7 +2,7 @@
 
 Aplicação web para acompanhar equipamentos eletrônicos, do cadastro ao descarte.
 
-[Vercel](https://zera-web-app-kappa.vercel.app) · [GitHub Pages](https://zera-interdisciplinar.github.io/zera-web-app/)
+[GitHub Pages](https://zera-interdisciplinar.github.io/zera-web-app/)
 
 ## Rodar localmente
 

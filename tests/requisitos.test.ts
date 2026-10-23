@@ -146,12 +146,12 @@ it('Req 12: estados da requisição distinguem carregamento, dados e erro', () =
   checagemEstatica()
 })
 
-it('Req 13: README contém os dois links e as publicações respondem HTTP 200', async () => {
+it('Req 13: README contém o link da publicação e ela responde HTTP 200', async () => {
   const readme = ler('README.md')
-  const urls = ['https://zera-web-app-kappa.vercel.app', 'https://zera-interdisciplinar.github.io/zera-web-app/']
+  const urls = ['https://zera-interdisciplinar.github.io/zera-web-app/']
   for (const url of urls) expect(readme).toContain(url)
   const respostas = await Promise.all(urls.map(url => fetch(url, { signal: AbortSignal.timeout(15_000) })))
-  expect(respostas.map(resposta => resposta.status)).toEqual([200, 200])
+  expect(respostas.map(resposta => resposta.status)).toEqual([200])
 }, 20_000)
 
 it('Req 14: histórico disponível tem ao menos vinte commits convencionais', () => {

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 | --- | --- |
-| Status | **Aprovada**: todas as decisões de 31/10/2026 incorporadas (seção 13); sem perguntas em aberto |
+| Status | **Aprovada**: decisões de 31/10/2026 incorporadas (seção 13); resta a Q-15 (destino de publicação), que só bloqueia o PR 9 |
 | Data | 2026-10-31 |
 | Repositório | `zera-interdisciplinar/zera-web-app` (branch base `main` @ `45f7163`) |
 | Público | Quem vai implementar a reformulação (front-end) e quem revisa os PRs |
@@ -233,7 +233,7 @@ O dashboard usa `shared/api/sseClient` com o mesmo cabeçalho e a mesma polític
 
 | Camada | Onde | Garante |
 | --- | --- | --- |
-| **L1 — Proxy** | `server/proxy.mjs` (único; reutilizado no Vite dev e na Vercel) | **Allowlist** de rotas por serviço e método (7.2). Injeta a `apiKey`. CORS restrito. Recusa `access_token` na query. Corpo ≤ 64 KB. Repassa SSE sem buffer. Responde `404` a tudo que não estiver na allowlist (BR-03/04). |
+| **L1 — Proxy** | `server/proxy.mjs` (único; reutilizado no Vite dev e no `npm run api:proxy`) | **Allowlist** de rotas por serviço e método (7.2). Injeta a `apiKey`. CORS restrito. Recusa `access_token` na query. Corpo ≤ 64 KB. Repassa SSE sem buffer. Responde `404` a tudo que não estiver na allowlist (BR-03/04). |
 | **L2 — Cliente HTTP / SSE** | `shared/api/` | Base por serviço, `Authorization`, `X-Unit-Id`, timeout de 15 s, retry só em `GET` para 502/503/504 (máx. 2, backoff 300 → 600 ms), `redirect: 'error'`, `credentials: 'omit'`. `401` faz **um** refresh (single-flight) e repete; o segundo `401` encerra a sessão (BR-20). `ProblemDetail` (RFC 9457) vira `ApiError { status, title, detail, fieldErrors?, missingFields? }`. |
 | **L3 — Schema** | `features/*/schemas` | `zod.parse` em toda resposta; falha vira `ApiError(kind: 'contract')`. Datas ISO validadas, enums fechados (5.4), `null` preservado. |
 | **L4 — Domínio** | `features/*/model` | Mappers puros DTO → domínio, sem efeito colateral e sem "default inventado" (nada de `'Não informado'` no mapper; isso é papel da UI). |
@@ -258,11 +258,11 @@ O dashboard usa `shared/api/sseClient` com o mesmo cabeçalho e a mesma polític
 | `ZERA_ANALYTICS_URL` | `https://www.zeratech.online/qa/analytics` |
 | `ZERA_APP_API_KEY` | segredo; nunca no repositório |
 
-- **Uma implementação só** (`server/proxy.mjs`). O Vite dev a monta como middleware (`configureServer`), no lugar da lógica duplicada em [vite.config.ts](../../vite.config.ts). A Vercel a usa via `api/proxy.ts`.
+- **Uma implementação só** (`server/proxy.mjs`). O Vite dev a monta como middleware (`configureServer`), no lugar da lógica duplicada em [vite.config.ts](../../vite.config.ts).  O mesmo código roda como servidor autônomo (`npm run api:proxy`).
 - Remover o filtro de `EMPLOYEE` (decodificação de JWT e `createdBy`), que é inútil com BR-01.
 - `POST /items/{id}/photo` (multipart) fica fora da allowlist (D-11); por isso o limite de corpo de 64 KB se mantém.
-- SSE na Vercel: `maxDuration = 300 s`. O cliente **deve** reconectar quando o stream terminar (7.4).
-- **Deploy só na Vercel** (D-06). O GitHub Pages sai (seção 12, PR 9).
+- O cliente **deve** reconectar quando o stream terminar (7.4): proxies intermediários podem encerrar conexões longas.
+- **Sem deploy na Vercel** (D-12): `api/proxy.ts` e `vercel.json` foram removidos no PR 2. O destino de publicação está em aberto (Q-15).
 - `.env.example`: `VITE_*_URL` relativos (`/api/analytics` etc.) e as variáveis `ZERA_*` acima, com os valores do QA e sem a chave.
 
 ### 7.2 Allowlist do proxy (L1)
@@ -307,7 +307,7 @@ Limitação conhecida: fechar a aba não revoga o refresh token no servidor (nã
   - `error` → mostrar `detail` e encerrar;
   - `: heartbeat` → ignorado, mas reinicia o timer de inatividade (90 s).
 - **A conexão permanece aberta.** Fechar depois do primeiro snapshot (como hoje) é proibido.
-- Queda, fim do stream (incluindo os 300 s da Vercel) ou inatividade: reconectar com backoff de 1 s, 2 s, 4 s… até no máximo 30 s, mantendo o último snapshot na tela com o selo "Reconectando…".
+- Queda, fim do stream (incluindo limites de tempo de proxies intermediários) ou inatividade: reconectar com backoff de 1 s, 2 s, 4 s… até no máximo 30 s, mantendo o último snapshot na tela com o selo "Reconectando…".
 - Filtro novo: abortar a conexão e abrir outra (BR-06).
 - HTTP antes do stream:
   - `400` → erro de filtro, sem reconexão;
@@ -561,7 +561,7 @@ As preferências ficam em `localStorage['zera.a11y.v1']`, validadas por zod; pre
 | Código morto | [KpiCard](../../src/components/KpiCard/index.tsx), [ChartCard](../../src/components/DashboardTabs/ChartCard/index.tsx), [DashboardTabs/index.tsx](../../src/components/DashboardTabs/index.tsx), [usePreferenciasInventario.ts](../../src/hooks/usePreferenciasInventario.ts) |
 | Regras de lint que geram boilerplate | Em [check-project.mjs](../../scripts/check-project.mjs): "agrupe o estado relacionado", "useCallback/useMemo sem justificativa", "props precisam de interface em types" |
 | Testes do demo | `tests/dashboardDemo.test.ts`, `tests/demoUsers.test.ts`, `tests/envDemo.ts`, `tests/mocks/demoUsers.ts`, handlers MSW de rotas inexistentes (`/dashboard/summary`, `/alerts/batches`, `/disposal-reports`, `/settings`, `/maintenances`, `/triage`) |
-| GitHub Pages (D-06) | Job `deploy`, build com `--base` e `VITE_ROUTER_MODE=hash` em [.github/workflows/pages.yml](../../.github/workflows/pages.yml); `HashRouter` em [App.tsx](../../src/App.tsx); [usePublicacao.ts](../../src/hooks/usePublicacao.ts); link do Pages no [README.md](../../README.md) |
+| GitHub Pages (**suspenso**, depende da Q-15) | Job `deploy`, build com `--base` e `VITE_ROUTER_MODE=hash` em [.github/workflows/pages.yml](../../.github/workflows/pages.yml); `HashRouter` em [App.tsx](../../src/App.tsx); [usePublicacao.ts](../../src/hooks/usePublicacao.ts); link do Pages no [README.md](../../README.md) |
 
 A pasta `src/` inteira é migrada para a estrutura da 5.2. Lógica aproveitável é **portada e renomeada**, não copiada:
 
@@ -618,7 +618,7 @@ A pasta `src/` inteira é migrada para a estrutura da 5.2. Lógica aproveitável
 
 ### 12.3 CI
 
-`npm ci` → `check` → `lint` → `typecheck` → `test --coverage` → `build` → Playwright (projeto `mocked` sempre; projeto `live-qa` só com `ZERA_RUN_LIVE_QA=true` e secrets de conta gestor e conta funcionário — a de funcionário prova o BR-01 contra o QA). Deploy só pela integração da Vercel (D-06).
+`npm ci` → `check` → `lint` → `typecheck` → `test --coverage` → `build` → Playwright (projeto `mocked` sempre; projeto `live-qa` só com `ZERA_RUN_LIVE_QA=true` e secrets de conta gestor e conta funcionário — a de funcionário prova o BR-01 contra o QA). O deploy depende da Q-15.
 
 ---
 
@@ -633,7 +633,8 @@ A pasta `src/` inteira é migrada para a estrutura da 5.2. Lógica aproveitável
 | D-03 | Meta de circularidade? | Não existe; remover. |
 | D-04 | Card inferior do dashboard? | Proposta aceita: por categoria + por situação + alertas por gravidade, tudo do snapshot. |
 | D-05 | Sessão sobrevive a F5? | Sim, com o refresh token em `sessionStorage`; **encerrar sessão sempre via `POST /auth/logout`** (BR-20, BR-21). |
-| D-06 | Descontinuar o GitHub Pages? | Sim; só Vercel. |
+| D-06 | Descontinuar o GitHub Pages? | **Superada por D-12/Q-15**: a opção era "só Vercel", e a Vercel saiu. O Pages permanece até a Q-15 ser respondida. |
+| D-12 | Deploy na Vercel? | Não: foi um erro do colega. Removidos `api/proxy.ts`, `vercel.json`, o link e as variáveis `VERCEL_*`. |
 | D-07 | Barra de acessibilidade? | Mantida e corrigida (seção 10). |
 | D-08 | Filtros de `GET /items`? | Vale o código do `ms-inventory` (`q`, `status`, `categoryId`, `modelId`, `eligibleForDisposal`). Corrigir o Confluence pág. 3. |
 | D-09 | Origem do código de barras no cadastro web? | Digitado pelo gestor; sem geração nem câmera. |
@@ -643,7 +644,11 @@ A pasta `src/` inteira é migrada para a estrutura da 5.2. Lógica aproveitável
 
 ### 13.2 Perguntas restantes
 
-Nenhuma. Uma dúvida nova durante a implementação entra aqui como `Q-15` em diante, com suposição padrão e o PR que ela bloqueia.
+| ID | Pergunta | Por que a documentação não resolve | Suposição padrão | Bloqueia |
+| --- | --- | --- | --- | --- |
+| **Q-15** | Onde o front será publicado, e quem injeta a `apiKey` do gateway Kong? Sem a Vercel, o GitHub Pages serve só arquivos estáticos e não pode guardar a chave. | O browser nunca deve conhecer a chave (BR-23); alguém precisa rodar o proxy. | Publicar `dist/` e `server/proxy.mjs` juntos em um host Node do time (ou atrás do Kong, que pode injetar a chave) | PR 9 |
+
+Uma dúvida nova durante a implementação entra aqui como `Q-16` em diante, com suposição padrão e o PR que ela bloqueia.
 
 ---
 
@@ -661,7 +666,7 @@ Cada PR é mergeável sozinho e mantém a `main` verde.
 | 6 | `feat(dashboard): overview from analytics SSE` | 7.4 + 8.2; sem agregação no cliente | T-05, T-06, T-07, T-08, T-26 |
 | 7 | `feat(items): list, create, edit, remove and manager decisions` | 8.3, BR-10 a BR-15 | T-10 a T-15 |
 | 8 | `feat: models, categories and stock capacity settings` | 8.4, 8.5, BR-16 a BR-18 | T-16, T-17, T-18, T-24 |
-| 9 | `chore(ci): boundaries lint, coverage, drop GitHub Pages` | 12.1, 12.3, D-06 | CI completo verde; workflow do Pages removido |
+| 9 | `chore(ci): boundaries lint, coverage, deploy target` | 12.1, 12.3, Q-15 | CI completo verde; workflow de publicação conforme a Q-15 |
 
 ---
 

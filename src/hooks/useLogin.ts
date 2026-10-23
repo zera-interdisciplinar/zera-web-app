@@ -6,13 +6,11 @@ import type { Credenciais } from '../types/usuario'
 import { destinoAposLogin } from '../utils/destinoLogin'
 import { validarCredenciais } from '../utils/validacao'
 import { useAuth } from './useAuth'
-import { usePublicacao } from './usePublicacao'
 
 export function useLogin() {
   const { entrar, entrando, erro, autenticado } = useAuth()
   const navegar = useNavigate()
   const localizacao = useLocation()
-  const { paginaEstatica } = usePublicacao()
   const [estadoLocal, setEstadoLocal] = useState<EstadoLocalLogin>(() => ({
     formulario: { email: '', senha: '' },
     erros: {},
@@ -99,5 +97,5 @@ export function useLogin() {
     setMostrarErro(false)
     setErros((atuais) => ({ ...atuais, [campo]: undefined }))
   }
-  return { entrando, erro, paginaEstatica, formulario, erros, mostrarErro, bloqueio, aoEnviar, alterarCampo }
+  return { entrando, erro, formulario, erros, mostrarErro, bloqueio, aoEnviar, alterarCampo }
 }

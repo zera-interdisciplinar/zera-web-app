@@ -16,11 +16,14 @@ for (const arquivo of listar('src')) {
   const codigo = ts.createSourceFile(arquivo, texto, ts.ScriptTarget.Latest, true)
   const vista = /src\/(components|pages)\//.test(arquivo)
   if (/@ts-ignore\b/.test(texto)) problemas.push(`${arquivo}: supressão @ts-ignore`)
+  // Camadas novas (docs/specs/web-manager-refactor.md, 5.2): shared não depende de features nem de app.
+  if (arquivo.startsWith('src/shared/') && /from ['"](?:\.\.\/)+(?:features|app)\//.test(texto)) problemas.push(`${arquivo}: shared importa features ou app`)
+  if (arquivo.startsWith('src/') && /from ['"]msw(?:\/|['"])/.test(texto)) problemas.push(`${arquivo}: msw só é permitido em tests/`)
   if (vista && arquivo.endsWith('.tsx') && !arquivo.endsWith('/index.tsx')) problemas.push(`${arquivo}: componente sem pasta própria e index.tsx`)
   function visitar(no) {
     if (no.kind === ts.SyntaxKind.AnyKeyword) problemas.push(`${arquivo}: tipo any`)
-    if (ts.isCallExpression(no) && ts.isIdentifier(no.expression) && no.expression.text === 'fetch' && !arquivo.startsWith('src/services/')) problemas.push(`${arquivo}: fetch fora de services`)
-    if (ts.isCallExpression(no) && ts.isPropertyAccessExpression(no.expression) && ['window', 'globalThis'].includes(no.expression.expression.getText(codigo)) && no.expression.name.text === 'fetch' && !arquivo.startsWith('src/services/')) problemas.push(`${arquivo}: fetch fora de services`)
+    if (ts.isCallExpression(no) && ts.isIdentifier(no.expression) && no.expression.text === 'fetch' && !arquivo.startsWith('src/services/') && !arquivo.startsWith('src/shared/api/')) problemas.push(`${arquivo}: fetch fora de services`)
+    if (ts.isCallExpression(no) && ts.isPropertyAccessExpression(no.expression) && ['window', 'globalThis'].includes(no.expression.expression.getText(codigo)) && no.expression.name.text === 'fetch' && !arquivo.startsWith('src/services/') && !arquivo.startsWith('src/shared/api/')) problemas.push(`${arquivo}: fetch fora de services`)
     if (ts.isCallExpression(no) && ts.isIdentifier(no.expression) && no.expression.text === 'alert') problemas.push(`${arquivo}: alert fora do DOM`)
     if (ts.isPropertyAccessExpression(no) && no.expression.getText(codigo) === 'window' && no.name.text === 'location') problemas.push(`${arquivo}: window.location`)
     if (ts.isPropertyAccessExpression(no) && no.name.text === 'localStorage' && arquivo !== 'src/utils/storage.ts') problemas.push(`${arquivo}: localStorage fora de storage.ts`)

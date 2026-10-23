@@ -1,10 +1,10 @@
-import emblema from '../../assets/z-mark.png'
 import estilos from '../../../styles/components/BarraAcessibilidade/BarraAcessibilidade.module.css'
 import { useControleAcessibilidade } from '../../hooks/useControleAcessibilidade'
 import type { SimulacaoCores } from '../../types/acessibilidade'
 import { LeituraConteudo } from '../LeituraConteudo'
 
 const tamanhos = [100, 115, 130, 150, 200]
+const emblema = `${import.meta.env.BASE_URL}assets/z-mark.png`
 
 export function BarraAcessibilidade() {
   const {

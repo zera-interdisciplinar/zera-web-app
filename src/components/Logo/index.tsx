@@ -1,9 +1,10 @@
 import type { LogoProps } from '../../types/componentes/Logo'
 export type { LogoProps } from '../../types/componentes/Logo'
-import wordmark from '../../assets/logo-zera.png'
-import wordmarkClaro from '../../assets/logo-zera-claro.png'
-import zMark from '../../assets/z-mark.png'
 import estilos from '../../../styles/components/Logo/Logo.module.css'
+
+const wordmark = `${import.meta.env.BASE_URL}assets/logo-zera.png`
+const wordmarkClaro = `${import.meta.env.BASE_URL}assets/logo-zera-claro.png`
+const zMark = `${import.meta.env.BASE_URL}assets/z-mark.png`
 
 export function Logo({ variante = 'wordmark', tom = 'padrao' }: LogoProps) {
   if (variante === 'marca') {

@@ -45,13 +45,11 @@ describe('cliente das APIs reais', () => {
     await expect(requisitarApiReal('administrative', '/api/v1/auth/login', { metodo: 'POST', autenticada: false })).rejects.toThrow('não está configurada')
     expect(busca).not.toHaveBeenCalled()
   })
-  it('recusa transporte HTTP remoto antes de chamar fetch', async () => {
+  it('recusa a base HTTP remota na configuração, antes de qualquer chamada', async () => {
     vi.stubEnv('VITE_ADMIN_API_URL', 'http://example.invalid/qa/administrative/swagger-ui')
-    vi.stubGlobal('window', { location: { origin: 'http://localhost:5173' } })
     const busca = vi.fn()
     vi.stubGlobal('fetch', busca)
-    const { requisitarApiReal } = await import('../src/services/apiReal')
-    await expect(requisitarApiReal('administrative', '/api/v1/auth/login', { metodo: 'POST', autenticada: false })).rejects.toThrow('sem HTTPS')
+    await expect(import('../src/services/apiReal')).rejects.toThrow('Invalid environment configuration')
     expect(busca).not.toHaveBeenCalled()
   })
 

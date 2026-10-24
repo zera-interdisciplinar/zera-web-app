@@ -1,6 +1,7 @@
 import { ApiError } from '../types/api'
 import { sanitizarObjeto } from '../utils/sanitizacao'
 import { ehPagina } from '../utils/guardasApi'
+import { sessionManager, sessionStore } from '../shared/auth'
 import type { Pagina } from '../types/apiReal'
 
 type Recurso = 'administrative' | 'inventory'
@@ -10,28 +11,26 @@ const bases: Record<Recurso, string | undefined> = {
   inventory: import.meta.env.VITE_INVENTORY_API_URL ?? '/api/inventory',
 }
 
-let accessToken: string | null = null
-let unitId: string | null = null
-const aoExpirar = new Set<() => void>()
-
+// Ponte temporária: os serviços legados ainda leem a sessão daqui; a fonte única é shared/auth.
 export function observarExpiracaoSessao(observador: () => void): () => void {
-  aoExpirar.add(observador)
-  return () => { aoExpirar.delete(observador) }
-}
-
-export function definirSessaoApi(token: string | null, unidade: string | null) {
-  accessToken = token
-  unitId = unidade
+  return sessionStore.onExpired(observador)
 }
 
 export function obterSessaoApi(): { accessToken: string | null; unitId: string | null } {
-  return { accessToken, unitId }
+  const sessao = sessionStore.getState().session
+  return { accessToken: sessao?.accessToken ?? null, unitId: sessao?.user.unitId || null }
 }
 
 export function expirarSessaoApi(tokenEsperado: string | null) {
-  if (!tokenEsperado || accessToken !== tokenEsperado) return
-  definirSessaoApi(null, null)
-  aoExpirar.forEach((observador) => observador())
+  if (!tokenEsperado || obterSessaoApi().accessToken !== tokenEsperado) return
+  void sessionManager.signOut('expired')
+}
+
+/** Somente para testes: instala (ou remove) uma sessão sem passar pelo login. */
+export function definirSessaoApi(token: string | null, unidade: string | null) {
+  sessionStore.setState(token
+    ? { status: 'authenticated', notice: null, session: { accessToken: token, refreshToken: '', expiresAt: Number.MAX_SAFE_INTEGER, user: { id: 'teste', name: '', email: '', role: 'MANAGER', unitId: unidade ?? '' } } }
+    : { status: 'anonymous', notice: null, session: null })
 }
 
 export function criarUrlApi(caminho: string, base: string): URL {
@@ -82,6 +81,7 @@ export async function requisitarApiReal<T>(recurso: Recurso, caminho: string, op
   if (url.protocol !== 'https:' && !(import.meta.env.DEV && local && url.protocol === 'http:')) {
     throw new ApiError('API remota sem HTTPS. Credenciais e dados não serão enviados por HTTP.', 0)
   }
+  const { accessToken, unitId } = obterSessaoApi()
   if (opcoes.autenticada !== false && !accessToken) throw new ApiError('Sessão expirada. Entre novamente.', 401)
   if (opcoes.unidade && !unitId) throw new ApiError('A conta não possui unidade de inventário.', 0)
   const tokenDaRequisicao = accessToken

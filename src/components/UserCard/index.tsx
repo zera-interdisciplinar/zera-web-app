@@ -20,7 +20,7 @@ export function UserCard({ nome, cargo, iniciais: sigla }: UserCardProps) {
 
   function encerrarSessao() {
     fechar()
-    sair()
+    void sair()
     navegar('/login')
   }
 

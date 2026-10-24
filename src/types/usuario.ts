@@ -1,4 +1,4 @@
-export type Perfil = 'funcionario' | 'gestor'
+export type Perfil = 'gestor'
 
 export interface Usuario {
   id: number | string
@@ -9,18 +9,7 @@ export interface Usuario {
   cargo?: string
 }
 
-export interface Credenciais {
-  email: string
-  senha: string
-}
-
-export interface SessaoAutenticada {
-  usuario: Usuario
-  expiraEm: string
-}
-
 export const ROTULO_PERFIL: Record<Perfil, string> = {
-  funcionario: 'Funcionário',
   gestor: 'Gestor',
 }
 
@@ -34,9 +23,8 @@ export function iniciais(nome: string): string {
 export interface ValorAuth {
   usuario: Usuario | null
   autenticado: boolean
-  entrando: boolean
-  erro: string | null
-  entrar: (credenciais: Credenciais) => Promise<'autenticado' | 'credenciais-invalidas' | 'falha'>
-  sair: () => void
+  /** Verdadeiro enquanto a sessão da aba é restaurada no carregamento da página. */
+  restaurando: boolean
+  sair: () => Promise<void>
   temPerfil: (perfis: Perfil[]) => boolean
 }

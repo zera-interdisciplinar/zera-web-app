@@ -209,3 +209,14 @@ describe('responses (BR-24)', () => {
     expect(await makeClient().request('inventory', '/api/v1/items/1')).toEqual({ notes: 'Data: 12/05 <3 a & b' })
   })
 })
+
+describe('explicit token (right after login)', () => {
+  it('uses the given token instead of the session and does not renew on 401', async () => {
+    session.token = null
+    fetchMock.mockResolvedValue(json({ message: 'Unauthorized' }, 401))
+    await expect(makeClient().request('administrative', '/api/v1/users/u', { accessToken: 'fresh' })).rejects.toMatchObject({ kind: 'http', status: 401 })
+    expect(headersOf(0).Authorization).toBe('Bearer fresh')
+    expect(session.refreshes).toBe(0)
+    expect(session.expired).toBe(0)
+  })
+})

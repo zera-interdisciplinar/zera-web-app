@@ -7,16 +7,6 @@ describe('permissões de navegação e operações', () => {
     expect(Object.values(permissoesDoPerfil(undefined)).every((permitido) => !permitido)).toBe(true)
   })
 
-  it('permite funcionário cadastrar e editar, mas não excluir ou criar categorias', () => {
-    const permissao = permissoesDoPerfil('funcionario')
-    expect(permissao.ler).toBe(true)
-    expect(permissao.cadastrarItem).toBe(true)
-    expect(permissao.editarItem).toBe(true)
-    expect(permissao.cadastrarModelo).toBe(true)
-    expect(permissao.excluirItem).toBe(false)
-    expect(permissao.cadastrarCategoria).toBe(false)
-  })
-
   it('concede operações de gestão ao gestor', () => {
     const permissao = permissoesDoPerfil('gestor')
     expect(permissao.cadastrarCategoria).toBe(true)
@@ -24,7 +14,7 @@ describe('permissões de navegação e operações', () => {
     expect(permissao.editarItem).toBe(true)
   })
 
-  it('não reconhece perfis fora do contrato v1 (por exemplo, administrador)', () => {
-    expect(Object.values(permissoesDoPerfil('administrador' as never)).every((permitido) => !permitido)).toBe(true)
+  it.each(['funcionario', 'administrador'])('não reconhece o perfil %s na web (só o gestor entra)', (perfil) => {
+    expect(Object.values(permissoesDoPerfil(perfil as never)).every((permitido) => !permitido)).toBe(true)
   })
 })

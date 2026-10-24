@@ -661,7 +661,7 @@ Cada PR é mergeável sozinho e mantém a `main` verde.
 | 1 | `chore: remove demo mode, dead code and out-of-scope screens` | Seção 11, exceto acessibilidade e GitHub Pages | Build e testes verdes; `grep -ri "modoDemonstracao\|VITE_USE_MSW" src` vazio |
 | 2 | `feat(proxy): single allowlisted proxy` | 7.1 + 7.2; Vite usa o mesmo middleware; `.env.example` novo | T-04 (proxy), T-22 |
 | 3 | `refactor: app skeleton and shared layer` | 5.2: `app/`, `shared/api`, `shared/config`, TanStack Query, zod | T-09, T-23 |
-| 4 | `feat(auth): manager-only session with server logout` | 7.3, login do Figma (8.1), guards, BR-01/02/19/20/21 | T-01, T-02, T-03, T-19, T-20, T-21 |
+| 4 | `feat(auth): manager-only session with server logout` | 7.3, guards, BR-01/02/19/20/21. O visual do login do Figma (8.1) entra no PR 5, junto com as fontes e os tokens; o roteamento segue em `<Routes>` com `PrivateRoute`, porque os requisitos Req 18 e Req 23 de `tests/requisitos.test.ts` leem esses arquivos | T-01, T-02, T-03, T-19, T-20, T-21 |
 | 5 | `feat(design-system): figma tokens, fonts and accessibility panel` | Seções 9 e 10, componentes `shared/ui` | T-25; contraste AA; T-26 (login) |
 | 6 | `feat(dashboard): overview from analytics SSE` | 7.4 + 8.2; sem agregação no cliente | T-05, T-06, T-07, T-08, T-26 |
 | 7 | `feat(items): list, create, edit, remove and manager decisions` | 8.3, BR-10 a BR-15 | T-10 a T-15 |

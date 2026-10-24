@@ -5,8 +5,7 @@ import { CarregandoPagina } from '../components/CarregandoPagina'
 import { PrivateRoute } from '../components/PrivateRoute'
 import { EstruturaPublica } from '../components/EstruturaPublica'
 
-const LoginPage = lazy(() => import('../pages/LoginPage'))
-const RecuperarSenhaPage = lazy(() => import('../pages/RecuperarSenhaPage'))
+const LoginPage = lazy(() => import('../features/auth/pages/LoginPage'))
 const DashboardPage = lazy(() => import('../pages/DashboardPage'))
 const ItensPage = lazy(() => import('../pages/ItensPage'))
 const ItemDetalhePage = lazy(() => import('../pages/ItemDetalhePage'))
@@ -19,7 +18,6 @@ export function AppRoutes() {
       <Routes>
         <Route element={<EstruturaPublica />}>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/esqueci-senha" element={<RecuperarSenhaPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
         <Route

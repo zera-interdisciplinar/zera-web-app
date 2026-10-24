@@ -7,7 +7,6 @@ export function NavegacaoPublica() {
     <span>ZERA</span>
     <nav aria-label="Navegação de acesso">
       <Link to="/login">Entrar</Link>
-      <Link to="/esqueci-senha">Recuperar acesso</Link>
     </nav>
   </header>
 }

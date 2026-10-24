@@ -24,7 +24,7 @@ it('Req 1: estrutura Vite, React e TypeScript e extensões de src', () => {
   expect(pacote.devDependencies['@vitejs/plugin-react']).toBeTruthy()
   for (const caminho of ['index.html', 'tsconfig.app.json', 'tsconfig.node.json', 'src/main.tsx']) expect(existsSync(caminho)).toBe(true)
   const codigo = arquivos('src').filter(arquivo => !arquivo.startsWith('src/assets/'))
-  expect(codigo.filter(arquivo => !/\.tsx?$/.test(arquivo))).toEqual([])
+  expect(codigo.filter(arquivo => !/\.tsx?$/.test(arquivo) && !/^src\/(?:features|shared|app)\/.+\.module\.css$/.test(arquivo))).toEqual([])
   expect(arquivos('src').filter(arquivo => /\.(?:js|jsx)$/.test(arquivo))).toEqual([])
 })
 
@@ -190,8 +190,6 @@ it('Req 20: análise exige justificativa para useCallback e useMemo', () => { ch
 
 it('Req 22: formulários validam dados tipados antes de enviar aos serviços', () => {
   const formularios: Array<[string, string]> = [
-    ['useLogin.ts', 'validarCredenciais'],
-    ['useRecuperarSenha.ts', 'validarEmailRecuperacao'],
     ['useCadastroCategoria.ts', 'validarCategoria'],
     ['useCadastroModelo.ts', 'validarCadastroModeloReal'],
     ['useCadastroItens.ts', 'validarCadastroItemReal'],
@@ -209,6 +207,14 @@ it('Req 22: formulários validam dados tipados antes de enviar aos serviços', (
       expect(fonte).not.toContain("from '../services/")
     }
   }
+  // Formulários das camadas novas: o esquema zod valida antes da chamada à API.
+  const login = ler('src/features/auth/hooks/useLoginForm.ts')
+  expect(login).toContain("from '../schemas'")
+  expect(login.indexOf('loginSchema.safeParse')).toBeGreaterThan(-1)
+  expect(login.indexOf('await sessionManager.signIn')).toBeGreaterThan(login.indexOf('loginSchema.safeParse'))
+  const recuperacao = ler('src/features/auth/components/ForgotPasswordDialog.tsx')
+  expect(recuperacao).toContain("from '../schemas'")
+  expect(recuperacao.indexOf('await requestPasswordReset')).toBeGreaterThan(recuperacao.indexOf('forgotPasswordSchema.safeParse'))
   const servico = ler('src/services/itemCadastroService.ts')
   expect(servico.indexOf('validarCadastroItemReal(entrada)')).toBeGreaterThan(0)
   expect(servico.indexOf('validarCadastroItemReal(entrada)')).toBeLessThan(servico.indexOf("requisitarApiReal<unknown>('inventory'"))

@@ -7,12 +7,13 @@ const pessoa = '11111111-1111-4111-8111-111111111111'
 const categoriaId = '33333333-3333-4333-8333-333333333333'
 const modeloId = '44444444-4444-4444-8444-444444444444'
 
-export async function preparar(page: Page, role = 'MANAGER', peso = 0, endereco = base) {
+export async function preparar(page: Page, role = 'MANAGER', peso = 0, endereco = base, entrar = true) {
   const categorias = [{ id: categoriaId, unitId: unidade, name: 'Eletrônicos', description: 'Equipamentos usados' }]
   const materiais = [{ id: 'plastico', code: 'PLASTIC', name: 'Plástico', recyclable: true, hazardous: false, disposalGuide: null }, { id: 'outro', code: 'OTHER', name: 'Outros', recyclable: false, hazardous: false, disposalGuide: null }]
   const modelos = Array.from({ length: 25 }, (_, i) => ({ id: i === 0 ? modeloId : `modelo-${i}`, unitId: unidade, name: `Modelo ${i + 1}`, manufacturer: 'Fabricante', category: categorias[0], materials: [materiais[0]], expectedLifespanMonths: null, warrantyMonths: null, approvalStatus: i % 2 ? 'PENDING_APPROVAL' : 'APPROVED', notes: null }))
   const item = { id: 'item-proprio', unitId: unidade, barcode: 'ETQ-001', displayCode: 'ETQ-001', name: 'Notebook próprio', model: modelos[0], condition: 'USED', status: 'DRAFT', createdBy: pessoa, createdByName: 'Pessoa local', createdAt: '2026-10-28T14:12:00', updatedAt: '2026-10-28T14:12:00' }
   const itens = [item, { ...item, id: 'item-outro', name: 'Item de outra pessoa', createdBy: 'outra-pessoa', createdByName: 'Outra pessoa' }, { ...item, id: 'item-nulo', name: null, model: null, condition: null, createdByName: null }]
+  let renovacoes = 0
   const escritas: Array<{ caminho: string; corpo: Record<string, unknown> }> = []
   const leituras: string[] = []
   await page.route('**/*', async (route) => {
@@ -25,6 +26,8 @@ export async function preparar(page: Page, role = 'MANAGER', peso = 0, endereco 
     const corpo = post ? req.postDataJSON() : undefined
     if (post) escritas.push({ caminho, corpo })
     else leituras.push(caminho)
+    if (caminho === '/api/v1/auth/refresh') { renovacoes += 1; return route.fulfill({ json: { userId: pessoa, accessToken: `sessao-sintetica-${renovacoes}`, refreshToken: `renovacao-sintetica-${renovacoes}`, tokenType: 'Bearer', expiresIn: 3600 } }) }
+    if (caminho === '/api/v1/auth/logout') return route.fulfill({ status: 200, body: '' })
     if (caminho === '/api/v1/auth/login') return route.fulfill({ json: { userId: pessoa, accessToken: 'sessao-sintetica', refreshToken: 'renovacao-sintetica', tokenType: 'Bearer', expiresIn: 3600 } })
     if (caminho === `/api/v1/users/${pessoa}`) return route.fulfill({ json: { userId: pessoa, unitId: unidade, name: 'Pessoa local', email: 'pessoa@example.invalid', role, status: 'ACTIVE' } })
     if (caminho === '/api/v1/categories') {
@@ -55,6 +58,7 @@ export async function preparar(page: Page, role = 'MANAGER', peso = 0, endereco 
     if (caminho === '/api/v1/recyclings') return route.fulfill({ json: [] })
     return route.fulfill({ status: 503, json: {} })
   })
+  if (!entrar) return { escritas, leituras }
   await page.goto(`${endereco}/login`)
   await page.locator('#email').fill('pessoa@example.invalid')
   await page.locator('#senha').fill('somente-teste-local')

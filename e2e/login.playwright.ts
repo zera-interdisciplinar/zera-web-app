@@ -4,7 +4,8 @@ import { AxeBuilder } from '@axe-core/playwright'
 import { test, expect } from '@playwright/test'
 
 const baseReal = 'http://127.0.0.1:5184'
-const operario = { email: process.env.QA_OPERARIO_EMAIL ?? '', senha: process.env.QA_OPERARIO_PASSWORD ?? '' }
+const gestor = { email: process.env.QA_GESTOR_EMAIL ?? '', senha: process.env.QA_GESTOR_PASSWORD ?? '' }
+const funcionario = { email: process.env.QA_OPERARIO_EMAIL ?? '', senha: process.env.QA_OPERARIO_PASSWORD ?? '' }
 
 test('login preserva a marca e o formulário sem controles de demonstração ou voltar', async ({ page }) => {
   mkdirSync('test-results', { recursive: true })
@@ -16,7 +17,7 @@ test('login preserva a marca e o formulário sem controles de demonstração ou 
   await expect(page.getByRole('button', { name: 'Entrar', exact: true })).toBeVisible()
   await expect(page.getByRole('complementary', { name: 'Sobre o Zera' })).toBeVisible()
   await expect(page.getByText('Preencha seus dados para entrar na sua conta')).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Esqueci minha senha' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Esqueci minha senha' })).toBeVisible()
   await expect(page.getByText('Não tenho cadastro')).toHaveCount(0)
   await expect(page.getByText('Pré-visualização local')).toHaveCount(0)
   await expect(page.getByText('Abrir como')).toHaveCount(0)
@@ -37,13 +38,24 @@ test('login preserva a marca e o formulário sem controles de demonstração ou 
   await page.screenshot({ path: 'test-results/login-restaurada.png', fullPage: true })
 })
 
-test('login real do operário QA leva à área privada', async ({ page }) => {
-  test.skip(process.env.ZERA_RUN_LIVE_QA !== 'true' || !operario.email || !operario.senha, 'Login remoto exige ativação explícita com ZERA_RUN_LIVE_QA=true e credenciais locais.')
+test('login real do gestor QA leva ao painel', async ({ page }) => {
+  test.skip(process.env.ZERA_RUN_LIVE_QA !== 'true' || !gestor.email || !gestor.senha, 'Login remoto exige ativação explícita com ZERA_RUN_LIVE_QA=true e credenciais locais.')
   await page.goto(`${baseReal}/login`)
-  await page.getByLabel('Email').fill(operario.email)
-  await page.locator('#senha').fill(operario.senha)
+  await page.getByLabel('Email').fill(gestor.email)
+  await page.locator('#senha').fill(gestor.senha)
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Meus itens' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Painel do Zera' })).toBeVisible()
+})
+
+test('login real de funcionário QA é recusado e não deixa sessão (BR-01)', async ({ page }) => {
+  test.skip(process.env.ZERA_RUN_LIVE_QA !== 'true' || !funcionario.email || !funcionario.senha, 'Login remoto exige ativação explícita com ZERA_RUN_LIVE_QA=true e credenciais locais.')
+  await page.goto(`${baseReal}/login`)
+  await page.getByLabel('Email').fill(funcionario.email)
+  await page.locator('#senha').fill(funcionario.senha)
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
+  await expect(page.getByRole('alert').filter({ hasText: 'exclusiva para gestores' })).toBeVisible()
+  await expect(page).toHaveURL(/\/login$/)
+  expect(await page.evaluate(() => sessionStorage.length)).toBe(0)
 })
 
 test('credencial inválida mostra erro específico em 401', async ({ page }) => {
@@ -80,21 +92,7 @@ test('rota privada sem sessão retorna para o login', async ({ page }) => {
   expect(resultado404.violations.filter((item) => item.impact === 'critical' || item.impact === 'serious').map((item) => item.id)).toEqual([])
 })
 
-test('recuperação valida formato e domínio sem afirmar envio', async ({ page }) => {
-  await page.goto(`${baseReal}/esqueci-senha`)
-  await page.getByLabel('Email').fill('alguem@example.com')
-  await page.getByRole('button', { name: 'Continuar' }).click()
-  await expect(page.locator('#email-erro')).toContainText('@zera.com')
-
-  await page.getByLabel('Email').fill('usuario@zera.com')
-  await page.getByRole('button', { name: 'Continuar' }).click()
-  await expect(page.getByRole('status')).toContainText('A recuperação de senha ainda não está disponível')
-  await expect(page.getByText('Peça ajuda ao responsável pelo acesso da sua unidade.', { exact: false })).toBeVisible()
-  const axeRecovery = await new AxeBuilder({ page }).analyze()
-  expect(axeRecovery.violations.filter((item) => item.impact === 'critical' || item.impact === 'serious').map((item) => item.id)).toEqual([])
-})
-
-for (const caminho of ['/login', '/esqueci-senha', '/rota-inexistente']) {
+for (const caminho of ['/login', '/rota-inexistente']) {
   test(`página pública ${caminho} tem landmarks e navegação por teclado`, async ({ page }) => {
     await page.goto(`${baseReal}${caminho}`)
     await expect(page.locator('header')).toBeVisible()
@@ -103,10 +101,5 @@ for (const caminho of ['/login', '/esqueci-senha', '/rota-inexistente']) {
     await expect(page.locator('footer')).toBeVisible()
     const antes = await new AxeBuilder({ page }).analyze()
     expect(antes.violations.map(item => item.id)).toEqual([])
-    await page.getByRole('link', { name: 'Recuperar acesso' }).focus()
-    await page.keyboard.press('Enter')
-    await expect(page).toHaveURL(/\/esqueci-senha$/)
-    const resultado = await new AxeBuilder({ page }).analyze()
-    expect(resultado.violations.map(item => item.id)).toEqual([])
   })
 }

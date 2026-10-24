@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test'
 import { AxeBuilder } from '@axe-core/playwright'
 
 async function abrir(page: Page, form: string) {
-  await page.route('**/api/**', (route) => route.fulfill({ json: [] }))
+  await page.route('**/api/{administrative,inventory,analytics}/**', (route) => route.fulfill({ json: [] }))
   await page.goto(`http://127.0.0.1:5184/e2e/form-harness.html?form=${form}`)
 }
 

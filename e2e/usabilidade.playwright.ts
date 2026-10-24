@@ -81,22 +81,6 @@ test('item: criação no cadastro, sucesso, histórico traduzido e cancelar edi�
   await page.screenshot({ path: 'test-results/item-historico.png', fullPage: true })
 })
 
-test('funcionário: só itens próprios, sem nomes alheios, inclusive no painel e detalhe', async ({ page }) => {
-  const { leituras } = await preparar(page, 'EMPLOYEE')
-  await expect(page.getByRole('heading', { name: 'Meus itens' })).toBeVisible()
-  await expect(page.getByText('Item de outra pessoa', { exact: true })).toHaveCount(0)
-  expect(leituras.some((p) => p.includes('/dashboard/'))).toBe(false)
-  await page.getByRole('link', { name: 'Itens', exact: true }).click()
-  await expect(page.getByText('Notebook próprio', { exact: true })).toBeVisible()
-  await expect(page.getByRole('columnheader', { name: 'Cadastrado por' })).toHaveCount(0)
-  await expect(page.locator('#conteudo')).not.toContainText('Outra pessoa')
-  await page.getByRole('button', { name: 'Adicionar item' }).click()
-  await expect(page.locator('#item-material option[value="__nova__"]')).toHaveCount(0)
-  await page.keyboard.press('Escape')
-  await page.evaluate(() => { history.pushState(null, '', '/itens/item-outro'); dispatchEvent(new PopStateEvent('popstate')) })
-  await expect(page.getByRole('alert')).toContainText('Este item não está disponível para sua conta.')
-})
-
 for (const peso of [0, 12.5]) test(`painel com peso ${peso}, modo foco, navegação e 320 px`, async ({ page }) => {
   await preparar(page, 'MANAGER', peso)
   if (peso === 0) await expect(page.getByText('Nenhum peso positivo registrado nos últimos 12 meses.')).toBeVisible()

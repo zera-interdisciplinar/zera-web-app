@@ -14,5 +14,5 @@
     "noUnusedParameters": true,
     "types": ["node"]
   },
-  "include": ["vite.config.ts", "api/**/*.ts", "server/*.mjs"]
+  "include": ["vite.config.ts", "server/*.mjs"]
 }

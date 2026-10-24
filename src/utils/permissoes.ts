@@ -13,8 +13,8 @@ export interface PermissoesZera {
 export type PermissaoZera = keyof PermissoesZera
 
 export function permissoesDoPerfil(perfil: Perfil | null | undefined): PermissoesZera {
-  const autenticado = perfil === 'funcionario' || perfil === 'gestor'
-  const gestor = perfil === 'gestor'
+  const autenticado = perfil === 'gestor'
+  const gestor = autenticado
   return {
     ler: autenticado,
     cadastrarItem: autenticado,

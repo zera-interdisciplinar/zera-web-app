@@ -5,10 +5,8 @@ import { LIMITES, limitarNumero } from '../src/utils/limitesNumericos'
 import { rotuloEvento } from '../src/utils/eventos'
 import { ROTULO_STATUS } from '../src/types/produto'
 import { ROTULO_TRANSICAO } from '../src/types/transicaoItem'
-import { itemVisivel } from '../src/utils/escopoItens'
 import { mapearItem } from '../src/services/mapeadoresApi'
 import type { ItemResponse } from '../src/types/apiReal'
-import type { Usuario } from '../src/types/usuario'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { PesoMensal } from '../src/components/PesoMensal'
@@ -42,15 +40,10 @@ describe('regressões de usabilidade', () => {
     expect(rotuloEvento({ type: 'LOAN_RETURNED', fromStatus: 'IN_USE', toStatus: 'IN_STOCK' })).toBe('Item devolvido ao estoque')
     expect(rotuloEvento({ type: 'DISPOSAL_CANCELLED', fromStatus: 'DISPOSED', toStatus: 'IN_STOCK' })).toBe('Descarte cancelado')
   })
-  it('preserva campos nulos e filtra pelo UUID do criador, nunca pelo nome', () => {
+  it('preserva campos nulos no mapeamento do item', () => {
     const payload: ItemResponse = { id: 'item', barcode: 'etiqueta', displayCode: null, name: null, status: 'DRAFT', condition: null, unitId: 'unidade', model: null, createdBy: 'pessoa', createdByName: null, createdAt: '2026-10-28T14:12:00Z', updatedAt: '2026-10-28T14:12:00Z' }
     const item = mapearItem(payload)
-    const usuario: Usuario = { id: 'pessoa', nome: 'Nome repetido', email: 'pessoa@example.invalid', perfil: 'funcionario', unidade: 'unidade' }
     expect(item.nome).toBe('Item sem nome')
-    expect(itemVisivel(item, usuario)).toBe(true)
-    expect(itemVisivel({ ...item, criadoPorId: 'outra' }, usuario)).toBe(false)
-    expect(itemVisivel({ ...item, criadoPorId: null }, usuario)).toBe(false)
-    expect(itemVisivel(item, { ...usuario, perfil: 'gestor' })).toBe(true)
   })
   it('troca série zerada por estado vazio e oferece tabela quando há peso', () => {
     const vazio = renderToStaticMarkup(createElement(PesoMensal, { pontos: [{ month: '2026-10', weightKg: 0 }] }))

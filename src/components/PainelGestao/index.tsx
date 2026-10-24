@@ -1,6 +1,5 @@
 import estilos from '../../../styles/pages/DashboardPage/DashboardPage.module.css'
 import { usePainelGestao } from '../../hooks/usePainelGestao'
-import type { PainelGestaoProps } from '../../types/componentes/PainelGestao'
 import { formatarDataRelativa } from '../../utils/formatacao'
 import { formatarErroDashboard } from '../../utils/formatarDashboard'
 import { EvolucaoMovimentacoesTab } from '../DashboardTabs/EvolucaoMovimentacoesTab'
@@ -30,13 +29,13 @@ function labelConexao(estado: string): string {
   return labels[estado] ?? estado
 }
 
-export function PainelGestao({ pessoal = false }: PainelGestaoProps) {
+export function PainelGestao() {
   const { aba, setAba, filtros, usaStream, snapshot, estado, indisponivel, erro, recarregar, filtrosPorAba, alterarFiltro } = usePainelGestao()
 
   return (
     <div className={estilos.dashboard} data-estado={usaStream ? erro ? 'erro' : indisponivel ? 'indisponivel' : snapshot ? 'sucesso' : 'carregando' : undefined}>
       <div className={estilos.tituloLinha}>
-        <PageHeader titulo={pessoal ? 'Indicadores da unidade' : 'Painel do Zera'} subtitulo="Indicadores de inventário, movimentações e sustentabilidade." />
+        <PageHeader titulo="Painel do Zera" subtitulo="Indicadores de inventário, movimentações e sustentabilidade." />
         <span className={`${estilos.estado} ${estilos[`estado_${estado}`]}`} role="status" aria-live="polite">
           {!usaStream ? 'Inventário da unidade' : labelConexao(estado)}
         </span>
@@ -78,7 +77,7 @@ export function PainelGestao({ pessoal = false }: PainelGestaoProps) {
       </nav>
 
       <section className={estilos.filtros} aria-label="Filtros do dashboard">
-        {filtrosPorAba[aba].filter(definicao => !pessoal || !['unitId', 'responsible'].includes(definicao.key)).map((definicao) => (
+        {filtrosPorAba[aba].map((definicao) => (
           <label className={estilos.filtro} key={definicao.key} htmlFor={`filtro-painel-${definicao.key}`}>
             <span>{definicao.label}</span>
             <select

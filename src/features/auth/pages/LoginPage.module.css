@@ -151,6 +151,12 @@
   line-height: 1.4;
   text-align: center;
   text-underline-offset: 2px;
+  text-decoration: underline;
+  padding: 0.5rem;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
 }
 
 .linkAuxiliar:hover { color: var(--azul); }

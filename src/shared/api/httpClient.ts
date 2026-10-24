@@ -26,6 +26,8 @@ export interface RequestOptions<T> {
   schema?: ZodType<T>
   /** Sends the bearer token. Defaults to true; login, refresh and password reset pass false. */
   auth?: boolean
+  /** Uses this token instead of the session's (right after login, before the session exists). A 401 is not renewed. */
+  accessToken?: string
   /** Sends `X-Unit-Id`. Defaults to true only for the inventory service. */
   unit?: boolean
   timeoutMs?: number
@@ -140,11 +142,12 @@ export function createHttpClient(config: HttpClientConfig) {
     }
     const url = buildUrl(service, path, options.query)
     const authenticated = options.auth !== false
-    let token = authenticated ? config.session.getAccessToken() : null
+    const explicitToken = options.accessToken !== undefined
+    let token = authenticated ? (options.accessToken ?? config.session.getAccessToken()) : null
     if (authenticated && !token) throw new ApiError('Sessão expirada. Entre novamente.', { kind: 'session', status: 401 })
 
     let response = await send(url, service, options, token)
-    if (response.status === 401 && authenticated) {
+    if (response.status === 401 && authenticated && !explicitToken) {
       await response.body?.cancel()
       const renewed = await refreshOnce()
       token = renewed ? config.session.getAccessToken() : null

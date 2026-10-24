@@ -7,16 +7,19 @@ import { usePermissoes } from '../../hooks/usePermissoes'
 
 import { ROTULO_PERFIL } from '../../types/usuario'
 import { Button } from '../Button'
+import { CarregandoPagina } from '../CarregandoPagina'
 import { EmptyState } from '../EmptyState'
 
 export function PrivateRoute({ children, perfis, permissao }: PrivateRouteProps) {
-  const { autenticado, usuario, temPerfil } = useAuth()
+  const { autenticado, restaurando, usuario, temPerfil } = useAuth()
   const localizacao = useLocation()
   const navegar = useNavigate()
   const permissoes = usePermissoes()
 
+  if (restaurando) return <CarregandoPagina />
+
   if (!autenticado) {
-    return <Navigate to="/login" state={{ de: localizacao.pathname }} replace />
+    return <Navigate to="/login" state={{ from: localizacao.pathname }} replace />
   }
 
   if (!permissoes.ler || (perfis && !temPerfil(perfis)) || (permissao && !permissoes[permissao])) {

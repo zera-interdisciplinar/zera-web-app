@@ -9,6 +9,8 @@ const problemas = []
 for (const arquivo of listar('src')) {
   if (!/\.tsx?$/.test(arquivo)) {
     if (/^src\/assets\/.+\.(?:png|svg|jpe?g|webp|woff2?)$/i.test(arquivo)) continue
+    // Estilos das camadas novas ficam ao lado do componente (CSS Modules).
+    if (/^src\/(?:features|shared|app)\/.+\.module\.css$/.test(arquivo)) continue
     problemas.push(`${arquivo}: extensão fora do padrão`)
     continue
   }

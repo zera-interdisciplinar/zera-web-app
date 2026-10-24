@@ -70,7 +70,7 @@ export function useTopbar(): RetornoTopbar {
 
   function encerrarSessao() {
     fecharConta()
-    sair()
+    void sair()
     navegar('/login')
   }
   const opcoesCategoria = [

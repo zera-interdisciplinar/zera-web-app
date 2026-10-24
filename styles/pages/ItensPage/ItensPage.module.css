@@ -83,6 +83,10 @@
   background-color: var(--navy);
 }
 
+:global([role='dialog']):has(.camposModal) > h2 {
+  color: var(--branco);
+}
+
 :global([role='dialog']):has(.camposModal) > button {
   color: var(--ambar);
 }

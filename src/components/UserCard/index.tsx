@@ -33,13 +33,13 @@ export function UserCard({ nome, cargo, iniciais: sigla }: UserCardProps) {
         aria-haspopup="menu"
         aria-expanded={aberto}
         aria-controls={aberto ? 'menu-perfil-sidebar' : undefined}
-        aria-label={`Perfil de ${nome}`}
+        aria-label={`${sigla}${nome}${cargo} — menu do usuário`}
         onClick={alternar}
       >
         <span className={estilos.avatar} aria-hidden="true">
           {sigla}
         </span>
-        <span className={estilos.identidade}>
+        <span className={estilos.identidade} aria-hidden="true">
           <span className={estilos.nome}>{nome}</span>
           <span className={estilos.cargo}>{cargo}</span>
         </span>

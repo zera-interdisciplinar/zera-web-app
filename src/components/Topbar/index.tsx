@@ -72,7 +72,7 @@ export function Topbar() {
           <button
             type="button"
             className={estilos.avatar}
-            aria-label={`Conta de ${usuario.nome}`}
+            aria-label={`${iniciais(usuario.nome)} — Menu do usuário: ${usuario.nome}`}
             aria-haspopup="menu"
             aria-expanded={contaAberta}
             aria-controls={contaAberta ? 'menu-conta' : undefined}

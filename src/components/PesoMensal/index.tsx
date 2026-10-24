@@ -8,6 +8,7 @@ export function PesoMensal({ pontos }: PesoMensalProps) {
   const [mesAtivo, setMesAtivo] = useState<string | null>(null)
   const toqueAtivo = useRef(false)
   if (!pontos.some((ponto) => ponto.weightKg > 0)) return <section><h2>Peso descartado por mês</h2><p>Nenhum peso positivo registrado nos últimos 12 meses.</p></section>
+  const totalPeriodoKg = pontos.reduce((total, ponto) => total + ponto.weightKg, 0)
   const teto = Math.max(...pontos.map((ponto) => ponto.weightKg)) * 1.15
   const largura = Math.max(280, pontos.length * 52 + 70)
   const agora = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit' }).format(new Date())
@@ -18,6 +19,7 @@ export function PesoMensal({ pontos }: PesoMensalProps) {
   const pontoAtivo = pontos.find(ponto => ponto.month === mesAtivo)
   return <section className={estilos.cartao} aria-labelledby={`${id}-titulo`}>
     <h2 id={`${id}-titulo`}>Peso descartado por mês</h2>
+    <p className={estilos.resumoGrafico} role="img" aria-label={`Peso descartado por mês. Soma dos valores exibidos: ${formatarNumero(totalPeriodoKg, 2)} kg.`} />
     <p>Valores em kg. O mês atual aparece com listras e a indicação “atual”.</p>
     <div className={estilos.rolagem} tabIndex={0} role="region" aria-label="Gráfico mensal; role horizontalmente para ver todos os meses">
       <svg viewBox={`0 0 ${largura} 300`} width={largura} height="300" role="group" aria-label="Peso mensal em quilogramas. Os valores também estão na tabela abaixo.">
@@ -28,7 +30,9 @@ export function PesoMensal({ pontos }: PesoMensalProps) {
           const altura = ponto.weightKg / teto * 208
           const x = 64 + indice * ((largura - 70) / pontos.length)
           const atual = ponto.month === agora
-          const descricao = `${mes(ponto.month)}: ${formatarNumero(ponto.weightKg, 2)} kg`
+          const valorFormatado = formatarNumero(ponto.weightKg, 2)
+          const mesFormatado = mes(ponto.month)
+          const descricao = `${valorFormatado}${mesFormatado}${atual ? 'atual' : ''} ${mesFormatado}: ${valorFormatado} kg`
           return <g key={ponto.month} role="button" tabIndex={0} aria-label={descricao}
             aria-describedby={mesAtivo === ponto.month ? `${id}-detalhe` : undefined}
             onFocus={() => setMesAtivo(ponto.month)} onBlur={() => { if (!toqueAtivo.current) setMesAtivo(null) }}

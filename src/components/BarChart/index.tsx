@@ -10,6 +10,8 @@ const LARGURA_BARRA = 56
 
 export function BarChart({ pontos, maximoEixo, descricao, rotuloValor = 'Itens cadastrados', rotuloEixo = 'Mês' }: BarChartProps) {
   const marcas = Array.from({ length: 5 }, (_, indice) => (maximoEixo / 4) * indice)
+  const totalRepresentado = pontos.reduce((total, ponto) => total + ponto.valor, 0)
+  const descricaoAcessivel = `${descricao}. Soma dos valores exibidos: ${formatarNumero(totalRepresentado, 2)} ${rotuloValor}.`
   const areaPlotagem = Math.max(520, pontos.length * 100)
   const largura = areaPlotagem + 80
   const slot = areaPlotagem / pontos.length
@@ -20,7 +22,7 @@ export function BarChart({ pontos, maximoEixo, descricao, rotuloValor = 'Itens c
         viewBox={`0 0 ${largura} ${ALTURA}`}
         width={largura}
         role="img"
-        aria-label={descricao}
+        aria-label={descricaoAcessivel}
         className={estilos.grafico}
       >
         {pontos.map((ponto, indice) => {

@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import type { GraficoDadosProps } from '../../types/componentes/GraficoDados'
 import { BarChart } from '../BarChart'
 import { SeloDemonstracao } from '../DashboardTabs/SeloDemonstracao'
@@ -5,9 +6,10 @@ import estilos from '../../../styles/components/DashboardTabs/ChartCard.module.c
 import { formatarNumero } from '../../utils/formatarDashboard'
 
 export function GraficoDados({ titulo, pontos, unidade, eixo, vazio, semDados, demo }: GraficoDadosProps) {
+  const tituloId = useId()
   const ultimoPositivo = pontos.filter(ponto => ponto.valor > 0).at(-1)
-  return <section className={estilos.cartao} aria-label={`${titulo} · gráfico`}>
-    <h2 className={estilos.titulo}>{titulo}</h2>
+  return <section className={estilos.cartao} aria-labelledby={tituloId}>
+    <h2 id={tituloId} className={estilos.titulo}>{titulo}</h2>
     {demo && <SeloDemonstracao />}
     <p className={estilos.nota}>Valores em {unidade}.</p>
     {pontos.length > 4 && ultimoPositivo && <p className={estilos.nota}>Último ponto com valor: {ultimoPositivo.rotulo} — {formatarNumero(ultimoPositivo.valor, 2)} ({unidade}). Role o gráfico para ver todos os pontos.</p>}

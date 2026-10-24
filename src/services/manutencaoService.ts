@@ -1,4 +1,5 @@
 import type { AnalisePreventiva, Manutencao, NovaManutencao } from '../types/manutencao'
+import { ApiError } from '../types/api'
 import { contextualizar, requisitar } from './http'
 import { modoDemonstracao } from './apiReal'
 
@@ -16,7 +17,9 @@ export async function listarManutencoes(
 
 export async function registrarManutencao(nova: NovaManutencao): Promise<Manutencao> {
   try {
-    if (!modoDemonstracao) throw new Error('A manutenção real usa transições de estado, não este formulário.')
+    if (!modoDemonstracao) {
+      throw new ApiError('Este formulário não registra manutenção em dados reais. Nenhuma alteração foi feita.', 0)
+    }
     return await requisitar<Manutencao>(`/items/${nova.produtoId}/maintenances`, {
       metodo: 'POST',
       corpo: nova,

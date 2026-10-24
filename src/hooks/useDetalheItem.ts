@@ -10,17 +10,12 @@ registrarManutencao,
 } from '../services/manutencaoService'
 import { mensagemDeErro } from '../types/api'
 import type { EventResponse } from '../types/apiReal'
-import type { EstadoLocalDetalheItem } from '../types/controles/EstadoLocalDetalheItem'
-import type { AnalisePreventiva, Manutencao, TipoManutencao } from '../types/manutencao'
-import { sanitizarTexto } from '../utils/sanitizacao'
+import type { EstadoLocalDetalheItem, FormManutencao } from '../types/controles/EstadoLocalDetalheItem'
+import type { AnalisePreventiva, Manutencao } from '../types/manutencao'
+import { validarManutencao } from '../utils/validacaoManutencao'
 import { useAuth } from './useAuth'
 import { useProduto } from './useProduto'
 import { useRequisicao } from './useRequisicao'
-interface FormManutencao {
-  tipo: TipoManutencao
-  descricao: string
-  tecnico: string
-}
 const FORM_INICIAL: FormManutencao = { tipo: 'preventiva', descricao: '', tecnico: '' }
 
 export function useDetalheItem({ produtoId }: { produtoId: number | string }) {
@@ -87,20 +82,15 @@ export function useDetalheItem({ produtoId }: { produtoId: number | string }) {
     setErroForm(null)
     setSucesso(null)
 
-    const descricao = sanitizarTexto(form.descricao).slice(0, 280)
-    const tecnico = sanitizarTexto(form.tecnico).slice(0, 80)
-    if (descricao.length < 10) {
-      setErroForm('Descreva o que foi feito com pelo menos 10 caracteres.')
-      return
-    }
-    if (tecnico.length < 3) {
-      setErroForm('Informe o nome do técnico responsável.')
+    const validacao = validarManutencao(form)
+    if (!validacao.valido) {
+      setErroForm(validacao.erros.descricao ?? validacao.erros.tecnico ?? 'Revise os dados da manutenção.')
       return
     }
 
     setEnviando(true)
     try {
-      await registrarManutencao({ produtoId, tipo: form.tipo, descricao, tecnico })
+      await registrarManutencao({ produtoId, ...validacao.dados })
       setForm(FORM_INICIAL)
       setSucesso('Manutenção registrada. O histórico e a análise preventiva foram atualizados.')
       manutencoes.recarregar()

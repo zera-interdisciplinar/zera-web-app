@@ -2,20 +2,22 @@
 
 TypeScript · React · Licença MIT
 
+## Apresentação
+
 O Zera Web é o site do sistema de gestão e controle de lixo eletrônico corporativo. No navegador, gestores e funcionários acompanham itens, modelos, descartes e indicadores. O site foi feito em React 19, TypeScript e Vite para a disciplina Desenvolvimento de Aplicações Dinâmicas.
 
 ## Sumário
 
-- [O que o site faz](#o-que-o-site-faz)
-- [Como conversa com o backend](#como-conversa-com-o-backend)
+- [Apresentação](#apresentação)
+- [Funcionalidades](#funcionalidades)
+- [Arquitetura](#arquitetura)
 - [Estrutura de pastas](#estrutura-de-pastas)
 - [Stack](#stack)
-- [Executando localmente](#executando-localmente)
+- [Como executar](#como-executar)
 - [Publicação](#publicação)
-- [Links úteis](#links-úteis)
 - [Licença](#licença)
 
-## O que o site faz
+## Funcionalidades
 
 O menu apresenta estas telas conforme o perfil:
 
@@ -28,7 +30,7 @@ O dashboard tem seis abas: Inventário em operação, Visão geral, Itens e vida
 
 Há rotas de triagem, relatórios e configurações no código, mas as permissões atuais não as oferecem aos perfis reais.
 
-## Como conversa com o backend
+## Arquitetura
 
 ```text
 Navegador → /api/{administrative|inventory|analytics} → api/proxy.ts → server/proxy.mjs → APIs do Zera
@@ -46,7 +48,7 @@ O navegador fala com a função proxy da Vercel. Ela encaminha as requisições 
 
 ```text
 src/       páginas, componentes, hooks, serviços e regras do site
-styles/    estilos globais, tokens e módulos CSS
+styles/    estilos globais, variáveis visuais e módulos CSS
 api/       função da Vercel que recebe chamadas do navegador
 server/    proxy Node e configuração de encaminhamento às APIs
 public/    arquivos estáticos públicos, como o favicon
@@ -65,17 +67,13 @@ public/    arquivos estáticos públicos, como o favicon
 | Lint | ESLint 9 |
 | Hospedagem | Vercel |
 
-## Executando localmente
+## Como executar
 
 O site usa o proxy público da Vercel por padrão e funciona sem criar nenhum arquivo de configuração.
 
 ## Publicação
 
 O site está na [Vercel](https://zera-web-app-kappa.vercel.app). Atualmente, o deploy de produção é feito pela CLI da Vercel.
-
-## Links úteis
-
-- [Escopo Geral v2](https://zerainterdisciplinar.atlassian.net/wiki/spaces/Engenharia/pages/917676/Escopo+Geral+v2)
 
 ## Licença
 

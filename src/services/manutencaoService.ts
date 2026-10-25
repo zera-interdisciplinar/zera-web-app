@@ -1,7 +1,42 @@
 import type { AnalisePreventiva, Manutencao, NovaManutencao } from '../types/manutencao'
 import { ApiError } from '../types/api'
+import type { CondicaoItemReal } from '../types/cadastroItem'
+import type { ProdutoDetalhado } from '../types/produto'
 import { contextualizar, requisitar } from './http'
 import { modoDemonstracao } from './apiReal'
+import { transicionarItemReal } from './transicaoItemService'
+
+export function iniciarManutencaoReal(
+  produtoId: number | string,
+  motivo: string,
+  sinal?: AbortSignal,
+): Promise<ProdutoDetalhado> {
+  return transicionarItemReal(produtoId, 'maintenance/start', {
+    reason: motivo,
+    condition: 'USED',
+  }, sinal)
+}
+
+export function concluirManutencaoReal(
+  produtoId: number | string,
+  sinal?: AbortSignal,
+): Promise<ProdutoDetalhado> {
+  return transicionarItemReal(produtoId, 'maintenance/finish', {
+    reason: '',
+    condition: 'USED',
+  }, sinal)
+}
+
+export function avaliarItemAposManutencao(
+  produtoId: number | string,
+  condition: CondicaoItemReal,
+  sinal?: AbortSignal,
+): Promise<ProdutoDetalhado> {
+  return transicionarItemReal(produtoId, 'evaluate', {
+    reason: '',
+    condition,
+  }, sinal)
+}
 
 export async function listarManutencoes(
   produtoId: number | string,

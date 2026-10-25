@@ -5,6 +5,11 @@ import type { AcaoItemReal, DadosTransicaoItem } from '../types/transicaoItem'
 import type { ErrosDeCampo } from '../utils/validacao'
 import { mensagemDeErro } from '../types/api'
 import { acoesDisponiveisItem, validarTransicaoItem } from '../utils/validacaoTransicaoItem'
+import {
+  avaliarItemAposManutencao,
+  concluirManutencaoReal,
+  iniciarManutencaoReal,
+} from '../services/manutencaoService'
 import { transicionarItemReal } from '../services/transicaoItemService'
 import { useAuth } from './useAuth'
 
@@ -68,7 +73,15 @@ export function useTransicaoItem(item: ProdutoDetalhado, aoConcluir: () => void)
     cancelamento.current = new AbortController()
     setEstado((atual) => ({ ...atual, enviando: true, erro: null, sucesso: '', erros: {} }))
     try {
-      await transicionarItemReal(item.id, acao, validacao.dados, cancelamento.current.signal)
+      if (acao === 'maintenance/start') {
+        await iniciarManutencaoReal(item.id, validacao.dados.reason, cancelamento.current.signal)
+      } else if (acao === 'maintenance/finish') {
+        await concluirManutencaoReal(item.id, cancelamento.current.signal)
+      } else if (acao === 'evaluate') {
+        await avaliarItemAposManutencao(item.id, validacao.dados.condition, cancelamento.current.signal)
+      } else {
+        await transicionarItemReal(item.id, acao, validacao.dados, cancelamento.current.signal)
+      }
       if (!montado.current) return
       setEstado((atual) => ({ ...atual, acao: null, sucesso: SUCESSO[acao] }))
       aoConcluir()

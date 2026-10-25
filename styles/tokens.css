@@ -12,12 +12,12 @@
 
   --fundo: #F2EAD9;
   --branco: #FFFFFF;
-  --borda: #E3E7F0;
+  --borda: #D8E0EE;
   --borda-sutil: color-mix(in srgb, var(--borda) 65%, transparent);
   --hover-linha: color-mix(in srgb, var(--azul) 6%, transparent);
 
-  --texto: #171B2E;
-  --texto-secundario: #58647B;
+  --texto: #122038;
+  --texto-secundario: #5C6980;
   --borda-controle: #75819A;
 
   --ambar-texto: #8A5E0E;
@@ -26,9 +26,11 @@
   --perigo: #C0453E;
   --perigo-hover: #A93B34;
 
-  --fonte-display: 'Public Sans', system-ui, sans-serif;
-  --fonte-ui: 'Public Sans', system-ui, sans-serif;
-  --fonte-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --fonte-display: 'Inter', system-ui, sans-serif;
+  --fonte-ui: 'Inter', system-ui, sans-serif;
+  /* O login usa Instrument Sans (frame WEB do Figma). */
+  --fonte-auth: 'Instrument Sans', system-ui, sans-serif;
+  --fonte-acessivel: 'Atkinson Hyperlegible', system-ui, sans-serif;
 
   --r-card: 16px;
   --r-modal: 20px;
@@ -37,6 +39,25 @@
   --r-pill: 999px;
   --r-nav: 10px;
   --r-iconbox: 12px;
+
+  /* Tokens canônicos do Figma (seção WEB — Gestão Zera). Os nomes em português acima são aliases legados. */
+  --color-bg: #F2EAD9;
+  --color-surface: #FFFFFF;
+  --color-navy-900: #162F71;
+  --color-navy-700: #24438C;
+  --color-navy-login: #203B7E;
+  --color-blue-600: #2A58CE;
+  --color-blue-100: #D8E2FF;
+  --color-green-500: #25B988;
+  --color-green-700: #168763;
+  --color-amber-500: #EC9E1D;
+  --color-text: #122038;
+  --color-text-muted: #5C6980;
+  --color-placeholder: #99A1B2;
+  --color-border: #D8E0EE;
+  /* No Figma o contorno dos campos é #929BAD (2,8:1 sobre branco, abaixo dos 3:1 da WCAG 1.4.11);
+     aqui ele segue o token --borda-controle (#75819A, 3,9:1). */
+  --color-border-input: #75819A;
 
   --sp-1: 4px;
   --sp-2: 8px;
@@ -53,6 +74,6 @@
 
   --transicao: 160ms ease-out;
 
-  --largura-sidebar: 232px;
-  --altura-topbar: 64px;
+  --largura-sidebar: 15.5rem; /* 248 px no Figma */
+  --altura-topbar: 4.5rem; /* 72 px no Figma */
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { escolherVozLocal, separarTextoParaLeitura } from '../src/services/leituraService'
+import { pickLocalVoice, splitForSpeech } from '../../src/shared/accessibility/readAloud'
 
 function voz(lang: string, localService: boolean): SpeechSynthesisVoice {
   return { lang, localService, default: false, name: lang, voiceURI: lang }
@@ -8,19 +8,19 @@ function voz(lang: string, localService: boolean): SpeechSynthesisVoice {
 describe('leitura em voz alta e privacidade', () => {
   it('não perde palavras ao dividir conteúdo longo', () => {
     const texto = Array.from({ length: 400 }, (_, i) => `palavra${i}`).join(' ')
-    const trechos = separarTextoParaLeitura(texto)
+    const trechos = splitForSpeech(texto)
     expect(trechos.length).toBeGreaterThan(1)
     expect(trechos.join(' ')).toBe(texto)
     expect(trechos.every((trecho) => trecho.length <= 500)).toBe(true)
   })
   it('ignora conteúdo vazio', () => {
-    expect(separarTextoParaLeitura(' \n ')).toEqual([])
+    expect(splitForSpeech(' \n ')).toEqual([])
   })
   it('prioriza português brasileiro local', () => {
     const brasileira = voz('pt-BR', true)
-    expect(escolherVozLocal([voz('pt-PT', true), voz('pt-BR', false), brasileira])).toBe(brasileira)
+    expect(pickLocalVoice([voz('pt-PT', true), voz('pt-BR', false), brasileira])).toBe(brasileira)
   })
   it('não envia texto a uma voz remota nem escolhe idioma incompatível', () => {
-    expect(escolherVozLocal([voz('pt-BR', false), voz('en-US', true)])).toBeUndefined()
+    expect(pickLocalVoice([voz('pt-BR', false), voz('en-US', true)])).toBeUndefined()
   })
 })

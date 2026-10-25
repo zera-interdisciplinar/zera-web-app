@@ -494,7 +494,7 @@ Extraído do Figma em 31/10/2026, frames `1824:9247`, `1824:9567` e `1824:9749`.
 | `--color-text-muted` | `#5C6980` | Subtítulos, eixos, labels, borda dos campos do modal |
 | `--color-placeholder` | `#99A1B2` | Placeholder da busca (`#7B8395` no login) |
 | `--color-border` | `#D8E0EE` | Busca, divisores |
-| `--color-border-input` | `#929BAD` | Inputs do login |
+| `--color-border-input` | `#75819A` (Figma: `#929BAD`, ver desvios acima) | Contorno dos campos |
 | `--font-app` | `'Inter', system-ui, sans-serif` | Shell e telas internas (400 / 500 / 600 / 700) |
 | `--font-auth` | `'Instrument Sans', system-ui, sans-serif` | Login (400 / 500 / 600 / 700) |
 | `--layout-sidebar` | `15.5rem` (248 px) | |
@@ -520,7 +520,14 @@ Tipografia do app (Inter):
 
 Fontes via `@fontsource/inter`, `@fontsource/instrument-sans` e `@fontsource/atkinson-hyperlegible` (seção 10). Remover `@fontsource/public-sans` e `@fontsource/jetbrains-mono`.
 
-O contraste dos pares texto/fundo deve passar AA; o teste [contraste.test.ts](../../tests/contraste.test.ts) é mantido e atualizado. **Atenção:** branco sobre âmbar `#EC9E1D` (botões do Figma) tem contraste ≈ 2,2:1, abaixo de AA. Usar texto `#122038` sobre âmbar (≈ 7:1) e registrar o ajuste para o time de design.
+O contraste dos pares texto/fundo deve passar AA; o teste [contraste.test.ts](../../tests/contraste.test.ts) é mantido e atualizado. **Desvios do Figma por contraste (WCAG), decididos no PR 5 e para registrar com o time de design:**
+
+| Figma | Contraste | Aplicado |
+| --- | --- | --- |
+| Texto branco sobre âmbar `#EC9E1D` (botões) | 2,2:1 | Texto navy `#162F71` sobre âmbar (5,6:1) |
+| Contorno dos campos `#929BAD` | 2,8:1 sobre branco (mínimo 3:1, WCAG 1.4.11) | `#75819A` (3,9:1), token `--color-border-input` |
+| Texto verde `#168763` (variação positiva) | 4,49:1 sobre branco e 3,75:1 sobre o creme | `#307050` (`--verde-texto`) para texto; `#168763` só em elementos gráficos |
+| Placeholder `#99A1B2` | 2,6:1 | Mantido o placeholder legado (`--texto-secundario`) |
 
 ---
 

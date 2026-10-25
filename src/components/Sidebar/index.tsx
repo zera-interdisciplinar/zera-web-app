@@ -1,4 +1,5 @@
 import { Box, LayoutDashboard, Package } from 'lucide-react'
+import { navigationItems } from '../../app/navigation'
 import { useAuth } from '../../hooks/useAuth'
 import { usePermissoes } from '../../hooks/usePermissoes'
 import { iniciais, ROTULO_PERFIL } from '../../types/usuario'
@@ -6,11 +7,8 @@ import { NavItem } from '../NavItem'
 import { UserCard } from '../UserCard'
 import estilos from '../../../styles/components/Sidebar/Sidebar.module.css'
 
-const DESTINOS = [
-  { para: '/', rotulo: 'Dashboard', Icone: LayoutDashboard, exato: true },
-  { para: '/itens', rotulo: 'Itens', Icone: Package, exato: false },
-  { para: '/modelos', rotulo: 'Modelos', Icone: Box, exato: false },
-] as const
+const ICONES = { '/': LayoutDashboard, '/itens': Package, '/modelos': Box } as const
+const DESTINOS = navigationItems.map((item) => ({ para: item.path, rotulo: item.label, Icone: ICONES[item.path as keyof typeof ICONES], exato: item.exact }))
 
 export function Sidebar() {
   const { usuario } = useAuth()

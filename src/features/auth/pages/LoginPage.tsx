@@ -17,7 +17,7 @@ export default function LoginPage() {
   const locked = state.secondsLeft > 0
 
   return (
-    <main className={styles.pagina} id="conteudo" tabIndex={-1}>
+    <main className={styles.pagina} id="conteudo" tabIndex={-1} data-public-page>
       <aside className={styles.marca} aria-label="Sobre o Zera">
         <div className={styles.marcaCentral}>
           <Logo />

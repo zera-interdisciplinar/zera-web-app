@@ -37,45 +37,56 @@ a {
   color: var(--azul);
 }
 
-html[data-fonte='legivel'] body,
-html[data-fonte='legivel'] :is(button, input, select, textarea) {
-  font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+/* Preferências de acessibilidade (shared/accessibility): os atributos são aplicados em <html>. */
+html[data-font='readable'] body,
+html[data-font='readable'] :is(button, input, select, textarea) {
+  font-family: var(--fonte-acessivel);
 }
 
-html[data-espacamento='ampliado'] body {
-  letter-spacing: .12em;
-  line-height: 1.8;
-  word-spacing: .16em;
+/* WCAG 1.4.12: entrelinha 1,5, parágrafos 2x, letras 0,12em e palavras 0,16em, sem cortar conteúdo. */
+html[data-spacing='wide'] body {
+  letter-spacing: 0.12em;
+  word-spacing: 0.16em;
 }
 
-html[data-espacamento='ampliado'] p { margin-block-end: 1.2em; }
+html[data-spacing='wide'] :is(p, li, dd, dt, td, th, label, h1, h2, h3, button, input, textarea, select) {
+  line-height: 1.5 !important;
+  letter-spacing: 0.12em;
+  word-spacing: 0.16em;
+}
 
-html[data-contraste='alto'] {
+html[data-spacing='wide'] p { margin-block-end: 2em; }
+
+/* Alto contraste (AAA): redefine os tokens legados e os canônicos. */
+html[data-contrast='high'] {
   --fundo: #fff;
   --branco: #fff;
   --creme: #fff;
-  --texto: #050505;
-  --texto-secundario: #1b1b1b;
-  --navy: #101c47;
-  --azul: #183d9f;
-  --borda: #101c47;
-  --borda-controle: #101c47;
-  --ambar-texto: #654000;
-  --verde-texto: #155536;
+  --texto: #000;
+  --texto-secundario: #1a1a1a;
+  --navy: #0b1b4a;
+  --azul: #0f2f8f;
+  --borda: #0b1b4a;
+  --borda-controle: #0b1b4a;
+  --ambar-texto: #5a3a00;
+  --verde-texto: #0f4a2e;
+  --color-bg: #fff;
+  --color-surface: #fff;
+  --color-text: #000;
+  --color-text-muted: #1a1a1a;
+  --color-navy-900: #0b1b4a;
+  --color-border: #0b1b4a;
+  --color-border-input: #0b1b4a;
 }
 
-html[data-modo-foco='ativo'] :is(aside, header, main) {
-  box-shadow: none;
-  background-image: none;
+/* Reduzir movimento: sem transições, animações nem rolagem suave. */
+html[data-motion='reduced'] *,
+html[data-motion='reduced'] *::before,
+html[data-motion='reduced'] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
 }
-
-html[data-modo-foco='ativo'] .pular-para-conteudo { display: block !important; }
-html[data-modo-foco='ativo'] main { max-width: 80rem; margin-inline: auto; }
-html[data-modo-foco='ativo'] main header { display: block !important; }
-
-html[data-simulacao-cores='protanopia'] #root > :is(main, div:not([data-acessibilidade])) { filter: url('#simulacao-protanopia'); }
-html[data-simulacao-cores='deuteranopia'] #root > :is(main, div:not([data-acessibilidade])) { filter: url('#simulacao-deuteranopia'); }
-html[data-simulacao-cores='tritanopia'] #root > :is(main, div:not([data-acessibilidade])) { filter: url('#simulacao-tritanopia'); }
 
 button,
 input,
@@ -136,7 +147,8 @@ table {
 }
 
 .texto-mono {
-  font-family: var(--fonte-mono);
+  font-family: var(--fonte-ui);
+  font-variant-numeric: tabular-nums;
   font-size: 0.875rem;
   line-height: 20px;
   font-weight: 500;
@@ -173,9 +185,7 @@ table {
   scroll-margin-top: calc(var(--altura-topbar) + 1rem);
 }
 
-.aviso-demo { padding: .5rem .75rem; border: 1px solid var(--navy); border-radius: .5rem; color: var(--navy); background: var(--branco); font-size: .875rem; }
 
-html[data-espacamento='ampliado'] :is(p, h1, h2, h3, label, button, input, textarea, select) { line-height: 1.8; }
 
 .pular-para-conteudo:focus {
   top: var(--sp-3);
@@ -209,10 +219,16 @@ html[data-espacamento='ampliado'] :is(p, h1, h2, h3, label, button, input, texta
 }
 .link-botao:hover { background: var(--ambar-hover); }
 .pagina-falha { padding: var(--sp-8); }
-.cabecalho-publico { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); color: var(--navy); background: var(--branco); }
-.cabecalho-publico nav { display: flex; flex-wrap: wrap; gap: var(--sp-4); }
+/* Cabeçalho das páginas públicas: o Figma do login não tem barra superior, então ele existe como landmark
+   (marca, navegação e link para o conteúdo) sem ocupar espaço. O link de pular aparece ao receber foco. */
+.cabecalho-publico { position: absolute; top: 0; left: 0; z-index: 50; width: 1px; height: 1px; }
+.cabecalho-publico > span,
+.cabecalho-publico nav { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.cabecalho-publico nav:focus-within { width: auto; height: auto; margin: 0; overflow: visible; clip: auto; padding: var(--sp-3) var(--sp-4); background: var(--branco); }
 .cabecalho-publico a { display: inline-flex; align-items: center; min-height: 2.75rem; }
 .rodape-sistema { padding: var(--sp-4) var(--sp-8); color: var(--texto-secundario); font-size: .75rem; }
+/* Na tela de login o rodapé segue como landmark, mas sem empurrar a página além de 100% da altura. */
+body:has(main[data-public-page]) .rodape-sistema { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .resumo-erros { color: #a51d2d; margin-block: 1rem; font-weight: 700; }
 [aria-invalid="true"] { border-color: #a51d2d !important; }

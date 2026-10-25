@@ -1,0 +1,22 @@
+.container { position: fixed; right: 1rem; bottom: 1rem; z-index: 40; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; }
+.trigger { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; border: 2px solid var(--color-navy-900); border-radius: 50%; background: var(--color-surface); color: var(--color-navy-900); box-shadow: 0 0.25rem 1rem rgb(18 32 56 / 0.35); cursor: pointer; }
+.trigger svg { width: 1.75rem; height: 1.75rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.trigger circle { fill: currentColor; }
+.trigger:hover { background: var(--color-blue-100); }
+.trigger:focus-visible { outline: 3px solid var(--color-amber-500); outline-offset: 3px; }
+.panel { width: min(24rem, calc(100vw - 1rem)); max-height: min(75vh, 40rem); overflow: auto; overflow-wrap: anywhere; border: 2px solid var(--color-navy-900); border-radius: 1rem; background: var(--color-surface); color: var(--color-text); box-shadow: var(--sombra-modal); }
+.panel[hidden] { display: none; }
+.header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 1rem; background: var(--color-navy-900); color: #fff; }
+.header h2 { font-size: 1.15rem; }
+.header h2:focus-visible { outline: 3px solid var(--color-amber-500); outline-offset: 2px; }
+.body { display: grid; min-width: 0; gap: 0.7rem; padding: 1rem; }
+.body > * { min-width: 0; }
+.body select { width: 100%; }
+.body button, .header button, .body select { min-height: 2.75rem; padding: 0.45rem 0.7rem; border: 2px solid var(--color-navy-900); border-radius: 0.5rem; background: var(--color-surface); color: var(--color-text); cursor: pointer; }
+.header button { border-color: #fff; color: var(--color-navy-900); }
+.body button:hover, .body select:hover { background: var(--color-blue-100); }
+.option { display: flex; align-items: center; gap: 0.6rem; min-height: 2.75rem; }
+.option input { flex: none; width: 1.3rem; height: 1.3rem; accent-color: var(--color-navy-900); }
+.note { font-size: 0.875rem; line-height: 1.5; }
+.guide { position: fixed; left: 0; right: 0; z-index: 30; height: 2rem; transform: translateY(-50%); background: rgb(53 87 202 / 0.13); border-top: 2px solid #1b2c67; border-bottom: 2px solid #1b2c67; pointer-events: none; }
+@media (max-width: 36rem) { .container { right: 0.5rem; bottom: 0.5rem; } .panel { max-height: calc(100dvh - 6rem); } }

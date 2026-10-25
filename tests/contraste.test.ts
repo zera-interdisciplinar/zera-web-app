@@ -49,6 +49,16 @@ describe('contraste dos tokens aplicados a textos e controles', () => {
     ['navy', 'ambar-hover'],
     ['branco', 'navy-suave'],
     ['branco', 'verde-texto'],
+    // Tokens canônicos do Figma usados em texto.
+    ['color-text', 'color-bg'],
+    ['color-text', 'color-surface'],
+    ['color-text-muted', 'color-surface'],
+    ['color-text-muted', 'color-bg'],
+    ['color-navy-login', 'color-surface'],
+    ['color-surface', 'color-navy-900'],
+    ['color-blue-100', 'color-navy-900'],
+    ['color-text', 'color-amber-500'],
+    ['color-navy-900', 'color-amber-500'],
   ])('%s sobre %s alcança 4,5:1', (frente, fundo) => {
     expect(razao(frente, fundo)).toBeGreaterThanOrEqual(4.5)
   })
@@ -58,6 +68,13 @@ describe('contraste dos tokens aplicados a textos e controles', () => {
   })
   it.each(['branco', 'fundo'])('borda de controle sobre %s alcança 3:1', (fundo) => {
     expect(razao('borda-controle', fundo)).toBeGreaterThanOrEqual(3)
+  })
+  it('contorno dos campos (--color-border-input) alcança 3:1 sobre branco e sobre o fundo creme da página', () => {
+    expect(razao('color-border-input', 'color-surface')).toBeGreaterThanOrEqual(3)
+    expect(razao('color-border-input', 'color-bg')).toBeGreaterThanOrEqual(3)
+  })
+  it('branco sobre âmbar NÃO alcança 4,5:1: botões âmbar usam texto escuro (achado do Figma)', () => {
+    expect(razao('color-surface', 'color-amber-500')).toBeLessThan(3)
   })
   it('arco do gráfico sobre o trilho alcança 3:1', () => {
     expect(razao('verde-texto', 'azul-claro')).toBeGreaterThanOrEqual(3)

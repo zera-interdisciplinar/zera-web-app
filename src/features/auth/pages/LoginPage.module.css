@@ -2,7 +2,7 @@
   min-height: 100vh;
   min-height: 100dvh;
   display: grid;
-  grid-template-columns: minmax(280px, 33%) minmax(0, 1fr);
+  grid-template-columns: minmax(280px, 36.3%) minmax(0, 1fr);
   overflow: hidden;
   background: var(--navy);
 }
@@ -15,7 +15,7 @@
   flex-direction: column;
   justify-content: space-between;
   padding: clamp(2rem, 4vw, 4rem) clamp(1.5rem, 3vw, 3rem);
-  border-radius: 0 34px 34px 0;
+  border-radius: 0 60px 60px 0;
   background: var(--creme);
   color: var(--navy);
 }
@@ -79,7 +79,7 @@
   min-height: 100vh;
   padding: clamp(1.25rem, 4vw, 3.5rem);
   overflow: hidden;
-  background: linear-gradient(135deg, #244da8 0%, #162f71 100%);
+  background: linear-gradient(135deg, var(--color-blue-600) 0%, var(--color-navy-900) 100%);
 }
 
 .painel::before,
@@ -106,50 +106,51 @@
 .conteudoLogin {
   position: relative;
   z-index: 0;
-  width: min(100%, 496px);
+  width: min(100%, 30rem); /* 480 px no Figma */
 }
 
 .marcaMobile { display: none; }
 
+/* Card do formulário: medidas e cores do frame WEB do Figma (Instrument Sans). */
 .cartao {
-  padding: clamp(1.75rem, 4vw, 2.5rem) clamp(1.5rem, 9vw, 5.75rem);
-  border-radius: 20px;
-  background: var(--creme);
-  color: var(--navy);
-  box-shadow: 0 18px 48px rgb(8 23 63 / 0.22);
+  padding: 2rem;
+  border-radius: 1.5rem;
+  background: #F2EBD8;
+  color: var(--color-navy-login);
+  font-family: var(--fonte-auth);
+  box-shadow: 0 1rem 1.25rem rgb(22 47 113 / 0.14);
 }
 
 .cartao h1 {
-  color: var(--navy);
-  text-align: center;
-  font-family: var(--fonte-display);
-  font-size: clamp(1.6rem, 2.2vw, 2rem);
-  font-weight: 750;
-  line-height: 1.2;
+  color: var(--color-navy-login);
+  font-family: var(--fonte-auth);
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 2.625rem;
 }
 
 .subtitulo {
-  margin-top: 0.25rem;
-  color: var(--navy);
-  text-align: center;
-  font-size: clamp(0.82rem, 1.25vw, 0.95rem);
-  font-weight: 600;
-  line-height: 1.45;
+  margin-top: 0.5rem;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5rem;
 }
 
 .formulario {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
-  margin-top: 1rem;
+  gap: 1rem;
+  margin-top: 1.5rem;
 }
 
 .linkAuxiliar {
-  align-self: center;
-  color: #34518B;
-  font-size: 0.75rem;
-  line-height: 1.4;
-  text-align: center;
+  align-self: flex-end;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  text-align: right;
   text-underline-offset: 2px;
   text-decoration: underline;
   padding: 0.5rem;
@@ -162,19 +163,20 @@
 .linkAuxiliar:hover { color: var(--azul); }
 
 .botaoEntrar {
-  align-self: center;
-  width: 55%;
-  min-height: 2.75rem !important;
-  margin-top: 0.15rem;
-  border-radius: var(--r-pill) !important;
-  background: var(--azul) !important;
+  align-self: stretch;
+  width: 100%;
+  min-height: 3.5rem !important; /* 56 px no Figma */
+  border-radius: 1rem !important;
+  background: var(--color-navy-900) !important;
   color: #fff !important;
-  letter-spacing: 0.08em;
+  font-family: var(--fonte-auth);
+  font-size: 1rem;
+  font-weight: 700;
   transition: background-color var(--transicao), transform var(--transicao), box-shadow var(--transicao);
 }
 
 .botaoEntrar:hover:not(:disabled) {
-  background: var(--azul-hover) !important;
+  background: var(--color-navy-700) !important;
   transform: translateY(-1px);
 }
 
@@ -203,7 +205,7 @@
   .conteudoLogin { width: min(100%, 496px); }
   .marcaMobile { display: grid; justify-items: center; width: fit-content; margin: 0 auto 1.25rem; padding: 0.55rem 0.85rem; border-radius: 0.75rem; background: var(--creme); }
   .marcaMobile > img { width: min(48vw, 190px); }
-  .cartao { padding: clamp(1.5rem, 6vw, 2.25rem) clamp(1.25rem, 7vw, 2.5rem); }
+  .cartao { padding: 1.5rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -213,5 +215,4 @@
 @media (max-width: 380px) {
   .painel { padding: 0.75rem; }
   .cartao { padding-inline: 1rem; }
-  .botaoEntrar { width: 68%; }
 }

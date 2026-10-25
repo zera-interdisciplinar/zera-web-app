@@ -37,7 +37,8 @@
 }
 
 .conteudo {
-  padding: var(--sp-6) var(--sp-8);
+  /* Folga inferior para o botão flutuante de acessibilidade não cobrir a última linha (A-10). */
+  padding: var(--sp-6) var(--sp-8) calc(var(--sp-6) + 4.5rem);
   display: flex;
   flex-direction: column;
   gap: var(--sp-6);

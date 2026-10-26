@@ -24,7 +24,7 @@ export function VisaoGeralTab({ snapshot, demo = false, aguardando = true }: Vis
     <section className={estilos.gradeKpis} aria-label="Indicadores gerais">
       {demo && <KpiDashboard demo={demo} titulo="Itens cadastrados" valor={formatarNumero(snapshot.kpis.itens_cadastrados.value)} nota={formatarVariacao(snapshot.kpis.itens_cadastrados.change_percent)} />}
       <KpiDashboard demo={demo} titulo="Alertas registrados" valor={formatarNumero(snapshot.alertas.abertos)} />
-      {demo && <KpiDashboard demo titulo="Taxa de reciclagem (%)" valor={formatarNumero(snapshot.kpis.taxa_reciclagem.percent, 2)} nota={`Variação: ${formatarPontosPercentuais(snapshot.kpis.taxa_reciclagem.change_points)} · Circularidade: ${formatarNumero(snapshot.circularidade.percent, 2)}${snapshot.circularidade.percent === null ? "" : "%"}`} />}
+      <KpiDashboard demo={demo} titulo="Taxa de reciclagem (%)" valor={formatarNumero(snapshot.kpis.taxa_reciclagem.percent, 2)} nota={`Variação: ${formatarPontosPercentuais(snapshot.kpis.taxa_reciclagem.change_points)} · Circularidade: ${formatarNumero(snapshot.circularidade.percent, 2)}${snapshot.circularidade.percent === null ? "" : "%"}`} />
       {demo && <KpiDashboard demo={demo} titulo="Aguardando aprovação" valor={formatarNumero(snapshot.kpis.aguardando_aprovacao.value)} nota={`Prioritários: ${formatarNumero(snapshot.kpis.aguardando_aprovacao.prioritarios)}`} />}
       {demo && <KpiDashboard demo titulo="Impacto recuperado (t)" valor={formatarNumero(snapshot.kpis.impacto_recuperado.tonnes, 3)} nota={`${formatarNumero(snapshot.kpis.impacto_recuperado.kg, 2)} kg`} />}
       <KpiDashboard demo={demo} titulo="Circularidade (%)" valor={formatarNumero(snapshot.circularidade.percent, 2)} />

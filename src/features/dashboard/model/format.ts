@@ -1,4 +1,6 @@
-export const NOT_AVAILABLE = '—'
+import { NOT_AVAILABLE } from '../../../shared/format'
+
+export { formatRelativeTime, NOT_AVAILABLE } from '../../../shared/format'
 
 const integer = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 })
 const decimal = (digits: number) => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: digits })
@@ -33,14 +35,4 @@ const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', '
 export function formatMonth(month: string): string {
   const [year, number] = month.split('-')
   return `${MONTHS[Number(number) - 1] ?? month}/${year?.slice(2) ?? ''}`
-}
-
-const rtf = new Intl.RelativeTimeFormat('pt-BR', { numeric: 'auto' })
-
-export function formatRelativeTime(iso: string, now = Date.now()): string {
-  const minutes = Math.round((Date.parse(iso) - now) / 60_000)
-  if (!Number.isFinite(minutes)) return NOT_AVAILABLE
-  if (Math.abs(minutes) < 60) return rtf.format(minutes, 'minute')
-  if (Math.abs(minutes) < 60 * 24) return rtf.format(Math.round(minutes / 60), 'hour')
-  return rtf.format(Math.round(minutes / (60 * 24)), 'day')
 }

@@ -1,0 +1,12 @@
+.dialog { width: 100%; max-height: calc(100dvh - 2rem); padding: 0; border: 0; border-radius: 1.875rem; overflow: auto; box-shadow: var(--sombra-modal); }
+.dialog::backdrop { background: rgb(18 32 56 / 0.55); }
+.light { background: var(--color-surface); color: var(--color-text); }
+.navy { background: var(--color-navy-900); color: #fff; }
+.content { display: grid; gap: 1.25rem; padding: 1.75rem; }
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.header h2 { font-size: 1.25rem; font-weight: 700; line-height: 1.75rem; }
+.close { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; flex: none; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; }
+.navy .close { color: var(--color-amber-500); }
+.close svg { width: 1.5rem; height: 1.5rem; }
+.close:focus-visible { outline: 3px solid var(--color-amber-500); outline-offset: 2px; }
+.light .close:focus-visible { outline-color: var(--color-blue-600); }

@@ -1,0 +1,6 @@
+.nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; margin-top: 1rem; font-size: 0.875rem; color: var(--color-text-muted); }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.controls label { display: inline-flex; align-items: center; gap: 0.5rem; }
+.controls select, .controls button { min-height: 2.5rem; padding: 0.25rem 0.875rem; border: 1px solid var(--color-navy-900); border-radius: 0.75rem; background: var(--color-surface); color: var(--color-navy-900); font: inherit; font-weight: 600; cursor: pointer; }
+.controls button:disabled { opacity: 0.45; cursor: not-allowed; }
+.controls :is(select, button):focus-visible { outline: 3px solid var(--color-blue-600); outline-offset: 2px; }

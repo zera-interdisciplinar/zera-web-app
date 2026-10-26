@@ -7,8 +7,8 @@ import { EstruturaPublica } from '../components/EstruturaPublica'
 
 const LoginPage = lazy(() => import('../features/auth/pages/LoginPage'))
 const DashboardPage = lazy(() => import('../features/dashboard/pages/OverviewPage'))
-const ItensPage = lazy(() => import('../pages/ItensPage'))
-const ItemDetalhePage = lazy(() => import('../pages/ItemDetalhePage'))
+const ItemsPage = lazy(() => import('../features/items/pages/ItemsPage'))
+const ItemDetailPage = lazy(() => import('../features/items/pages/ItemDetailPage'))
 const ModelosPage = lazy(() => import('../pages/ModelosPage'))
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'))
 
@@ -28,8 +28,8 @@ export function AppRoutes() {
           }
         >
           <Route path="/" element={<DashboardPage />} />
-          <Route path="/itens" element={<ItensPage />} />
-          <Route path="/itens/:id" element={<ItemDetalhePage />} />
+          <Route path="/itens" element={<ItemsPage />} />
+          <Route path="/itens/:id" element={<ItemDetailPage />} />
           <Route path="/modelos" element={<ModelosPage />} />
         </Route>
       </Routes>

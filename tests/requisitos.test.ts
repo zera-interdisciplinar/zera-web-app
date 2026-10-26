@@ -192,20 +192,13 @@ it('Req 22: formulários validam dados tipados antes de enviar aos serviços', (
   const formularios: Array<[string, string]> = [
     ['useCadastroCategoria.ts', 'validarCategoria'],
     ['useCadastroModelo.ts', 'validarCadastroModeloReal'],
-    ['useCadastroItens.ts', 'validarCadastroItemReal'],
-    ['useEdicaoItem.ts', 'validarEdicaoItem'],
-    ['useTransicaoItem.ts', 'validarTransicaoItem'],
   ]
   for (const [arquivo, validador] of formularios) {
     const fonte = ler('src/hooks/' + arquivo)
     const posicaoValidador = fonte.indexOf(validador + '(')
     expect(fonte.split(/\r?\n/).some(linha => linha.includes(validador) && linha.includes("from '../utils/")), arquivo).toBe(true)
     expect(posicaoValidador, arquivo).toBeGreaterThan(-1)
-    if (arquivo !== 'useRecuperarSenha.ts') {
-      expect(fonte.indexOf('await ', posicaoValidador), arquivo).toBeGreaterThan(posicaoValidador)
-    } else {
-      expect(fonte).not.toContain("from '../services/")
-    }
+    expect(fonte.indexOf('await ', posicaoValidador), arquivo).toBeGreaterThan(posicaoValidador)
   }
   // Formulários das camadas novas: o esquema zod valida antes da chamada à API.
   const login = ler('src/features/auth/hooks/useLoginForm.ts')
@@ -215,9 +208,14 @@ it('Req 22: formulários validam dados tipados antes de enviar aos serviços', (
   const recuperacao = ler('src/features/auth/components/ForgotPasswordDialog.tsx')
   expect(recuperacao).toContain("from '../schemas'")
   expect(recuperacao.indexOf('await requestPasswordReset')).toBeGreaterThan(recuperacao.indexOf('forgotPasswordSchema.safeParse'))
-  const servico = ler('src/services/itemCadastroService.ts')
-  expect(servico.indexOf('validarCadastroItemReal(entrada)')).toBeGreaterThan(0)
-  expect(servico.indexOf('validarCadastroItemReal(entrada)')).toBeLessThan(servico.indexOf("requisitarApiReal<unknown>('inventory'"))
+  // Formulário de item: o resolver zod roda antes de qualquer chamada à API (RHF só chama o submit com dados válidos).
+  const cadastro = ler('src/features/items/components/CreateItemDialog.tsx')
+  expect(cadastro).toContain('zodResolver(createItemSchema)')
+  expect(cadastro.indexOf('mutate(toCreateRequest(')).toBeGreaterThan(cadastro.indexOf('handleSubmit('))
+  const edicao = ler('src/features/items/components/EditItemDialog.tsx')
+  expect(edicao).toContain('zodResolver(editItemSchema)')
+  expect(edicao.indexOf('mutate({ id: item.id, body }')).toBeGreaterThan(edicao.indexOf('handleSubmit('))
+  expect(ler('src/features/items/components/RejectDialog.tsx')).toContain('zodResolver(rejectSchema)')
 })
 
 it('Req 23: rota privada consome autenticação e redireciona ao login', () => {

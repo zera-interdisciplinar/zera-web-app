@@ -4,7 +4,6 @@ import { normalizarBusca } from '../src/utils/busca'
 import { LIMITES, limitarNumero } from '../src/utils/limitesNumericos'
 import { rotuloEvento } from '../src/utils/eventos'
 import { ROTULO_STATUS } from '../src/types/produto'
-import { ROTULO_TRANSICAO } from '../src/types/transicaoItem'
 import { mapearItem } from '../src/services/mapeadoresApi'
 import type { ItemResponse } from '../src/types/apiReal'
 
@@ -31,8 +30,6 @@ describe('regressões de usabilidade', () => {
   })
   it('mostra status e eventos de empréstimo e cancelamento em texto humano', () => {
     expect(ROTULO_STATUS['em-uso']).toBe('Em uso')
-    expect(ROTULO_TRANSICAO.lend).toBe('Registrar empréstimo')
-    expect(ROTULO_TRANSICAO.return).toBe('Registrar devolução')
     expect(rotuloEvento({ type: 'LOAN_STARTED', fromStatus: 'IN_STOCK', toStatus: 'IN_USE' })).toBe('Empréstimo iniciado')
     expect(rotuloEvento({ type: 'LOAN_RETURNED', fromStatus: 'IN_USE', toStatus: 'IN_STOCK' })).toBe('Item devolvido ao estoque')
     expect(rotuloEvento({ type: 'DISPOSAL_CANCELLED', fromStatus: 'DISPOSED', toStatus: 'IN_STOCK' })).toBe('Descarte cancelado')

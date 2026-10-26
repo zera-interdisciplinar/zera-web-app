@@ -69,11 +69,11 @@ test('leitor virtual percorre login, erro, painel, aba, itens e modal', async ({
   const modal = page.getByRole('dialog')
   await expect(modal).toBeVisible()
   await expect(modal.locator(':focus')).toHaveCount(1)
-  await expect(modal).toMatchAriaSnapshot('- dialog "Cadastrar item"')
+  await expect(modal).toMatchAriaSnapshot('- dialog "Adicionar item"')
   falas = await percorrer(page)
   anuncios.modal = falas
   expect(falas.join(' ')).toMatch(/dialog|diálogo/i)
-  expect(falas.join(' ')).toMatch(/Cadastrar item/i)
+  expect(falas.join(' ')).toMatch(/Adicionar item/i)
   expect(falas.join(' ')).toMatch(/textbox|combobox|edit text/i)
   await page.keyboard.press('Escape')
   await expect(modal).toBeHidden()

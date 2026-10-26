@@ -24,6 +24,16 @@ export async function transicionarItemReal(id: number | string, acao: AcaoItemRe
       metodo: 'POST', corpo, unidade: true, sinal,
     })))
   } catch (erro) {
-    throw contextualizar(erro, 'Não foi possível atualizar o estado do item.')
+    const mensagemStatus = erro instanceof ApiError
+      ? {
+        403: 'Seu perfil não tem permissão para esta ação.',
+        404: 'O item não foi encontrado nesta unidade.',
+        409: 'O estado atual do item não permite esta ação. Atualize o item e tente novamente.',
+      }[erro.status]
+      : undefined
+    const falha = mensagemStatus && erro instanceof ApiError
+      ? new ApiError(mensagemStatus, erro.status)
+      : erro
+    throw contextualizar(falha, 'Não foi possível atualizar o estado do item.')
   }
 }

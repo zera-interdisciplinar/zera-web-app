@@ -10,8 +10,10 @@ import {
   concluirManutencaoReal,
   iniciarManutencaoReal,
 } from '../services/manutencaoService'
+import { invalidarCatalogo } from '../services/catalogoEventos'
 import { transicionarItemReal } from '../services/transicaoItemService'
 import { useAuth } from './useAuth'
+import { ApiError } from '../types/api'
 
 interface EstadoTransicao {
   acao: AcaoItemReal | null
@@ -83,9 +85,14 @@ export function useTransicaoItem(item: ProdutoDetalhado, aoConcluir: () => void)
         await transicionarItemReal(item.id, acao, validacao.dados, cancelamento.current.signal)
       }
       if (!montado.current) return
+      invalidarCatalogo()
       setEstado((atual) => ({ ...atual, acao: null, sucesso: SUCESSO[acao] }))
       aoConcluir()
     } catch (erro) {
+      if (erro instanceof ApiError && (erro.status === 404 || erro.status === 409)) {
+        invalidarCatalogo()
+        aoConcluir()
+      }
       if (montado.current && !(erro instanceof DOMException && erro.name === 'AbortError')) setEstado((atual) => ({ ...atual, erro: mensagemDeErro(erro) }))
     } finally {
       emEnvio.current = false

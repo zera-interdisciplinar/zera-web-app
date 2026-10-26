@@ -21,5 +21,5 @@ export const ROTULO_TRANSICAO: Record<AcaoItemReal, string> = {
   return: 'Registrar devolução',
   'maintenance/start': 'Iniciar manutenção',
   'maintenance/finish': 'Concluir manutenção',
-  evaluate: 'Avaliar condição',
+  evaluate: 'Avaliar',
 }

@@ -13,10 +13,11 @@ const CONDICOES = [
 
 export function FluxoItemReal({ item, aoConcluir }: FluxoItemRealProps) {
   const fluxo = useTransicaoItem(item, aoConcluir)
+  if (fluxo.acoes.length === 0) return null
+
   return <section aria-label="Próximas etapas do item">
     <h2 className="titulo-card">Próximas etapas</h2>
     {fluxo.acoes.map((acao) => <Button key={acao} variante={acao === 'reject' ? 'perigo' : 'secundario'} onClick={() => fluxo.selecionar(acao)} disabled={fluxo.enviando}>{ROTULO_TRANSICAO[acao]}</Button>)}
-    {fluxo.acoes.length === 0 && <p>Não há etapas disponíveis para este estado e perfil de acesso.</p>}
     <p role="status" tabIndex={-1} ref={fluxo.acao ? undefined : fluxo.feedbackRef}>{fluxo.sucesso}</p>
     <Modal aberto={fluxo.acao !== null} titulo={fluxo.acao ? ROTULO_TRANSICAO[fluxo.acao] : 'Atualizar item'} aoFechar={fluxo.fechar}>
       <Formulario onSubmit={fluxo.confirmar} noValidate aria-busy={fluxo.enviando}>

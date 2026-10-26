@@ -8,7 +8,7 @@ for (const perfil of ['MANAGER']) {
     await preparar(page, perfil)
     await page.setViewportSize({ width: largura, height: 900 })
     const rotas = [
-      ['/', 'Painel do Zera'],
+      ['/', 'Visão geral'],
       ['/itens', 'Gestão de itens'],
       ['/itens/item-proprio', 'Notebook próprio'],
       ['/modelos', 'Modelos'],

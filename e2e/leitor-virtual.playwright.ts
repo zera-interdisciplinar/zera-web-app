@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test'
 import type { virtual } from '@guidepup/virtual-screen-reader'
 import { base, preparar } from './api-controlada'
+import { snapshotFrame } from '../tests/fixtures/dashboardSnapshot'
 
 declare global {
   interface Window { zeraLeitorVirtual: typeof virtual }
@@ -40,21 +41,22 @@ test('leitor virtual percorre login, erro, painel, aba, itens e modal', async ({
   expect(falas.join(' ')).toMatch(/alert/i)
   expect(falas.join(' ')).toMatch(/obrigat|preench|inválid/i)
 
+  await page.route('**/api/analytics/api/v1/dashboard/overview?**', (route) => route.fulfill({ contentType: 'text/event-stream', body: snapshotFrame() }))
   await preparar(page)
-  await expect(page.getByRole('heading', { name: 'Painel do Zera' })).toMatchAriaSnapshot('- heading "Painel do Zera" [level=1]')
+  await expect(page.getByRole('heading', { name: 'Visão geral', exact: true })).toMatchAriaSnapshot('- heading "Visão geral" [level=1]')
   falas = await percorrer(page)
   anuncios.painel = falas
-  expect(falas.join(' ')).toMatch(/Painel do Zera/i)
+  expect(falas.join(' ')).toMatch(/Visão geral/i)
   expect(falas.join(' ')).toMatch(/main|navigation|heading/i)
-  const aba = page.getByRole('tab', { name: 'Visão geral', exact: true })
-  await aba.click()
-  await expect(aba).toHaveAttribute('aria-selected', 'true')
-  await expect(aba).toMatchAriaSnapshot('- tab "Visão geral" [selected]')
+  const visao = page.getByRole('button', { name: 'Pendentes', exact: true })
+  await visao.click()
+  await expect(visao).toHaveAttribute('aria-pressed', 'true')
+  await expect(visao).toMatchAriaSnapshot('- button "Pendentes" [pressed]')
   falas = await percorrer(page)
   anuncios.aba = falas
-  expect(falas.join(' ')).toMatch(/Visão geral/i)
-  expect(falas.join(' ')).toMatch(/selected/i)
-  expect(falas.join(' ')).toMatch(/tab/i)
+  expect(falas.join(' ')).toMatch(/Pendentes/i)
+  expect(falas.join(' ')).toMatch(/pressed/i)
+  expect(falas.join(' ')).toMatch(/button/i)
 
   await page.getByRole('link', { name: 'Itens', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Gestão de itens' })).toMatchAriaSnapshot('- heading "Gestão de itens" [level=1]')

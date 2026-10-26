@@ -23,7 +23,7 @@ test('cada rota permitida carrega seu chunk de produção no primeiro acesso', a
     if (resposta.ok() && caminho.endsWith('.js')) scripts.add(caminho)
   })
   await preparar(page, 'MANAGER', 0, origem)
-  await expect(page.getByRole('heading', { level: 1, name: 'Painel do Zera', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Visão geral', exact: true })).toBeVisible()
   const registro: Array<{ rota: string; chunks: string[] }> = []
   for (const [rota, titulo] of [
     ['/itens', 'Gestão de itens'], ['/itens/item-proprio', 'Notebook próprio'],

@@ -38,7 +38,7 @@ test('T-21: o gestor continua logado após recarregar a página (BR-21)', async 
   const { escritas } = await preparar(page)
   expect(await page.evaluate(() => sessionStorage.getItem('zera.session.refresh'))).toBe('renovacao-sintetica')
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Painel do Zera', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Visão geral', exact: true })).toBeVisible()
   expect(escritas.filter((escrita) => escrita.caminho === '/api/v1/auth/refresh').map((escrita) => escrita.corpo)).toEqual([{ refreshToken: 'renovacao-sintetica' }])
   expect(await page.evaluate(() => sessionStorage.getItem('zera.session.refresh'))).toBe('renovacao-sintetica-1')
   // Tokens never go to localStorage (it is shared by every tab and survives the browser).

@@ -59,11 +59,17 @@ export async function preparar(page: Page, role = 'MANAGER', peso = 0, endereco 
     return route.fulfill({ status: 503, json: {} })
   })
   if (!entrar) return { escritas, leituras }
+  await fazerLogin(page, endereco)
+  return { escritas, leituras }
+}
+
+/** Faz o login pela tela e espera o painel; use depois de registrar as rotas específicas do teste. */
+export async function fazerLogin(page: Page, endereco = base) {
   await page.goto(`${endereco}/login`)
   await page.locator('#email').fill('pessoa@example.invalid')
   await page.locator('#senha').fill('somente-teste-local')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page).toHaveURL(`${endereco}/`)
-  return { escritas, leituras }
+  // A URL muda antes de a área privada montar: espera a navegação lateral para não correr com a tela de login.
+  await expect(page.getByRole('navigation', { name: 'Seções do sistema' })).toBeVisible()
 }
-

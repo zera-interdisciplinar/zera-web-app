@@ -38,7 +38,7 @@ test('QA real autorizado: categoria, modelo Outro e item criados na interface; c
     await page.locator('#email').fill(email.trim())
     await page.locator('#senha').fill(senha)
     await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-    await expect(page.getByRole('heading', { name: 'Painel do Zera', exact: true })).toBeVisible({ timeout: 40_000 })
+    await expect(page.getByRole('heading', { name: 'Visão geral', exact: true })).toBeVisible({ timeout: 40_000 })
     await page.getByRole('link', { name: 'Itens', exact: true }).click()
     await page.getByRole('button', { name: 'Adicionar item', exact: true }).click()
     etapa = 'cadastro de categoria'

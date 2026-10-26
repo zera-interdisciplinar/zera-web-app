@@ -81,42 +81,6 @@ test('item: criação no cadastro, sucesso, histórico traduzido e cancelar edi�
   await page.screenshot({ path: 'test-results/item-historico.png', fullPage: true })
 })
 
-for (const peso of [0, 12.5]) test(`painel com peso ${peso}, modo foco, navegação e 320 px`, async ({ page }) => {
-  await preparar(page, 'MANAGER', peso)
-  if (peso === 0) await expect(page.getByText('Nenhum peso positivo registrado nos últimos 12 meses.')).toBeVisible()
-  else {
-    await expect(page.getByRole('group', { name: /Peso mensal/ })).toBeVisible()
-    const ponto = page.getByRole('button', { name: /12,5 kg/ })
-    await ponto.focus()
-    await expect(page.getByRole('tooltip')).toContainText('12,5 kg')
-    await ponto.hover()
-    await expect(page.getByRole('tooltip')).toContainText('12,5 kg')
-    await ponto.click()
-    await expect(page.getByRole('tooltip')).toContainText('12,5 kg')
-    await page.getByText('Ver em tabela').click()
-    await expect(page.getByRole('cell', { name: '12,5', exact: true })).toBeVisible()
-  }
-  await page.evaluate(() => document.documentElement.dataset.modoFoco = 'ativo')
-  for (const nome of ['Itens', 'Modelos']) {
-    await page.getByRole('link', { name: nome, exact: true }).click()
-    await expect(page.getByRole('navigation', { name: 'Seções do sistema' })).toBeVisible()
-  }
-  await page.getByRole('link', { name: 'Dashboard', exact: true }).click()
-  await axe(page)
-  await page.setViewportSize({ width: 320, height: 800 })
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-  await page.screenshot({ path: `test-results/painel-${peso}-320.png`, fullPage: true })
-})
-
-test.describe('gráfico de peso em tela sensível ao toque', () => {
-  test.use({ hasTouch: true })
-  test('toque em um mês apresenta seu peso', async ({ page }) => {
-    await preparar(page, 'MANAGER', 12.5)
-    await page.getByRole('button', { name: /12,5 kg/ }).tap()
-    await expect(page.getByRole('tooltip')).toContainText('12,5 kg')
-  })
-})
-
 test('busca de itens fica na URL e não herda filtros invisíveis de outra sessão', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('zera.inventario.preferencias', JSON.stringify({ statusFiltro: 'descartado' })))
   await preparar(page)

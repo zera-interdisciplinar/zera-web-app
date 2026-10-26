@@ -6,7 +6,7 @@ import { PrivateRoute } from '../components/PrivateRoute'
 import { EstruturaPublica } from '../components/EstruturaPublica'
 
 const LoginPage = lazy(() => import('../features/auth/pages/LoginPage'))
-const DashboardPage = lazy(() => import('../pages/DashboardPage'))
+const DashboardPage = lazy(() => import('../features/dashboard/pages/OverviewPage'))
 const ItensPage = lazy(() => import('../pages/ItensPage'))
 const ItemDetalhePage = lazy(() => import('../pages/ItemDetalhePage'))
 const ModelosPage = lazy(() => import('../pages/ModelosPage'))

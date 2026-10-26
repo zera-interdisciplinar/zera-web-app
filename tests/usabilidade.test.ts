@@ -7,9 +7,6 @@ import { ROTULO_STATUS } from '../src/types/produto'
 import { ROTULO_TRANSICAO } from '../src/types/transicaoItem'
 import { mapearItem } from '../src/services/mapeadoresApi'
 import type { ItemResponse } from '../src/types/apiReal'
-import { createElement } from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
-import { PesoMensal } from '../src/components/PesoMensal'
 
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.resetModules() })
 
@@ -44,16 +41,6 @@ describe('regressões de usabilidade', () => {
     const payload: ItemResponse = { id: 'item', barcode: 'etiqueta', displayCode: null, name: null, status: 'DRAFT', condition: null, unitId: 'unidade', model: null, createdBy: 'pessoa', createdByName: null, createdAt: '2026-10-28T14:12:00Z', updatedAt: '2026-10-28T14:12:00Z' }
     const item = mapearItem(payload)
     expect(item.nome).toBe('Item sem nome')
-  })
-  it('troca série zerada por estado vazio e oferece tabela quando há peso', () => {
-    const vazio = renderToStaticMarkup(createElement(PesoMensal, { pontos: [{ month: '2026-10', weightKg: 0 }] }))
-    expect(vazio).toContain('Nenhum peso positivo registrado nos últimos 12 meses.')
-    expect(vazio).not.toContain('<table')
-    const preenchido = renderToStaticMarkup(createElement(PesoMensal, { pontos: [{ month: '2026-10', weightKg: 12.5 }] }))
-    expect(preenchido).toContain('<title>out/26: 12,5 kg</title>')
-    expect(preenchido).toContain('Ver em tabela')
-    expect(preenchido).toContain('12,5')
-    expect(preenchido).toContain('scope="col"')
   })
   it('interpreta o timestamp sem offset como UTC, como o timestamp com Z', () => {
     const referencia = new Date('2026-10-28T15:00:00Z')

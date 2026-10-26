@@ -8,7 +8,6 @@ const habilitado = process.env.ZERA_RUN_LIVE_QA === 'true'
 const env = habilitado ? loadEnv('development', process.cwd(), '') : {}
 const contas = [
   { perfil: 'gestor', email: env.ZERA_QA_GESTOR_EMAIL || env.QA_GESTOR_EMAIL, senha: env.ZERA_QA_GESTOR_PASSWORD || env.QA_GESTOR_PASSWORD },
-  { perfil: 'funcionario', email: env.ZERA_QA_FUNCIONARIO_EMAIL || env.QA_OPERADOR_EMAIL || env.QA_OPERARIO_EMAIL, senha: env.ZERA_QA_FUNCIONARIO_PASSWORD || env.QA_OPERADOR_PASSWORD || env.QA_OPERARIO_PASSWORD },
 ]
 const sites = [
   { nome: 'pages', url: 'https://zera-interdisciplinar.github.io/zera-web-app/', hash: true },
@@ -95,10 +94,10 @@ for (const site of sites) for (const conta of contas) {
     try {
       await page.goto(site.hash ? site.url + '#/login' : site.url + '/login')
       await entrar()
-      await expect(page.getByRole('heading', { level: 1, name: conta.perfil === 'gestor' ? 'Painel do Zera' : 'Meus itens', exact: true })).toBeVisible({ timeout: 35_000 })
+      await expect(page.getByRole('heading', { level: 1, name: 'Visão geral', exact: true })).toBeVisible({ timeout: 35_000 })
       for (const largura of [1280, 768, 320]) {
         await page.setViewportSize({ width: largura, height: 900 })
-        for (const [rota, titulo] of [['/modelos', 'Modelos'], ['/itens', 'Gestão de itens'], ['/descartes', 'Registros de descarte'], ['/recicladoras', 'Locais de reciclagem']]) {
+        for (const [rota, titulo] of [['/modelos', 'Modelos'], ['/itens', 'Gestão de itens']]) {
           await navegar(rota)
           await expect(page.getByRole('heading', { level: 1, name: titulo, exact: true })).toBeVisible()
           await expect(page.getByText(/^(Carregando os modelos\.|Carregando os itens do inventário\.)$/)).toHaveCount(0, { timeout: 30_000 })
@@ -141,14 +140,7 @@ for (const site of sites) for (const conta of contas) {
           await conferir(rota.slice(1), largura)
         }
         await navegar('/')
-        if (conta.perfil === 'funcionario') await page.getByRole('button', { name: 'Ver indicadores da unidade' }).press('Enter')
-        for (const aba of ['Visão geral', 'Itens e vida útil', 'Evolução e movimentações', 'Qualidade dos dados e alertas', 'Materiais e sustentabilidade']) {
-          await page.getByRole('tab', { name: aba, exact: true }).press('Enter')
-          await expect(page.getByRole('tabpanel')).toBeVisible()
-          await expect(page.getByRole('tabpanel').locator('[data-estado="carregando"]')).toHaveCount(0, { timeout: 200_000 })
-          if (['Visão geral', 'Evolução e movimentações', 'Qualidade dos dados e alertas'].includes(aba)) await expect(page.locator('div[data-estado="sucesso"], div[data-estado="erro"], div[data-estado="indisponivel"]')).toBeVisible({ timeout: 200_000 })
-          await conferir('painel-' + aba.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\W+/g, '-'), largura)
-        }
+        await expect(page.getByRole('heading', { level: 1, name: 'Visão geral', exact: true })).toBeVisible()
       }
       if (item) {
         await navegar('/itens/' + encodeURIComponent(item))

@@ -44,7 +44,7 @@ test('login real do gestor QA leva ao painel', async ({ page }) => {
   await page.getByLabel('Email').fill(gestor.email)
   await page.locator('#senha').fill(gestor.senha)
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Painel do Zera' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Visão geral' })).toBeVisible()
 })
 
 test('login real de funcionário QA é recusado e não deixa sessão (BR-01)', async ({ page }) => {

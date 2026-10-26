@@ -228,7 +228,7 @@ it('Req 23: rota privada consome autenticação e redireciona ao login', () => {
 })
 
 it('Req 24: abas e menus expõem seus estados ARIA', () => {
-  const abas = ler('src/components/PainelGestao/index.tsx')
+  const abas = ler('src/components/Tabs/index.tsx')
   expect(abas).toContain('aria-selected=')
   expect(abas).toContain('aria-controls=')
   const menu = ler('src/components/FilterChip/index.tsx')

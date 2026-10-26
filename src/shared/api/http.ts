@@ -1,5 +1,6 @@
 import { env } from '../config/env'
 import { createHttpClient, type SessionPort } from './httpClient'
+import { createSseClient } from './sse/sseClient'
 
 /** Until the auth layer binds a session, every authenticated call fails as "session expired". */
 const anonymousSession: SessionPort = {
@@ -25,3 +26,6 @@ const sessionProxy: SessionPort = {
 
 /** Application-wide client: every feature talks to the backends through this instance. */
 export const http = createHttpClient({ baseUrls: env.apiBaseUrls, session: sessionProxy })
+
+/** Streaming counterpart of `http`, for the analytics dashboard. */
+export const sse = createSseClient({ baseUrls: env.apiBaseUrls, session: sessionProxy })

@@ -47,6 +47,8 @@ test('T-05: abrir o dashboard usa só o BFF de analytics e nenhuma consulta ao i
   expect(seen[0].auth).toMatch(/^Bearer sessao-sintetica/)
   expect(seen[0].unit).toBe('22222222-2222-4222-8222-222222222222')
   expect(seen[0].url.search).not.toMatch(/access_token|jwt|sessao-sintetica/)
+  // O número é do último lote do cron, e a tela diz de quando ele é.
+  await expect(page.getByText(/Dados do lote de .*atualizados pelo BFF a cada hora/)).toBeVisible()
   expect(inventario).toEqual([])
 })
 

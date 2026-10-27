@@ -73,3 +73,6 @@
 .rowValue small { font-weight: 400; color: var(--color-text-muted); }
 
 @media (max-width: 1100px) { .charts { grid-template-columns: minmax(0, 1fr); } }
+
+.freshness { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+.updated { font-size: 0.75rem; color: var(--color-text-muted); }

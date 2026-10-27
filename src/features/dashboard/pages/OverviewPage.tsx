@@ -6,6 +6,7 @@ import { PageHeader } from '../../../components/PageHeader'
 import { SearchInput } from '../../../components/SearchInput'
 import { Skeleton } from '../../../components/Skeleton'
 import { describeApiError } from '../../../shared/api/errors'
+import { formatDateTime } from '../../../shared/format'
 import { TopbarSlot } from '../../../shared/ui/TopbarSlot'
 import { CircularityDonut } from '../components/CircularityDonut'
 import { ConnectionBadge } from '../components/ConnectionBadge'
@@ -49,7 +50,10 @@ export default function OverviewPage() {
       <TopbarSlot><FilterSummary filters={filters} available={snapshot?.available_filters} /></TopbarSlot>
       <div className={styles.header}>
         <PageHeader titulo={dashboardCopy.title} subtitulo={dashboardCopy.subtitle} />
-        <ConnectionBadge status={stream.status} />
+        <div className={styles.freshness}>
+          <ConnectionBadge status={stream.status} />
+          {snapshot && <span className={styles.updated}>Dados do lote de {formatDateTime(snapshot.extracted_at)} — atualizados pelo BFF a cada hora</span>}
+        </div>
       </div>
 
       <div className={styles.toolbar}>

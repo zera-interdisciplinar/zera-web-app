@@ -1,31 +1,29 @@
 .pagina {
-  min-height: 100vh;
   min-height: 100dvh;
   display: grid;
   grid-template-columns: minmax(280px, 33%) minmax(0, 1fr);
-  overflow: hidden;
+  overflow-x: clip;
   background: var(--navy);
 }
 
 .marca {
   position: relative;
   z-index: 1;
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: clamp(2rem, 4vw, 4rem) clamp(1.5rem, 3vw, 3rem);
+  padding: clamp(1.5rem, 4vw, 4rem) clamp(1.5rem, 3vw, 3rem);
   border-radius: 0 34px 34px 0;
   background: var(--creme);
   color: var(--navy);
 }
 
 .marcaCentral {
-  position: absolute;
-  inset: 50% 1.5rem auto;
+  flex: 1;
+  min-width: 0;
   display: grid;
+  align-content: center;
   justify-items: center;
-  transform: translateY(-50%);
 }
 
 .marcaCentral > img,
@@ -50,7 +48,8 @@
 .contatos {
   display: grid;
   gap: 0.65rem;
-  margin: auto 0 0;
+  flex: none;
+  margin: 1.5rem 0 0;
   font-size: 0.75rem;
   font-style: normal;
 }
@@ -76,9 +75,9 @@
   display: grid;
   place-items: center;
   min-width: 0;
-  min-height: 100vh;
+  min-height: 100dvh;
   padding: clamp(1.25rem, 4vw, 3.5rem);
-  overflow: hidden;
+  overflow-x: clip;
   background: linear-gradient(135deg, #244da8 0%, #162f71 100%);
 }
 
@@ -144,6 +143,11 @@
   margin-top: 1rem;
 }
 
+.formulario :is(input, button, a):focus-visible {
+  outline: 3px solid var(--azul);
+  outline-offset: 3px;
+}
+
 .linkAuxiliar {
   align-self: center;
   color: #34518B;
@@ -191,12 +195,14 @@
 }
 
 @media (max-width: 880px) {
-  .pagina { grid-template-columns: minmax(0, 1fr); overflow: visible; }
-  .marca { display: none; }
-  .painel { min-height: 100vh; min-height: 100dvh; padding: 1.25rem; }
+  .pagina { min-height: 0; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; align-content: start; }
+  .marca { min-height: 0; flex-direction: row; justify-content: center; padding: 1.5rem; border-radius: 0; }
+  .marcaCentral { display: none; }
+  .contatos { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.25rem 1rem; margin: 0; }
+  .contatos a { min-height: 2.75rem; }
+  .painel { min-height: auto; padding: 1.25rem 1.25rem 5.5rem; place-items: start center; }
   .conteudoLogin { width: min(100%, 496px); }
-  .marcaMobile { display: grid; justify-items: center; width: fit-content; margin: 0 auto 1.25rem; padding: 0.55rem 0.85rem; border-radius: 0.75rem; background: var(--creme); }
-  .marcaMobile > img { width: min(48vw, 190px); }
+  .marcaMobile { display: none; }
   .cartao { padding: clamp(1.5rem, 6vw, 2.25rem) clamp(1.25rem, 7vw, 2.5rem); }
 }
 
@@ -205,7 +211,7 @@
 }
 
 @media (max-width: 380px) {
-  .painel { padding: 0.75rem; }
+  .painel { padding: 0.75rem 0.75rem 5.5rem; }
   .cartao { padding-inline: 1rem; }
   .botaoEntrar { width: 68%; }
 }

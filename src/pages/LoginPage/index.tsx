@@ -14,7 +14,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <main className={estilos.pagina} id="conteudo" tabIndex={-1}>
+      <main className={estilos.pagina} id="conteudo" data-tela="login" tabIndex={-1}>
         <aside className={estilos.marca} aria-label="Sobre o Zera">
           <div className={estilos.marcaCentral}>
             <Logo />

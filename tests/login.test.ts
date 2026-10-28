@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { randomUUID } from 'node:crypto'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setupServer } from 'msw/node'
+import { carregarEnvDemoNosTestes } from './envDemo'
 
 const baseUrl = 'http://localhost:8000/api'
 const server = setupServer()
@@ -22,9 +23,10 @@ function credenciaisDemoConfiguradas() {
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 beforeEach(async () => {
+  carregarEnvDemoNosTestes()
   vi.stubEnv('VITE_USE_MSW', 'true')
   vi.stubEnv('VITE_API_BASE_URL', baseUrl)
-  vi.stubEnv('VITE_ADMIN_API_URL', '')
+  vi.stubEnv('VITE_ADMIN_API_URL', baseUrl)
   vi.resetModules()
   const { handlers } = await import('../src/mocks/handlers')
   server.use(...handlers)
@@ -54,9 +56,13 @@ describe('login', () => {
     expect(fonte).toContain('className={estilos.marca}')
     expect(fonte).toContain('className={estilos.subtitulo}')
     expect(fonte).toContain('Esqueci minha senha')
-    expect(fonte).toContain('mailto:')
-    expect(fonte).toContain('tel:')
+    expect(fonte).toContain("const emailContato = 'zera.interdisciplinar@gmail.com'")
+    expect(fonte).toContain('href={`mailto:${emailContato}`}')
+    expect(fonte).not.toContain('tel:')
+    expect(fonte).not.toContain('93304-5181')
     expect(fonte).toContain('instagram.com')
+    expect(fonte).toContain('https://www.instagram.com/zera.app_/')
+    expect(fonte).toContain('@zera.app_')
   })
 
   it('preserva a senha exatamente como digitada, inclusive espaços nas pontas', async () => {
@@ -205,7 +211,7 @@ describe('login', () => {
     const { autenticar, mensagemErroLogin } = await import('../src/services/authService')
 
     const falha = await autenticar({ email: 'teste@example.invalid', senha: '' }).catch((erro: unknown) => erro)
-    expect(mensagemErroLogin(falha)).toBe('Erro ao entrar (código 503).')
+    expect(mensagemErroLogin(falha)).toBe('Servidor de autenticação indisponível. Tente novamente mais tarde.')
     expect(mensagemErroLogin(falha)).not.toContain('detalhe interno')
   })
 })

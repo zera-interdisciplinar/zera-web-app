@@ -9,17 +9,14 @@ import {
   YAxis,
 } from 'recharts'
 import { ChartCard } from './ChartCard'
-import type { DashboardMockVisaoGeral, DashboardSnapshot } from '../../types/dashboardAnalytics'
-import { dashboardOverviewMock } from '../../mocks/dashboardSseFixture'
+import type { DashboardSnapshot } from '../../types/dashboardAnalytics'
 import { formatarNumero, formatarPontosPercentuais, formatarVariacao } from '../../utils/formatarDashboard'
-import { SeloDemonstracao } from './SeloDemonstracao'
-import estilos from './VisaoGeralTab.module.css'
+import estilos from '../../../styles/components/DashboardTabs/VisaoGeralTab.module.css'
 
 const cores = ['#0b7f9f', '#ffa500', '#0caf79', '#ff402e', '#8fcbe5', '#af3e5b']
 
 interface Props {
   snapshot: DashboardSnapshot | null
-  demo: boolean
 }
 
 function rotuloStatus(valor: string): string {
@@ -34,10 +31,10 @@ function rotuloStatus(valor: string): string {
   return rotulos[valor] ?? valor
 }
 
-function Kpi({ titulo, valor, nota, demo }: { titulo: string; valor: string; nota?: string; demo: boolean }) {
+function Kpi({ titulo, valor, nota }: { titulo: string; valor: string; nota?: string }) {
   return (
     <article className={estilos.kpi}>
-      <h2>{titulo}{demo && <SeloDemonstracao />}</h2>
+      <h2>{titulo}</h2>
       <p className={estilos.valor}>{valor}</p>
       {nota && <p className={estilos.nota}>{nota}</p>}
     </article>
@@ -78,54 +75,52 @@ function Barras({
   )
 }
 
-export function VisaoGeralTab({ snapshot, demo }: Props) {
-  // Os dados que não estão no snapshot permanecem explícitos como fixture local.
-  const suplemento: DashboardMockVisaoGeral | null = demo ? dashboardOverviewMock : null
+export function VisaoGeralTab({ snapshot }: Props) {
   const status = snapshot?.por_status.map((ponto) => ({ nome: ponto.nome, quantidade: ponto.quantidade })) ?? []
   const categorias = snapshot?.por_categoria.map((ponto) => ({ nome: ponto.nome, quantidade: ponto.quantidade })) ?? []
-  const semFonte = 'Sem fonte confirmada nos endpoints documentados.'
   const percentTaxa = snapshot?.kpis.taxa_reciclagem.percent
   const percentCircularidade = snapshot?.circularidade.percent
 
   return (
     <div className={estilos.conteudo}>
-      {!snapshot && <p className={estilos.aviso} role="status">Aguardando o snapshot do dashboard.</p>}
+      {!snapshot && <p className={estilos.aviso} role="status">Aguardando dados do dashboard vindos da API.</p>}
       {snapshot && (
         <section className={estilos.gradeKpis} aria-label="Indicadores gerais">
-          <Kpi demo={demo} titulo="Itens cadastrados" valor={formatarNumero(snapshot.kpis.itens_cadastrados.value)} nota={formatarVariacao(snapshot.kpis.itens_cadastrados.change_percent)} />
-          <Kpi demo={demo} titulo="Eventos registrados" valor={formatarNumero(demo ? suplemento?.eventosRegistrados : null)} nota={demo ? 'Fixture MSW' : semFonte} />
-          <Kpi demo={demo} titulo="Modelos cadastrados" valor={formatarNumero(demo ? suplemento?.modelosCadastrados : null)} nota={demo ? 'Fixture MSW' : semFonte} />
-          <Kpi demo={demo} titulo="Alertas registrados" valor={formatarNumero(snapshot.alertas.abertos)} />
-          <Kpi demo={demo} titulo="Cadastros (variação %)" valor={formatarVariacao(snapshot.kpis.itens_cadastrados.change_percent).replace(' em relação à janela anterior', '')} />
-          {/* TODO(contrato): confirmar se taxa_reciclagem mede exatamente itens com potencial reciclável. */}
+          <Kpi titulo="Itens cadastrados" valor={formatarNumero(snapshot.kpis.itens_cadastrados.value)} nota={formatarVariacao(snapshot.kpis.itens_cadastrados.change_percent)} />
+          <Kpi titulo="Alertas registrados" valor={formatarNumero(snapshot.alertas.abertos)} />
           <Kpi
-            demo={demo}
-            titulo="Itens com potencial reciclável (%)"
+            titulo="Taxa de reciclagem (%)"
             valor={formatarNumero(percentTaxa, 2)}
             nota={`Variação: ${formatarPontosPercentuais(snapshot.kpis.taxa_reciclagem.change_points)} · Circularidade: ${percentCircularidade === null ? '—' : `${formatarNumero(percentCircularidade, 2)}%`}`}
           />
-          <Kpi demo={demo} titulo="Danos informados" valor={formatarNumero(demo ? suplemento?.danosInformados : null)} nota={demo ? 'Fixture MSW' : semFonte} />
-          <Kpi demo={demo} titulo="Eventos por item" valor={formatarNumero(demo ? suplemento?.eventosPorItem : null, 2)} nota={demo ? 'Fixture MSW' : semFonte} />
-          <Kpi demo={demo} titulo="Materiais com classificação de reciclabilidade" valor={formatarNumero(demo ? suplemento?.materiaisClassificados : null)} nota={demo ? 'Fixture MSW' : semFonte} />
+          <Kpi titulo="Aguardando aprovação" valor={formatarNumero(snapshot.kpis.aguardando_aprovacao.value)} nota={`Prioritários: ${formatarNumero(snapshot.kpis.aguardando_aprovacao.prioritarios)}`} />
+          <Kpi titulo="Impacto recuperado (t)" valor={formatarNumero(snapshot.kpis.impacto_recuperado.tonnes, 3)} nota={`${formatarNumero(snapshot.kpis.impacto_recuperado.kg, 2)} kg`} />
+          <Kpi titulo="Circularidade (%)" valor={formatarNumero(percentCircularidade, 2)} />
         </section>
       )}
 
       {snapshot && (
         <section className={estilos.gradeGraficos} aria-label="Gráficos de visão geral">
-          <ChartCard demo={demo} titulo="Itens por situação">
+          <ChartCard titulo="Itens por situação">
             <Barras data={status} />
           </ChartCard>
-          <ChartCard demo={demo} titulo="Itens por categoria">
+          <ChartCard titulo="Itens por categoria">
             <Barras data={categorias} />
           </ChartCard>
-          <ChartCard demo={demo} titulo="Itens por condição" nota={demo ? 'Fixture MSW' : semFonte}>
-            {demo && suplemento ? <Barras data={suplemento.itensPorCondicao.map(({ name, value }) => ({ name, value }))} labelKey="name" valueKey="value" /> : <p className={estilos.semDado}>{semFonte}</p>}
+          <ChartCard titulo="Itens cadastrados e encaminhados por mês">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={snapshot.itens_por_mes}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="mes" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="cadastrados" name="Cadastrados" fill={cores[0]} isAnimationActive={false} />
+                <Bar dataKey="encaminhados" name="Encaminhados" fill={cores[1]} isAnimationActive={false} />
+              </BarChart>
+            </ResponsiveContainer>
           </ChartCard>
-          <ChartCard demo={demo} titulo="Itens por fabricante" nota={demo ? 'Fixture MSW' : semFonte}>
-            {demo && suplemento ? <Barras data={suplemento.itensPorFabricante.map(({ name, value }) => ({ name, value }))} labelKey="name" valueKey="value" horizontal /> : <p className={estilos.semDado}>{semFonte}</p>}
-          </ChartCard>
-          <ChartCard demo={demo} titulo="Itens por modelo" nota={demo ? 'Fixture MSW' : semFonte}>
-            {demo && suplemento ? <Barras data={suplemento.itensPorModelo.map(({ name, value }) => ({ name, value }))} labelKey="name" valueKey="value" horizontal /> : <p className={estilos.semDado}>{semFonte}</p>}
+          <ChartCard titulo="Alertas por gravidade">
+            <Barras data={snapshot.alertas.por_gravidade.map(({ gravidade, quantidade }) => ({ nome: gravidade, quantidade }))} />
           </ChartCard>
         </section>
       )}

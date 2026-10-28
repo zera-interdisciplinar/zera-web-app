@@ -1,23 +1,22 @@
-import { useCallback } from 'react'
 import { DataTable } from '../../components/DataTable'
 import { PageHeader } from '../../components/PageHeader'
 import { Skeleton } from '../../components/Skeleton'
 import { EstadoErro } from '../../components/EstadoErro'
 import { EmptyState } from '../../components/EmptyState'
-import { useRequisicao } from '../../hooks/useRequisicao'
-import { listarDescartes } from '../../services/cicloService'
-import { modoDemonstracao } from '../../services/apiReal'
-import type { DisposalResponse } from '../../types/apiReal'
+import { useDescartes } from '../../hooks/useDescartes'
+import { RegistroDescarte } from '../../components/RegistroDescarte'
+import { useAmbiente } from '../../hooks/useAmbiente'
 import { formatarData } from '../../utils/formatacao'
 
 const destinos = { RECYCLING: 'Reciclagem', LANDFILL: 'Aterro', DONATION: 'Doação' }
 
 export default function DescartesPage() {
-  const buscar = useCallback((sinal: AbortSignal) => listarDescartes(sinal), [])
-  const descartes = useRequisicao<DisposalResponse[]>(buscar, !modoDemonstracao)
+  const { modoDemonstracao } = useAmbiente()
+  const descartes = useDescartes()
   return <>
     <PageHeader titulo="Registros de descarte" subtitulo="Consulte o destino, a data e o peso dos itens descartados." />
     {modoDemonstracao ? <EmptyState titulo="Nenhum descarte registrado" descricao="Os registros de descarte serão apresentados aqui quando estiverem disponíveis." /> : <>
+      <RegistroDescarte aoConcluir={descartes.recarregar} />
       {descartes.carregando && <Skeleton descricao="Carregando os descartes." linhas={3} />}
       {descartes.erro && <EstadoErro mensagem={descartes.erro} aoTentarNovamente={descartes.recarregar} />}
       {descartes.dados && <p role="status">{descartes.dados.length} registros encontrados.</p>}

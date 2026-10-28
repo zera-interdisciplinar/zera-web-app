@@ -17,7 +17,6 @@ export interface Credenciais {
 export interface SessaoAutenticada {
   usuario: Usuario
   expiraEm: string
-  demonstracao?: boolean
 }
 
 export interface NovoUsuario {

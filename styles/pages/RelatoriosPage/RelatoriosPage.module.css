@@ -41,49 +41,158 @@
   max-width: 56ch;
 }
 
-.resumoPrevia {
-  font-size: 0.9375rem;
-  color: var(--texto-secundario);
-  margin-bottom: var(--sp-4);
+.documento {
+  display: grid;
+  gap: 0.75rem;
+  color: #171717;
+  font-family: Arial, sans-serif;
+  font-size: 0.8125rem;
+  line-height: 1.4;
 }
 
-.listaPrevia {
-  list-style: none;
+.topoDocumento {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0 0.4rem;
+}
+
+.topoDocumento > img {
+  width: min(120px, 28%);
+  flex: 0 0 auto;
+}
+
+.topoDocumento h2 {
   margin: 0;
-  padding: 0;
+  font-size: 1.1rem;
+  line-height: 1.2;
+}
+
+.topoDocumento p {
+  margin: 0.15rem 0 0;
+  color: #4a4a4a;
+  font-size: 0.75rem;
+}
+
+.blocoDocumento {
+  position: relative;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid #3a3a3a;
+  border-radius: 0.7rem;
+}
+
+.blocoDocumento > p {
+  margin: 0.2rem 0;
+}
+
+.rotuloSecao {
+  width: fit-content;
+  margin: -0.15rem 0 0.55rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 0.35rem;
+  background: #171717;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.informacoesCotacao {
   display: grid;
-  gap: var(--sp-2);
-  max-height: 320px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.informacoesCotacao > div {
+  min-width: 0;
+  padding-right: 0.75rem;
+}
+
+.informacoesCotacao > div + div {
+  padding-right: 0;
+  padding-left: 0.75rem;
+  border-left: 1px solid #737373;
+}
+
+.informacoesCotacao p,
+.colunaEquipamento p {
+  margin: 0.1rem 0;
+  overflow-wrap: anywhere;
+}
+
+.categoriasPrevia {
+  margin: 0.35rem 0 0;
+  padding-left: 1rem;
+}
+
+.listaEquipamentos {
+  display: grid;
+  max-height: 380px;
   overflow-y: auto;
 }
 
-.itemPrevia {
-  display: flex;
-  flex-wrap: wrap;
-  overflow-wrap: anywhere;
-  align-items: baseline;
-  gap: var(--sp-3);
-  background-color: var(--fundo);
-  border-radius: var(--r-iconbox);
-  padding: var(--sp-3) var(--sp-4);
-  font-size: 0.875rem;
-  color: var(--texto);
+.equipamento {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0.4rem 0;
 }
 
-.itemPrevia :global(.texto-mono) {
-  color: var(--perigo);
-  font-size: 0.8125rem;
+.equipamento + .equipamento {
+  border-top: 1px solid #b4b4b4;
 }
 
-.itemDescricao {
-  flex: 1;
+.colunaEquipamento {
   min-width: 0;
+  padding-right: 0.75rem;
 }
 
-.itemDias {
-  color: var(--texto-secundario);
-  font-variant-numeric: tabular-nums;
-  white-space: normal;
+.colunaEquipamento + .colunaEquipamento {
+  padding-right: 0;
+  padding-left: 0.75rem;
+  border-left: 1px solid #737373;
+}
+
+.colunaEquipamento h4 {
+  margin: 0 0 0.2rem;
+  font-size: inherit;
+}
+
+.rodapeDocumento {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  min-height: 3rem;
+  padding: 0.75rem;
+  background: #111;
+  color: #fff;
+  font-size: 0.6875rem;
+}
+
+.rodapeDocumento span {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .blocoDocumento {
+    padding: 0.75rem;
+  }
+
+  .informacoesCotacao,
+  .equipamento {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+  }
+
+  .informacoesCotacao > div + div,
+  .colunaEquipamento + .colunaEquipamento {
+    padding: 0.45rem 0 0;
+    border-top: 1px solid #b4b4b4;
+    border-left: 0;
+  }
+
+  .colunaEquipamento {
+    padding-right: 0;
+  }
 }
 
 .campoDestino {

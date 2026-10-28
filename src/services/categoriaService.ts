@@ -3,6 +3,7 @@ import { contextualizar, requisitar } from './http'
 import { modoDemonstracao, requisitarApiReal } from './apiReal'
 import type { CategoryResponse } from '../types/apiReal'
 import { mapearCategoria } from './mapeadoresApi'
+import { invalidarCatalogo } from './catalogoEventos'
 
 export async function listarCategorias(sinal?: AbortSignal): Promise<Categoria[]> {
   try {
@@ -18,10 +19,11 @@ export async function listarCategorias(sinal?: AbortSignal): Promise<Categoria[]
 
 export async function criarCategoria(nova: NovaCategoria): Promise<Categoria> {
   try {
-    if (!modoDemonstracao) return mapearCategoria(await requisitarApiReal<CategoryResponse>('inventory', '/api/v1/categories', {
+    const categoria = !modoDemonstracao ? mapearCategoria(await requisitarApiReal<CategoryResponse>('inventory', '/api/v1/categories', {
       metodo: 'POST', unidade: true, corpo: { name: nova.nome, description: nova.descricao },
-    }))
-    return await requisitar<Categoria>('/categories', { metodo: 'POST', corpo: nova })
+    })) : await requisitar<Categoria>('/categories', { metodo: 'POST', corpo: nova })
+    invalidarCatalogo()
+    return categoria
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível criar a categoria.')
   }

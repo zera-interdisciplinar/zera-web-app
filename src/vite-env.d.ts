@@ -1,8 +1,8 @@
 
-
 interface ImportMetaEnv {
   readonly VITE_ROUTER_MODE?: 'hash' | 'history'
   readonly VITE_USE_MSW?: string
+  readonly VITE_DASHBOARD_DEMO_MODE?: string
   readonly VITE_API_BASE_URL?: string
   readonly VITE_ADMIN_API_URL?: string
   readonly VITE_INVENTORY_API_URL?: string

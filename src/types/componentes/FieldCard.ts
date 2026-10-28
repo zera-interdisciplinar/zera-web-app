@@ -23,4 +23,5 @@ export interface FieldCardProps {
   icone?: ReactNode
   modoLogin?: boolean
   autoFocus?: boolean
+  obrigatorio?: boolean
 }

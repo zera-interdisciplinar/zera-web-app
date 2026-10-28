@@ -37,3 +37,52 @@
 .acoesModal > * {
   flex: 1;
 }
+
+.materiais {
+  min-width: 0;
+  padding: var(--sp-4) var(--sp-6);
+  border: 1px solid var(--borda-controle);
+  border-radius: var(--r-field);
+  background: var(--branco);
+  color: var(--texto);
+}
+
+.materiais legend {
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--r-field);
+  background: var(--branco);
+  color: var(--texto-secundario);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.materiais p {
+  font-size: 0.875rem;
+  margin-bottom: var(--sp-3);
+}
+
+.listaMateriais {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--sp-2);
+}
+
+.listaMateriais label {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.listaMateriais input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--navy);
+}
+
+.listaMateriais input:focus-visible {
+  outline: 3px solid var(--azul);
+  outline-offset: 3px;
+}

@@ -3,6 +3,7 @@ export type { OpcaoCampo, TipoFieldCard, FieldCardProps } from '../../types/comp
 import { useRef, useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import estilos from '../../../styles/components/FieldCard/FieldCard.module.css'
+import { faixaDoCampo, limitarNumero } from '../../utils/limitesNumericos'
 
 const TIPO_HTML: Record<string, string> = {
   texto: 'text',
@@ -26,7 +27,14 @@ export function FieldCard({
   icone,
   modoLogin = false,
   autoFocus = false,
+  obrigatorio = false,
 }: FieldCardProps) {
+  const faixa = faixaDoCampo(id)
+  const descricao = [erro ? `${id}-erro` : '', tipo === 'numero' ? `${id}-ajuda` : ''].filter(Boolean).join(' ') || undefined
+  function mudarNumero(texto: string) {
+    const limitado = limitarNumero(texto, faixa)
+    if (limitado !== null) aoMudar(limitado)
+  }
   const idErro = `${id}-erro`
   const [senhaVisivel, setSenhaVisivel] = useState(false)
   const entradaRef = useRef<HTMLInputElement>(null)
@@ -40,18 +48,19 @@ export function FieldCard({
   return (
     <div className={campoClassName}>
       <label className={estilos.rotulo} htmlFor={id}>
-        {rotulo}
+        {rotulo}{obrigatorio && <span aria-label="obrigatório"> *</span>}
       </label>
 
       {tipo === 'select' ? (
         <select
           id={id}
           name={id}
+          required={obrigatorio}
           className={estilos.controle}
           value={valor}
           onChange={(evento) => aoMudar(evento.target.value)}
           aria-invalid={erro ? true : undefined}
-          aria-describedby={erro ? idErro : undefined}
+          aria-describedby={descricao}
           disabled={desabilitado}
         >
           {opcoes.map((opcao) => (
@@ -64,11 +73,12 @@ export function FieldCard({
         <textarea
           id={id}
           name={id}
+          required={obrigatorio}
           className={`${estilos.controle} ${estilos.area}`}
           value={valor}
           onChange={(evento) => aoMudar(evento.target.value)}
           aria-invalid={erro ? true : undefined}
-          aria-describedby={erro ? idErro : undefined}
+          aria-describedby={descricao}
           maxLength={maxLength}
           placeholder={placeholder}
           disabled={desabilitado}
@@ -82,6 +92,7 @@ export function FieldCard({
               ref={entradaRef}
               id={id}
               name={id}
+              required={obrigatorio}
               className={estilos.controle}
               type={tipo === 'senha' && senhaVisivel ? 'text' : TIPO_HTML[tipo]}
               value={valor}
@@ -113,12 +124,27 @@ export function FieldCard({
           <input
             id={id}
             name={id}
+            required={obrigatorio}
             className={estilos.controle}
             type={TIPO_HTML[tipo]}
             value={valor}
-            onChange={(evento) => aoMudar(evento.target.value)}
+            onChange={(evento) => tipo === 'numero' ? mudarNumero(evento.target.value) : aoMudar(evento.target.value)}
+            inputMode={tipo === 'numero' ? faixa.step === 1 ? 'numeric' : 'decimal' : undefined}
+            min={tipo === 'numero' ? faixa.min : undefined}
+            max={tipo === 'numero' ? faixa.max : undefined}
+            step={tipo === 'numero' ? faixa.step : undefined}
+            onKeyDown={(evento) => {
+              if (tipo === 'numero' && (['-', '+', 'e', 'E'].includes(evento.key) || (faixa.step === 1 && ['.', ','].includes(evento.key)))) evento.preventDefault()
+            }}
+            onPaste={(evento) => {
+              if (tipo !== 'numero') return
+              evento.preventDefault()
+              mudarNumero(evento.clipboardData.getData('text'))
+            }}
+            onDrop={(evento) => { if (tipo === 'numero') { evento.preventDefault(); mudarNumero(evento.dataTransfer.getData('text')) } }}
+            onWheel={(evento) => { if (tipo === 'numero') evento.currentTarget.blur() }}
             aria-invalid={erro ? true : undefined}
-            aria-describedby={erro ? idErro : undefined}
+            aria-describedby={descricao}
             maxLength={maxLength}
             placeholder={placeholder}
             autoComplete={autoComplete}
@@ -128,9 +154,10 @@ export function FieldCard({
         )
       )}
 
+      {tipo === 'numero' && <p id={`${id}-ajuda`}>{faixa.dica}</p>}
       {erro && (
         <p className={estilos.erro} id={idErro} role="alert">
-          {erro}
+          <span aria-hidden="true">⚠ </span>{erro}
         </p>
       )}
     </div>

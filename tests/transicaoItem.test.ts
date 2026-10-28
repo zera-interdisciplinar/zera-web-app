@@ -32,10 +32,12 @@ describe('etapas do ciclo do item', () => {
   })
   it('envia condição e aceita cancelamento na avaliação', async () => {
     const { transicionarItemReal } = await import('../src/services/transicaoItemService')
-    const sinal = new AbortController().signal
+    const controlador = new AbortController()
+    const sinal = controlador.signal
     await transicionarItemReal('item-1', 'evaluate', { reason: '', condition: 'SEMI_DAMAGED' }, sinal)
     expect(JSON.parse(busca.mock.calls[0][1].body)).toEqual({ condition: 'SEMI_DAMAGED' })
-    expect(busca.mock.calls[0][1].signal).toBe(sinal)
+    controlador.abort()
+    expect(busca.mock.calls[0][1].signal.aborted).toBe(true)
   })
   it('bloqueia formulário inválido antes da rede e mantém conflitos de estado', async () => {
     const { transicionarItemReal } = await import('../src/services/transicaoItemService')

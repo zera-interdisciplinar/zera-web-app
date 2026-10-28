@@ -23,7 +23,7 @@ export type ItemVidaUtilDemo = {
   mesesRestantes: number
 }
 
-const categoriasDemo = ['Notebook', 'Eletrônicos', 'Mobília']
+const categoriasDemo = ['Tecnologia', 'Mobiliário', 'Acessórios']
 const situacoesDemo = [
   'Aguardando aprovação',
   'Descartado',
@@ -36,9 +36,9 @@ const condicoesDemo = ['Novo', 'Usado']
 const mesesDemo = ['2026-05', '2026-06', '2026-07', '2026-08', '2026-09', '2026-10']
 
 // TODO(contrato): todos os valores abaixo são sintéticos e só podem aparecer em modo de demonstração.
-const itensDemo: ItemVidaUtilDemo[] = Array.from({ length: 32 }, (_, index) => {
-  const idadeMeses = 3 + ((index * 11) % 70)
-  const vidaUtilMeses = 18 + ((index * 13) % 72)
+const itensDemo: ItemVidaUtilDemo[] = Array.from({ length: 41 }, (_, index) => {
+  const idadeMeses = 4 + ((index * 17) % 86)
+  const vidaUtilMeses = 24 + ((index * 19) % 84)
   const vidaUtilConsumidaPercentual = Math.min(98, Math.round((idadeMeses / vidaUtilMeses) * 100))
 
   return {
@@ -46,11 +46,11 @@ const itensDemo: ItemVidaUtilDemo[] = Array.from({ length: 32 }, (_, index) => {
     categoria: categoriasDemo[index % categoriasDemo.length],
     situacao: situacoesDemo[index % situacoesDemo.length],
     condicao: condicoesDemo[index % condicoesDemo.length],
-    mesCadastro: mesesDemo[Math.floor(index / 6)],
+    mesCadastro: mesesDemo[Math.floor(index / 7)],
     idadeMeses,
-    pesoKg: Number((1.2 + ((index * 17) % 48) * 0.9).toFixed(1)),
+    pesoKg: Number((0.7 + ((index * 23) % 67) * 0.65).toFixed(1)),
     vidaUtilMeses,
-    garantiaMeses: [0, 12, 24, 36][index % 4],
+    garantiaMeses: [6, 18, 30, 42][index % 4],
     vidaUtilConsumidaPercentual,
     mesesRestantes: Math.max(0, vidaUtilMeses - idadeMeses),
   }

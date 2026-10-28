@@ -68,19 +68,15 @@ export type EventoSseDashboard =
   | { event: 'unavailable'; data: { detail: string } }
   | { event: 'error'; data: { status: number; detail: string } }
 
-export interface PontoDashboardMock {
-  name: string
-  value: number
-  group?: string
-}
-
+/** Estrutura usada exclusivamente pelos fixtures dos testes. */
 export interface DashboardMockVisaoGeral {
   eventosRegistrados: number
   modelosCadastrados: number
   danosInformados: number
   eventosPorItem: number
   materiaisClassificados: number
-  itensPorCondicao: PontoDashboardMock[]
-  itensPorFabricante: PontoDashboardMock[]
-  itensPorModelo: PontoDashboardMock[]
+  itensPorCondicao: Array<{ name: string; value: number }>
+  itensPorFabricante: Array<{ name: string; value: number }>
+  itensPorModelo: Array<{ name: string; value: number }>
 }
+

@@ -1,6 +1,7 @@
+import { Formulario } from '../../components/Formulario'
 import { useEffect, useState } from 'react'
-import { AtSign, LockKeyhole, Mail, MessageCircle } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { AtSign, LockKeyhole, Mail } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../../components/Button'
 import { FieldCard } from '../../components/FieldCard'
 import { Logo } from '../../components/Logo'
@@ -11,7 +12,7 @@ import { validarCredenciais } from '../../utils/validacao'
 import type { ErrosDeCampo } from '../../utils/validacao'
 import estilos from '../../../styles/pages/LoginPage/LoginPage.module.css'
 
-const emailContato = 'zera.institutojef@gmail.com'
+const emailContato = 'zera.interdisciplinar@gmail.com'
 
 interface EstadoBloqueio {
   falhas: number
@@ -100,13 +101,9 @@ export default function LoginPage() {
             </p>
           </div>
           <address className={estilos.contatos}>
-            <a href="https://www.instagram.com/zera.app/" target="_blank" rel="noreferrer">
+            <a href="https://www.instagram.com/zera.app_/" target="_blank" rel="noreferrer">
               <AtSign aria-hidden="true" />
-              <span>@zera.app</span>
-            </a>
-            <a href="tel:+5511933045181">
-              <MessageCircle aria-hidden="true" />
-              <span>+55 (11) 93304-5181</span>
+              <span>@zera.app_</span>
             </a>
             <a href={`mailto:${emailContato}`}>
               <Mail aria-hidden="true" />
@@ -122,10 +119,9 @@ export default function LoginPage() {
             <section className={estilos.cartao}>
               <h1 id="titulo-login">Entrar</h1>
               <p className={estilos.subtitulo}>Preencha seus dados para entrar na sua conta</p>
-
-              <form className={estilos.formulario} onSubmit={aoEnviar} noValidate>
+              <Formulario className={estilos.formulario} onSubmit={aoEnviar} noValidate>
                 <FieldCard
-                  id="email"
+                  id="email" obrigatorio
                   rotulo="Email"
                   tipo="email"
                   valor={formulario.email}
@@ -140,7 +136,7 @@ export default function LoginPage() {
                 />
 
                 <FieldCard
-                  id="senha"
+                  id="senha" obrigatorio
                   rotulo="Senha"
                   tipo="senha"
                   valor={formulario.senha}
@@ -165,9 +161,9 @@ export default function LoginPage() {
                   </p>
                 )}
 
-                <a className={estilos.linkAuxiliar} href={`mailto:${emailContato}?subject=Recuperar%20acesso%20ao%20Zera`}>
+                <Link className={estilos.linkAuxiliar} to="/esqueci-senha">
                   Esqueci minha senha
-                </a>
+                </Link>
 
                 <Button
                   className={estilos.botaoEntrar}
@@ -178,7 +174,7 @@ export default function LoginPage() {
                 >
                   {entrando ? 'Entrando…' : bloqueio.restante > 0 ? `Aguarde ${bloqueio.restante}s` : 'Entrar'}
                 </Button>
-              </form>
+              </Formulario>
             </section>
           </div>
         </section>

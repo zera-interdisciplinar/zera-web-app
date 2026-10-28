@@ -8,7 +8,7 @@ import estilos from '../../../styles/components/Topbar/Topbar.module.css'
 
 export function Topbar() {
   const {
-    usuario, filtros, filtrosSujos, aplicar, limparFiltros, contaAberta,
+    usuario, filtros, filtrosSujos, aplicar, limparFiltros, contaAberta, podeFiltrarResponsavel,
     gatilhoContaRef, menuContaRef, alternarConta, aoTeclarMenuConta,
     encerrarSessao, opcoesCategoria, opcoesResponsavel, periodos, status,
   } = useTopbar()
@@ -58,7 +58,7 @@ export function Topbar() {
         <span className={estilos.separador} aria-hidden="true">
           •
         </span>
-        {usuario?.perfil === 'administrador' && <FilterChip aparencia="texto" rotulo={<>Responsável: <strong>{filtros.responsavel}</strong></>} opcoes={opcoesResponsavel} valorAtual={filtros.responsavel} aoSelecionar={(valor) => aplicar('responsavel', valor)} />}
+        {podeFiltrarResponsavel && <FilterChip aparencia="texto" rotulo={<>Responsável: <strong>{filtros.responsavel}</strong></>} opcoes={opcoesResponsavel} valorAtual={filtros.responsavel} aoSelecionar={(valor) => aplicar('responsavel', valor)} />}
         {filtrosSujos && (
           <button type="button" className={estilos.limpar} onClick={limparFiltros}>
             <RotateCcw size={14} aria-hidden="true" />

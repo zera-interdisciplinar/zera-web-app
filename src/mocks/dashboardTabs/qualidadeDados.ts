@@ -11,21 +11,21 @@ const camposDemo = [
 export const qualidadeDadosDemo = {
   campos: camposDemo,
   situacoes: ['Aguardando aprovação', 'Descartado', 'Em estoque', 'Em manutenção', 'Em avaliação', 'Removido'],
-  categorias: ['Notebook'],
-  unidades: [{ id: 'unit-centro', nome: 'Unidade Centro' }, { id: 'unit-norte', nome: 'Unidade Norte' }],
-  registros: Array.from({ length: 32 }, (_, indice) => ({
+  categorias: ['Tecnologia', 'Mobiliário', 'Acessórios'],
+  unidades: [{ id: 'unit-leste', nome: 'Polo Leste' }, { id: 'unit-sul', nome: 'Polo Sul' }],
+  registros: Array.from({ length: 41 }, (_, indice) => ({
     id: indice + 1,
     situacao: ['Aguardando aprovação', 'Em estoque', 'Em manutenção', 'Descartado'][indice % 4],
-    categoria: 'Notebook',
-    unidadeId: indice % 2 === 0 ? 'unit-centro' : 'unit-norte',
-    alertaTipo: indice < 3 ? 'Item aprovado' : null,
-    intensidadeUso: indice < 12 ? 3 : 5,
+    categoria: ['Tecnologia', 'Mobiliário', 'Acessórios'][indice % 3],
+    unidadeId: indice % 2 === 0 ? 'unit-leste' : 'unit-sul',
+    alertaTipo: indice < 6 ? 'Cadastro incompleto' : null,
+    intensidadeUso: indice < 18 ? 3 : 5,
     preenchimento: {
       anoFabricacao: true,
       dataCadastro: true,
-      garantia: indice % 8 !== 0,
-      peso: indice % 8 !== 0,
-      vidaUtil: indice % 8 !== 0,
+      garantia: indice % 7 !== 0,
+      peso: indice % 6 !== 0,
+      vidaUtil: indice % 5 !== 0,
     },
   })),
 } as const

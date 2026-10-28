@@ -16,6 +16,8 @@ export function Modal({ aberto, titulo, aoFechar, children, larguraMaxima = 880 
 
   const aoTeclar = useCallback(
     (evento: KeyboardEvent) => {
+      const abertos = document.querySelectorAll('[role="dialog"][aria-modal="true"]')
+      if (abertos[abertos.length - 1] !== dialogoRef.current) return
       if (evento.key === 'Escape') {
         evento.preventDefault()
         fecharRef.current()

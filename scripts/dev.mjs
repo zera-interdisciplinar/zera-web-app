@@ -102,8 +102,8 @@ async function ensureDocker() {
 }
 
 async function startCompose() {
-  console.log('[dev] Iniciando containers (docker compose up -d --wait)...')
-  const result = await run('docker', ['compose', 'up', '-d', '--wait'], { stdio: 'inherit' })
+  console.log('[dev] Iniciando containers (docker compose up -d --build --wait)...')
+  const result = await run('docker', ['compose', 'up', '-d', '--build', '--wait'], { stdio: 'inherit' })
   if (!result.ok) {
     console.error(`[dev] docker compose up -d --wait falhou${result.code === undefined ? '' : ` (código ${result.code})`}.`)
     return false
@@ -113,7 +113,7 @@ async function startCompose() {
 }
 
 function startVite() {
-  console.log('[dev] Iniciando Vite (Ctrl+C encerra somente o Vite; os containers continuam ativos).')
+  console.log('[dev] Iniciando Vite em http://localhost:80. Ctrl+C encerra o Vite.')
   const viteCli = resolve(root, 'node_modules/vite/bin/vite.js')
   const child = spawn(process.execPath, [viteCli], {
     cwd: root,
@@ -162,10 +162,13 @@ function startVite() {
   })
 }
 
-const dockerReady = await ensureDocker()
+const usarDocker = process.env.ZERA_START_DOCKER === 'true'
+const dockerReady = usarDocker ? await ensureDocker() : false
 if (dockerReady) {
   const containersReady = await startCompose()
   if (!containersReady) process.exit(1)
+} else if (!usarDocker) {
+  console.log('[dev] Usando proxies do Vite; Docker local nao e necessario para APIs remotas.')
 } else if (viteUseMsw === 'true') {
   console.warn('[dev] AVISO: Docker não está disponível. VITE_USE_MSW=true; continuando apenas com Vite/MSW.')
 } else {

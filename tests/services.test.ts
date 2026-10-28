@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { dashboardSnapshotMock, respostaSse } from '../src/mocks/dashboardSseFixture'
 
 let busca: ReturnType<typeof vi.fn>
 beforeEach(async () => {
@@ -91,13 +92,15 @@ describe('serviços e erros das APIs', () => {
   it('pagina eventos com os cabeçalhos e o sinal exigidos', async () => {
     busca.mockImplementation(async (url: URL) => new Response(JSON.stringify({ content: [{ id: url.searchParams.get('page') }], totalPages: 2 })))
     const { listarEventos } = await import('../src/services/cicloService')
-    const sinal = new AbortController().signal
+    const controlador = new AbortController()
+    const sinal = controlador.signal
     expect(await listarEventos('item-id', sinal)).toHaveLength(2)
     const [url, opcoes] = busca.mock.calls[0]
     expect(url.pathname).toBe('/api/v1/items/item-id/events')
     expect(opcoes.headers).toHaveProperty('X-Unit-Id')
     expect(opcoes.headers).toHaveProperty('Authorization')
-    expect(opcoes.signal).toBe(sinal)
+    controlador.abort()
+    expect(opcoes.signal.aborted).toBe(true)
     expect(opcoes.credentials).toBe('omit')
     expect(opcoes.redirect).toBe('error')
     expect(busca.mock.calls[1][0].searchParams.get('page')).toBe('1')
@@ -148,3 +151,20 @@ describe('serviços e erros das APIs', () => {
     expect(busca).not.toHaveBeenCalled()
   })
 })
+
+  it('exibe taxa e peso reais sem inventar uma meta de reciclagem', async () => {
+    const snapshot = structuredClone(dashboardSnapshotMock)
+    snapshot.kpis.impacto_recuperado = { kg: 2500, tonnes: 2.5 }
+    snapshot.kpis.taxa_reciclagem = { percent: 60, change_points: -2 }
+    snapshot.circularidade.percent = 72
+    busca.mockResolvedValueOnce(respostaSse('snapshot', snapshot))
+    const { obterResumoDashboard } = await import('../src/services/dashboardService')
+    const resumo = await obterResumoDashboard()
+    expect(resumo.kpis.impactoToneladas).toBe(2.5)
+    expect(resumo.kpis.deltaReciclagem).toBe('-2 p.p.')
+    expect(resumo.circularidade).toEqual({ percentual: 72 })
+    expect(resumo.serie[0].total).toBe(snapshot.itens_por_mes[0].cadastrados)
+    expect(busca).toHaveBeenCalledOnce()
+    expect(busca.mock.calls[0][0].pathname).toBe('/api/analytics/api/v1/dashboard/overview')
+    expect(busca.mock.calls[0][1].headers.get('Authorization')).toBeTruthy()
+  })

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { OperacionalTab } from '../../components/DashboardTabs/OperacionalTab'
 import { PageHeader } from '../../components/PageHeader'
 import { EvolucaoMovimentacoesTab } from '../../components/DashboardTabs/EvolucaoMovimentacoesTab'
 import { ItensVidaUtilTab } from '../../components/DashboardTabs/ItensVidaUtilTab'
@@ -6,14 +7,12 @@ import { MateriaisSustentabilidadeTab } from '../../components/DashboardTabs/Mat
 import { QualidadeDadosTab } from '../../components/DashboardTabs/QualidadeDadosTab'
 import { VisaoGeralTab } from '../../components/DashboardTabs/VisaoGeralTab'
 import { useDashboardSse } from '../../hooks/useDashboardSse'
-import { modoDemonstracao } from '../../services/apiReal'
-import { itensVidaUtilFixture } from '../../mocks/dashboardTabs/itensVidaUtil'
-import { evolucaoMovimentacoesFixture } from '../../mocks/dashboardTabs/evolucaoMovimentacoes'
-import { qualidadeDadosDemo } from '../../mocks/dashboardTabs/qualidadeDados'
+import { formatarErroDashboard } from '../../utils/formatarDashboard'
 import type { FiltrosDashboard } from '../../types/dashboardAnalytics'
 import estilos from '../../../styles/pages/DashboardPage/DashboardPage.module.css'
 
 const abas = [
+  { id: 'operational', nome: 'Inventário em operação' },
   { id: 'overview', nome: 'Visão geral' },
   { id: 'life', nome: 'Itens e vida útil' },
   { id: 'evolution', nome: 'Evolução e movimentações' },
@@ -38,68 +37,42 @@ const statusLabels: Record<string, string> = {
 function labelConexao(estado: string): string {
   const labels: Record<string, string> = {
     connecting: 'Conectando ao dashboard',
-    connected: 'Atualizado pelo stream',
+    connected: 'API disponível',
     reconnecting: 'Reconectando ao dashboard',
-    unavailable: 'Snapshot indisponível',
-    error: 'Falha na conexão',
+    unavailable: 'API indisponível',
+    error: 'API indisponível',
   }
   return labels[estado] ?? estado
 }
 
 export default function DashboardPage() {
-  const [aba, setAba] = useState<AbaId>('overview')
+  const [aba, setAba] = useState<AbaId>('operational')
   const [filtros, setFiltros] = useState<FiltrosDashboard>({ period: '6m', view: 'todos' })
-  const { snapshot, estado, indisponivel, erro } = useDashboardSse(filtros)
+  const { snapshot, estado, indisponivel, erro } = useDashboardSse(filtros, aba !== 'operational')
 
-  const categorias = [...new Set([
-    ...(snapshot?.available_filters.categories ?? []),
-    ...(modoDemonstracao ? itensVidaUtilFixture.categorias : []),
-    ...(modoDemonstracao ? qualidadeDadosDemo.categorias : []),
-  ])]
+  const categorias = snapshot?.available_filters.categories ?? []
   const status = snapshot?.available_filters.statuses ?? []
-  const unidades = [...new Map([
-    ...(snapshot?.available_filters.units ?? []),
-    ...(modoDemonstracao ? evolucaoMovimentacoesFixture.unidades.map((unidade) => ({ id: unidade.id, name: unidade.nome })) : []),
-    ...(modoDemonstracao ? qualidadeDadosDemo.unidades.map((unidade) => ({ id: unidade.id, name: unidade.nome })) : []),
-  ].map((unidade) => [unidade.id, unidade])).values()]
-  const meses = [...new Set([
-    ...(snapshot?.itens_por_mes.map((ponto) => ponto.mes) ?? []),
-    ...(modoDemonstracao ? itensVidaUtilFixture.mesesCadastro : []),
-  ])]
+  const unidades = snapshot?.available_filters.units ?? []
 
   const opcoesStatus = status.map((value) => ({ value, label: statusLabels[value] ?? value }))
   const opcoesCategoria = categorias.map((value) => ({ value, label: value }))
   const opcoesUnidade = unidades.map((unidade) => ({ value: unidade.id, label: unidade.name }))
-  const opcoesMes = meses.map((value) => ({ value, label: value }))
-  const opcoesCondicao = [{ value: 'Novo', label: 'Novo' }, { value: 'Usado', label: 'Usado' }]
-  const opcoesSimNao = [{ value: 'Sim', label: 'Sim' }, { value: 'Não', label: 'Não' }]
+  const opcoesResponsavel = snapshot?.available_filters.responsibles.map(({ id, name }) => ({ value: id, label: name })) ?? []
 
   const filtrosPorAba: Record<AbaId, DefinicaoFiltro[]> = {
+    operational: [],
     overview: [
-      { key: 'status', label: 'Situação', options: opcoesStatus },
-      { key: 'condition', label: 'Condição', options: opcoesCondicao },
-      { key: 'category', label: 'Categoria', options: opcoesCategoria },
-    ],
-    life: [
-      { key: 'category', label: 'Categoria', options: opcoesCategoria },
-      { key: 'status', label: 'Situação', options: opcoesStatus },
-      { key: 'condition', label: 'Condição', options: opcoesCondicao },
-      { key: 'registrationMonth', label: 'Mês de cadastro', options: opcoesMes },
-    ],
-    evolution: [
       { key: 'period', label: 'Período', options: ['30d', '6m', '12m'].map((value) => ({ value, label: value })) },
-      { key: 'unitId', label: 'Unidade', options: opcoesUnidade },
-    ],
-    quality: [
+      { key: 'view', label: 'Visão', options: ['todos', 'pendentes', 'categoria'].map((value) => ({ value, label: value })) },
       { key: 'status', label: 'Situação', options: opcoesStatus },
       { key: 'category', label: 'Categoria', options: opcoesCategoria },
       { key: 'unitId', label: 'Unidade', options: opcoesUnidade },
+      { key: 'responsible', label: 'Responsável', options: opcoesResponsavel },
     ],
-    materials: [
-      { key: 'recyclable', label: 'Material reciclável', options: opcoesSimNao },
-      { key: 'hazardous', label: 'Material perigoso', options: opcoesSimNao },
-      { key: 'condition', label: 'Condição do item', options: opcoesCondicao },
-    ],
+    life: [],
+    evolution: [],
+    quality: [],
+    materials: [],
   }
 
   const alterarFiltro = (key: FiltroKey, value: string) => {
@@ -109,30 +82,26 @@ export default function DashboardPage() {
         atualizados.period = (value || '6m') as FiltrosDashboard['period']
         atualizados.from = undefined
         atualizados.to = undefined
-        atualizados.registrationMonth = undefined
-      }
-      if (key === 'registrationMonth') {
-        if (value) {
-          const [ano, mes] = value.split('-').map(Number)
-          atualizados.from = `${value}-01`
-          atualizados.to = new Date(Date.UTC(ano, mes, 0)).toISOString().slice(0, 10)
-        } else {
-          atualizados.from = undefined
-          atualizados.to = undefined
-        }
       }
       return atualizados
     })
   }
 
   return (
-    <div className={estilos.dashboard}>
+    <div className={estilos.dashboard} data-estado={aba === 'operational' ? undefined : erro || indisponivel ? 'erro' : snapshot ? 'sucesso' : 'carregando'}>
       <div className={estilos.tituloLinha}>
         <PageHeader titulo="Dashs do Zera" subtitulo="Indicadores de inventário, movimentações e sustentabilidade." />
         <span className={`${estilos.estado} ${estilos[`estado_${estado}`]}`} role="status" aria-live="polite">
-          {labelConexao(estado)}
+          {aba === 'operational' ? 'API de inventário' : labelConexao(estado)}
         </span>
       </div>
+
+      {aba !== 'operational' && snapshot && (
+        <p className={estilos.mensagemInfo} role="status">
+          Dados de analytics · {snapshot.organization.name} · Extraído em {snapshot.extracted_at}
+          {estado === 'reconnecting' ? ' · Reconectando: exibindo o último lote recebido.' : ''}
+        </p>
+      )}
 
       <nav className={estilos.abas} role="tablist" aria-label="Dashboards do Zera">
         {abas.map((item) => (
@@ -146,6 +115,16 @@ export default function DashboardPage() {
             aria-controls={`painel-${item.id}`}
             tabIndex={aba === item.id ? 0 : -1}
             onClick={() => setAba(item.id)}
+            onKeyDown={(evento) => {
+              const indice = abas.findIndex((opcao) => opcao.id === item.id)
+              const destino = evento.key === 'ArrowRight' ? (indice + 1) % abas.length
+                : evento.key === 'ArrowLeft' ? (indice + abas.length - 1) % abas.length
+                  : evento.key === 'Home' ? 0 : evento.key === 'End' ? abas.length - 1 : -1
+              if (destino < 0) return
+              evento.preventDefault()
+              setAba(abas[destino].id)
+              document.getElementById(`aba-${abas[destino].id}`)?.focus()
+            }}
           >
             {item.nome}
           </button>
@@ -161,22 +140,23 @@ export default function DashboardPage() {
               onChange={(evento) => alterarFiltro(definicao.key, evento.target.value)}
               aria-label={definicao.label}
             >
-              <option value="">Todos</option>
+              {!['period', 'view'].includes(definicao.key) && <option value="">Todos</option>}
               {definicao.options.map((opcao) => <option key={opcao.value} value={opcao.value}>{opcao.label}</option>)}
             </select>
           </label>
         ))}
       </section>
 
-      {erro && <p className={estilos.mensagemErro} role="alert">HTTP {erro.status || '—'}: {erro.detail}</p>}
-      {indisponivel && !snapshot && <p className={estilos.mensagemInfo} role="status">{indisponivel}</p>}
+      {aba !== 'operational' && erro && <p className={estilos.mensagemErro} role="alert">{formatarErroDashboard(erro.status, erro.detail)}</p>}
+      {aba !== 'operational' && indisponivel && <p className={estilos.mensagemInfo} role="status">Ainda não há lote de analytics para esta unidade. {indisponivel}</p>}
 
       <div id={`painel-${aba}`} role="tabpanel" aria-labelledby={`aba-${aba}`} className={estilos.painel}>
-        {aba === 'overview' && <VisaoGeralTab snapshot={snapshot} demo={modoDemonstracao} />}
-        {aba === 'life' && <ItensVidaUtilTab demo={modoDemonstracao} filtros={filtros} />}
-        {aba === 'evolution' && <EvolucaoMovimentacoesTab demo={modoDemonstracao} filtros={filtros} />}
-        {aba === 'quality' && <QualidadeDadosTab demo={modoDemonstracao} filtros={filtros} />}
-        {aba === 'materials' && <MateriaisSustentabilidadeTab demo={modoDemonstracao} filtros={filtros} />}
+        {aba === 'operational' && <OperacionalTab />}
+        {aba === 'overview' && <VisaoGeralTab snapshot={snapshot} />}
+        {aba === 'life' && <ItensVidaUtilTab />}
+        {aba === 'evolution' && <EvolucaoMovimentacoesTab />}
+        {aba === 'quality' && <QualidadeDadosTab />}
+        {aba === 'materials' && <MateriaisSustentabilidadeTab />}
       </div>
     </div>
   )

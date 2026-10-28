@@ -62,7 +62,7 @@ const banco = {
       totalItens: 41,
     },
   ] as Relatorio[],
-  configuracoes: { diasLoteCritico: 90, metaCircularidade: 75 } as Configuracoes,
+  configuracoes: { diasLoteCritico: 90 } as Configuracoes,
 }
 banco.manutencoes = gerarManutencoes(banco.produtos)
 
@@ -128,7 +128,7 @@ function resumoDashboard(): ResumoDashboard {
       { mes: 'Jul', total: 140, atual: false },
       { mes: 'Ago', total: 200, atual: true },
     ],
-    circularidade: { percentual: 68, meta: banco.configuracoes.metaCircularidade },
+    circularidade: { percentual: 68 },
   }
 }
 
@@ -198,9 +198,11 @@ function itensParaDescarte(): ItemRelatorio[] {
       const detalhado = detalhar(produto)
       return {
         produtoId: produto.id,
-        codigoBarras: produto.codigoBarras,
         descricao: `${produto.marca} ${produto.nome}`,
         categoriaNome: detalhado.categoriaNome,
+        fabricante: produto.marca,
+        modelo: produto.nome,
+        condicao: produto.condicao,
         diasEmEstoque: detalhado.diasEmEstoque,
       }
     })
@@ -239,7 +241,7 @@ const handlersLoginDemo = import.meta.env.VITE_USE_MSW === 'true'
         unidade: usuarioBase?.unidade ?? '',
       }
       const expiraEm = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString()
-      const sessao: SessaoAutenticada = { usuario, expiraEm, demonstracao: true }
+      const sessao: SessaoAutenticada = { usuario, expiraEm }
       return HttpResponse.json(sessao)
     })]
   : []
@@ -416,6 +418,7 @@ export const handlers = [
   http.get(`${BASE}/v1/dashboard/overview`, () => respostaSse('snapshot', dashboardSnapshotMock)),
 
   // TODO(contrato): endpoint de fixture para campos complementares ausentes do ms-analytics-bff.
+  // TODO(contrato): rota fora do contrato confirmado; mantida só como fixture MSW local.
   http.get(`${BASE}/v1/dashboard/overview/supplement`, () => HttpResponse.json(dashboardOverviewMock)),
 
   http.get(`${BASE}/alerts/batches`, async () => {

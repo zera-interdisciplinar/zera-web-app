@@ -1,8 +1,8 @@
 import type { DashboardSnapshot, EventoSseDashboard, FiltrosDashboard } from '../types/dashboardAnalytics'
-import { obterSessaoApi } from './apiReal'
+import { criarUrlApi, expirarSessaoApi, obterSessaoApi } from './apiReal'
 
-const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL ?? '/api'
-const CAMINHO_OVERVIEW = '/v1/dashboard/overview'
+const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL ?? '/api/analytics'
+const CAMINHO_OVERVIEW = '/api/v1/dashboard/overview'
 
 export interface FalhaDashboard {
   status: number
@@ -19,8 +19,9 @@ export interface OpcoesStreamDashboard {
 }
 
 export function criarUrlDashboardSse(filtros: FiltrosDashboard, baseUrl = API_BASE_URL): URL {
-  const url = new URL(`${baseUrl.replace(/\/$/, '')}${CAMINHO_OVERVIEW}`,
-    typeof document === 'undefined' ? 'http://localhost/' : document.baseURI)
+  // Base reservada apenas para resolver URLs relativas fora do navegador; não é chamada como serviço.
+  const origem = typeof document === 'undefined' ? 'https://zera.invalid/' : document.baseURI
+  const url = criarUrlApi(CAMINHO_OVERVIEW, new URL(baseUrl, origem).toString())
   url.searchParams.set('period', filtros.period)
   url.searchParams.set('view', filtros.view)
 
@@ -83,11 +84,39 @@ function extrairFalha(httpStatus: number, texto: string): FalhaDashboard {
 function validarSnapshot(valor: unknown): valor is DashboardSnapshot {
   if (typeof valor !== 'object' || valor === null) return false
   const snapshot = valor as Partial<DashboardSnapshot>
+  const numero = (value: unknown) => typeof value === 'number' && Number.isFinite(value)
+  const percentual = (value: unknown) => value === null || numero(value)
+  const textos = (value: unknown) => Array.isArray(value) && value.every((item) => typeof item === 'string')
+  const distribuicao = (value: unknown) => Array.isArray(value) && value.every((item) =>
+    item !== null && typeof item === 'object' && typeof item.nome === 'string' && numero(item.quantidade) && percentual(item.percentual))
   return typeof snapshot.batch_id === 'string'
     && typeof snapshot.extracted_at === 'string'
+    && typeof snapshot.organization?.id === 'string'
     && typeof snapshot.organization?.name === 'string'
-    && typeof snapshot.kpis?.itens_cadastrados?.value === 'number'
+    && numero(snapshot.kpis?.itens_cadastrados?.value)
+    && percentual(snapshot.kpis?.itens_cadastrados?.change_percent)
+    && percentual(snapshot.kpis?.taxa_reciclagem?.percent)
+    && percentual(snapshot.kpis?.taxa_reciclagem?.change_points)
+    && numero(snapshot.kpis?.aguardando_aprovacao?.value)
+    && numero(snapshot.kpis?.aguardando_aprovacao?.prioritarios)
+    && numero(snapshot.kpis?.impacto_recuperado?.kg)
+    && numero(snapshot.kpis?.impacto_recuperado?.tonnes)
+    && percentual(snapshot.circularidade?.percent)
+    && numero(snapshot.alertas?.abertos)
+    && Array.isArray(snapshot.alertas?.por_gravidade)
+    && snapshot.alertas.por_gravidade.every((item) => item && typeof item.gravidade === 'string' && numero(item.quantidade))
+    && distribuicao(snapshot.por_categoria)
+    && distribuicao(snapshot.por_status)
     && Array.isArray(snapshot.itens_por_mes)
+    && snapshot.itens_por_mes.every((item) => item && typeof item.mes === 'string' && numero(item.cadastrados) && numero(item.encaminhados))
+    && textos(snapshot.available_filters?.categories)
+    && textos(snapshot.available_filters?.statuses)
+    && textos(snapshot.available_filters?.views)
+    && textos(snapshot.available_filters?.periods)
+    && Array.isArray(snapshot.available_filters?.units)
+    && snapshot.available_filters.units.every((item) => item && typeof item.id === 'string' && typeof item.name === 'string')
+    && Array.isArray(snapshot.available_filters?.responsibles)
+    && snapshot.available_filters.responsibles.every((item) => item && typeof item.id === 'string' && typeof item.name === 'string')
 }
 
 function esperar(ms: number, sinal: AbortSignal): Promise<void> {
@@ -114,26 +143,38 @@ export async function acompanharDashboard(
     opcoes.onState(falhasDeRede > 0 ? 'reconnecting' : 'connecting')
     try {
       const sessao = obterSessaoApi()
+      if (!sessao.accessToken) {
+        opcoes.onError({ status: 401, detail: 'Sessão expirada. Entre novamente.' })
+        opcoes.onState('error')
+        return
+      }
       const headers = new Headers({ Accept: 'text/event-stream' })
       if (sessao.accessToken) headers.set('Authorization', `Bearer ${sessao.accessToken}`)
       if (filtros.unitId) headers.set('X-Unit-Id', filtros.unitId)
 
-      const resposta = await fetch(criarUrlDashboardSse(filtros), {
+      const cancelamento = new AbortController()
+      const limiteAbertura = setTimeout(() => cancelamento.abort(new DOMException('Tempo de abertura excedido.', 'TimeoutError')), 15_000)
+      let resposta: Response
+      try {
+        resposta = await fetch(criarUrlDashboardSse(filtros), {
         method: 'GET',
         headers,
-        signal: sinal,
+        signal: AbortSignal.any([sinal, cancelamento.signal]),
         credentials: 'omit',
         redirect: 'error',
         cache: 'no-store',
-      })
+        })
+      } finally { clearTimeout(limiteAbertura) }
 
       if (!resposta.ok) {
-        const texto = await resposta.text().catch(() => '')
+        const texto = await resposta.text()
         opcoes.onError(extrairFalha(resposta.status, texto))
         opcoes.onState('error')
+        if (resposta.status === 401) expirarSessaoApi(sessao.accessToken)
         return
       }
       if (!resposta.headers.get('content-type')?.toLowerCase().includes('text/event-stream') || !resposta.body) {
+        cancelamento.abort()
         opcoes.onError({ status: resposta.status, detail: 'O servidor não retornou um stream text/event-stream válido.' })
         opcoes.onState('error')
         return
@@ -155,6 +196,7 @@ export async function acompanharDashboard(
           const resultado = analisarChunkSse(buffer, decoder.decode(value, { stream: true }))
           buffer = resultado.restante
           for (const evento of resultado.eventos) {
+            if (!['snapshot', 'unavailable', 'error'].includes(evento.event)) continue
             let corpo: unknown
             try {
               corpo = JSON.parse(evento.data)
@@ -171,12 +213,13 @@ export async function acompanharDashboard(
               opcoes.onUnavailable((corpo as { detail: string }).detail)
               opcoes.onState('unavailable')
             } else if (evento.event === 'error') {
-              const falha = corpo as { status?: unknown; detail?: unknown }
+              const falha = corpo as { status?: unknown; detail?: unknown } | null
               opcoes.onError({
-                status: typeof falha.status === 'number' ? falha.status : 0,
-                detail: typeof falha.detail === 'string' ? falha.detail : 'O BFF encerrou o stream com erro.',
+                status: typeof falha?.status === 'number' ? falha.status : 0,
+                detail: typeof falha?.detail === 'string' ? falha.detail : 'O BFF encerrou o stream com erro.',
               })
               opcoes.onState('error')
+              if (falha?.status === 401) expirarSessaoApi(sessao.accessToken)
               terminal = true
               break
             } else if (evento.event === 'snapshot') {
@@ -190,6 +233,7 @@ export async function acompanharDashboard(
         }
       } finally {
         sinal.removeEventListener('abort', cancelarLeitura)
+        cancelamento.abort()
         await reader.cancel().catch(() => undefined)
         reader.releaseLock()
       }
@@ -198,6 +242,7 @@ export async function acompanharDashboard(
       falhasDeRede += 1
     } catch (erro) {
       if (sinal.aborted || (erro instanceof DOMException && erro.name === 'AbortError')) return
+      opcoes.onError({ status: 0, detail: 'Conexão com analytics interrompida. Tentando reconectar.' })
       falhasDeRede += 1
     }
 

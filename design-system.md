@@ -76,3 +76,15 @@ Os tokens intercambiáveis estão em `docs/design-tokens.json`, no formato DTCG.
 Prefira manter a mesma estrutura entre páginas. Não substitua tabelas por listas que escondem informação, não use só ícones para tarefas pouco familiares e não mova controles conforme supostas preferências sem escolha explícita da pessoa. O projeto não inclui um modo escuro: novas superfícies precisam de paleta própria e validação antes de serem oferecidas.
 
 As referências técnicas são a [WCAG 2.1](https://www.w3.org/TR/WCAG21/), o [padrão de diálogo modal do WAI-ARIA](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/) e o [formato de tokens DTCG](https://www.designtokens.org/tr/2025.10/format/).
+
+## Regras de produto nos componentes
+
+O código curto exibido como ID e o código de barras são informações diferentes. O ID é atribuído uma vez por unidade; a etiqueta identifica o equipamento nas consultas. Mostre os dois com rótulos próprios.
+
+O painel apresenta taxa de reciclagem e variação, sem comparação com uma meta. O gráfico circular mantém a composição da referência, mas sua legenda descreve a taxa, não uma meta anual.
+
+Cadastro concluído cria um rascunho. A ação de envio é explícita: o funcionário solicita aprovação e o gestor coloca o item em estoque. Foto não é obrigatória para enviar. Manutenção e demais transições preservam o histórico de eventos.
+
+Descarte registra algo já realizado: destino, local, data e itens. Não ofereça agendamento futuro. Os locais vêm da busca externa; não apresente um catálogo de parceiros como se fosse a origem dessa informação.
+
+As ações disponíveis respeitam o perfil e a unidade autenticados. A v1 documenta gestor e funcionário. Administrador exige uma definição própria de permissões no serviço de identidade antes de autenticar no ambiente real.

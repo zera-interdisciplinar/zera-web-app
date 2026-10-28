@@ -64,10 +64,9 @@ html[data-contraste='alto'] {
   --verde-texto: #155536;
 }
 
-html[data-modo-foco='ativo'] aside,
-html[data-modo-foco='ativo'] #root > div > header,
-html[data-modo-foco='ativo'] aside nav {
-  display: none !important;
+html[data-modo-foco='ativo'] :is(aside, header, main) {
+  box-shadow: none;
+  background-image: none;
 }
 
 html[data-modo-foco='ativo'] .pular-para-conteudo { display: block !important; }
@@ -211,3 +210,7 @@ html[data-espacamento='ampliado'] :is(p, h1, h2, h3, label, button, input, texta
 .link-botao:hover { background: var(--ambar-hover); }
 .pagina-falha { padding: var(--sp-8); }
 .rodape-sistema { padding: var(--sp-4) var(--sp-8); color: var(--texto-secundario); font-size: .75rem; }
+
+.resumo-erros { color: #a51d2d; margin-block: 1rem; font-weight: 700; }
+[aria-invalid="true"] { border-color: #a51d2d !important; }
+[role="alert"] { color: #a51d2d; }

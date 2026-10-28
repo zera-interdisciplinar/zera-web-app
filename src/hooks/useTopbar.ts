@@ -7,10 +7,12 @@ import { useMenuSuspenso } from './useMenuSuspenso'
 import { useRequisicao } from './useRequisicao'
 import { listarUsuarios } from '../services/usuarioService'
 import type { Usuario } from '../types/usuario'
+import { usePermissoes } from './usePermissoes'
 
 interface OpcaoFiltro { valor: string; rotulo: string }
 
 interface RetornoTopbar {
+  podeFiltrarResponsavel: boolean
   usuario: ReturnType<typeof useAuth>['usuario']
   filtros: FiltrosContexto
   filtrosSujos: boolean
@@ -49,10 +51,11 @@ const FILTROS_PADRAO: FiltrosContexto = {
 
 export function useTopbar(): RetornoTopbar {
   const { usuario, sair } = useAuth()
+  const { filtrarResponsavel: podeFiltrarResponsavel } = usePermissoes()
   const navegar = useNavigate()
   const categorias = useCategorias()
   const buscarUsuarios = useCallback((sinal: AbortSignal) => listarUsuarios(sinal), [])
-  const usuarios = useRequisicao<Usuario[]>(buscarUsuarios, usuario?.perfil === 'administrador')
+  const usuarios = useRequisicao<Usuario[]>(buscarUsuarios, podeFiltrarResponsavel)
 
   const [parametros] = useSearchParams()
   const filtros: FiltrosContexto = {
@@ -105,7 +108,7 @@ export function useTopbar(): RetornoTopbar {
   ]
 
   return {
-    usuario, filtros, filtrosSujos, aplicar, limparFiltros, contaAberta,
+    usuario, filtros, filtrosSujos, aplicar, limparFiltros, contaAberta, podeFiltrarResponsavel,
     gatilhoContaRef, menuContaRef, alternarConta, aoTeclarMenuConta,
     encerrarSessao, opcoesCategoria, opcoesResponsavel,
     periodos: PERIODOS.map((periodo) => ({ valor: periodo, rotulo: periodo })),

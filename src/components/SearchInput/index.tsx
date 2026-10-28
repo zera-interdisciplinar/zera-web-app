@@ -1,3 +1,4 @@
+import { Formulario } from '../Formulario'
 import type { SearchInputProps } from '../../types/componentes/SearchInput'
 export type { SearchInputProps } from '../../types/componentes/SearchInput'
 import { Search } from 'lucide-react'
@@ -32,7 +33,7 @@ export function SearchInput({
   if (!aoEnviar) return campo
 
   return (
-    <form
+    <Formulario
       className={estilos.formulario}
       role="search"
       onSubmit={(evento) => {
@@ -41,6 +42,6 @@ export function SearchInput({
       }}
     >
       {campo}
-    </form>
+    </Formulario>
   )
 }

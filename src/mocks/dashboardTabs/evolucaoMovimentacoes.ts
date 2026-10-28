@@ -45,28 +45,28 @@ const tiposEventoDemo = [
   'Transferência',
 ]
 const unidadesDemo: UnidadeEvolucaoDemo[] = [
-  { id: 'unit-centro', nome: 'Unidade Centro' },
-  { id: 'unit-norte', nome: 'Unidade Norte' },
+  { id: 'unit-leste', nome: 'Polo Leste' },
+  { id: 'unit-sul', nome: 'Polo Sul' },
 ]
 
 // TODO(contrato): dados diários e dimensões de item abaixo são sintéticos e só podem aparecer em demo.
-const itensDemo: ItemEvolucaoDemo[] = Array.from({ length: 32 }, (_, index) => {
-  const mesIndex = Math.floor((index / 32) * mesesDemo.length)
-  const dia = String(((index * 5) % 27) + 1).padStart(2, '0')
+const itensDemo: ItemEvolucaoDemo[] = Array.from({ length: 43 }, (_, index) => {
+  const mesIndex = Math.floor((index / 43) * mesesDemo.length)
+  const dia = String(((index * 5 + 3) % 27) + 1).padStart(2, '0')
 
   return {
     id: `item-demo-${index + 1}`,
     dataCadastro: `${mesesDemo[mesIndex]}-${dia}`,
     unidadeId: unidadesDemo[index % unidadesDemo.length].id,
     situacao: situacoesDemo[index % situacoesDemo.length],
-    idadeMeses: 2 + ((index * 9) % 60),
+    idadeMeses: 4 + ((index * 13) % 78),
   }
 })
 
 // TODO(contrato): eventos diários e seus tipos não são fornecidos pela rota /overview.
-const eventosDemo: EventoEvolucaoDemo[] = Array.from({ length: 77 }, (_, index) => {
-  const mesIndex = Math.min(mesesDemo.length - 1, Math.floor((index / 77) * mesesDemo.length))
-  const dia = String(((index * 7) % 27) + 1).padStart(2, '0')
+const eventosDemo: EventoEvolucaoDemo[] = Array.from({ length: 96 }, (_, index) => {
+  const mesIndex = Math.min(mesesDemo.length - 1, Math.floor((index / 96) * mesesDemo.length))
+  const dia = String(((index * 11 + 5) % 27) + 1).padStart(2, '0')
 
   return {
     id: `evento-demo-${index + 1}`,

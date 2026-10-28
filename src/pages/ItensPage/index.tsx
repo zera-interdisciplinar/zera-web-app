@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react'
+import { Formulario } from '../../components/Formulario'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { Pencil, RotateCcw, Trash2 } from 'lucide-react'
 import { Button } from '../../components/Button'
@@ -24,6 +25,12 @@ import type { EstadoFiltrosItens } from '../../types/formularioItem'
 import { ROTULO_CONDICAO, ROTULO_STATUS } from '../../types/produto'
 import { formatarDataRelativa, pluralizar } from '../../utils/formatacao'
 import estilos from '../../../styles/pages/ItensPage/ItensPage.module.css'
+import { useAuth } from '../../hooks/useAuth'
+import { useCadastroCategoria } from '../../hooks/useCadastroCategoria'
+import { useCadastroModelo } from '../../hooks/useCadastroModelo'
+import { CadastroModelo } from '../../components/CadastroModelo'
+import { usePermissoes } from '../../hooks/usePermissoes'
+import { normalizarBusca } from '../../utils/busca'
 
 const STATUS_OPCOES = (Object.keys(ROTULO_STATUS) as StatusItem[]).map((valor) => ({
   valor,
@@ -31,18 +38,25 @@ const STATUS_OPCOES = (Object.keys(ROTULO_STATUS) as StatusItem[]).map((valor) =
 }))
 
 export default function ItensPage() {
+  const { usuario } = useAuth()
+  const permissoes = usePermissoes()
   const produtos = useProdutos()
   const categorias = useCategorias()
   const [preferencias, atualizarPreferencias] = usePreferenciasInventario()
   const [parametros] = useSearchParams()
   const navegar = useNavigate()
   const {
-    codigo, setCodigo, buscandoCodigo, erroCodigo, localizarCodigo, modelos, modoDemonstracao,
+    modelos, modoDemonstracao, criado, limparSucesso,
     modalAberto, editando, form, setForm, erros, enviando, erroEnvio,
     confirmandoDescarte, setConfirmandoDescarte, excluindo, setExcluindo,
     processandoExclusao, erroExclusao, abrirCadastro, abrirEdicao, tentarFecharModal,
     aoSalvar, aoConfirmarExclusao, setModalAberto, toast,
+    podeCadastrar, podeExcluir,
   } = useCadastroItens(produtos.recarregar)
+  const sucessoRef = useRef<HTMLHeadingElement>(null)
+  useEffect(() => { if (criado) sucessoRef.current?.focus() }, [criado])
+  const categoriaRapida = useCadastroCategoria((categoria) => setForm((atual) => ({ ...atual, categoriaId: String(categoria.id), modelId: '' })))
+  const modeloRapido = useCadastroModelo((modelo) => setForm((atual) => ({ ...atual, categoriaId: String(modelo.categoriaId), modelId: String(modelo.id) })))
 
   const [{ filtro, ultimoParametro }, setEstadoFiltros] = useState<EstadoFiltrosItens>({
     filtro: {
@@ -84,12 +98,12 @@ export default function ItensPage() {
 
   const visiveis = useMemo<ProdutoDetalhado[]>(() => {
     const dados = produtos.dados ?? []
-    const termo = filtro.busca.trim().toLowerCase()
+    const termo = normalizarBusca(filtro.busca)
 
     return dados.filter((produto) => {
       if (categoriaDaUrl && String(produto.categoriaId) !== categoriaDaUrl) return false
       if (responsavelDaUrl && produto.responsavel !== responsavelDaUrl) return false
-      const meses = periodoDaUrl === 'últimos 3 meses' ? 3 : periodoDaUrl === 'últimos 6 meses' ? 6 : periodoDaUrl === 'último ano' ? 12 : null
+      const meses = periodoDaUrl === 'Ãºltimos 3 meses' ? 3 : periodoDaUrl === 'Ãºltimos 6 meses' ? 6 : periodoDaUrl === 'Ãºltimo ano' ? 12 : null
       if (meses !== null) {
         const limite = new Date()
         limite.setMonth(limite.getMonth() - meses)
@@ -98,10 +112,9 @@ export default function ItensPage() {
       if (filtro.status !== 'todos' && produto.status !== filtro.status) return false
       if (termo.length === 0) return true
       return (
-        produto.codigoBarras.toLowerCase().includes(termo) ||
-        produto.nome.toLowerCase().includes(termo) ||
-        produto.marca.toLowerCase().includes(termo) ||
-        produto.categoriaNome.toLowerCase().includes(termo)
+        normalizarBusca(produto.nome).includes(termo) ||
+        normalizarBusca(produto.marca).includes(termo) ||
+        normalizarBusca(produto.categoriaNome).includes(termo)
       )
     })
   }, [produtos.dados, filtro, categoriaDaUrl, responsavelDaUrl, periodoDaUrl])
@@ -118,44 +131,43 @@ export default function ItensPage() {
       },
       { titulo: 'Categoria', render: (produto) => produto.categoriaNome },
       { titulo: 'Status', render: (produto) => <StatusText status={produto.status} /> },
-      { titulo: 'Responsável', render: (produto) => produto.responsavel },
-      { titulo: 'Atualização', render: (produto) => formatarDataRelativa(produto.atualizacao) },
+      ...(usuario?.perfil !== 'funcionario' ? [{ titulo: 'Cadastrado por', render: (produto: ProdutoDetalhado) => produto.responsavel }] : []),
+      { titulo: 'AtualizaÃ§Ã£o', render: (produto) => formatarDataRelativa(produto.atualizacao) },
       ...[{
-        titulo: 'Ação',
+        titulo: 'AÃ§Ã£o',
         render: (produto: ProdutoDetalhado) => (
           <span className={estilos.acoes}>
             {modoDemonstracao && <IconButton rotulo={`Editar ${produto.nome}`} onClick={() => abrirEdicao(produto)}>
               <Pencil size={18} aria-hidden="true" />
             </IconButton>}
-            <span className={estilos.divisor} aria-hidden="true" />
+            {podeExcluir && <><span className={estilos.divisor} aria-hidden="true" />
             <IconButton rotulo={`Excluir ${produto.nome}`} onClick={() => setExcluindo(produto)}>
               <Trash2 size={18} aria-hidden="true" />
-            </IconButton>
+            </IconButton></>}
           </span>
         ),
       }],
     ],
-    [abrirEdicao, setExcluindo, modoDemonstracao],
+    [abrirEdicao, setExcluindo, modoDemonstracao, podeExcluir, usuario?.perfil],
   )
 
   return (
     <>
       <PageHeader
-        titulo="Gestão de itens"
+        titulo="GestÃ£o de itens"
         subtitulo="Cadastre, filtre e acompanhe o ciclo de cada item."
       />
-
-      <form onSubmit={localizarCodigo} aria-label="Localizar etiqueta" className={estilos.toolbar}>
-        <FieldCard id="codigo-etiqueta" rotulo="Código de barras" valor={codigo} aoMudar={setCodigo} maxLength={120} desabilitado={buscandoCodigo} autoComplete="off" />
-        <Button type="submit" disabled={buscandoCodigo}>Localizar etiqueta</Button>
-        <p role="status">{buscandoCodigo ? 'Localizando etiqueta…' : ''}</p>
-        {erroCodigo && <p role="alert">{erroCodigo}</p>}
-      </form>
+      {criado && <section className={estilos.cartao} aria-label="Cadastro concluído">
+        <h2 ref={sucessoRef} tabIndex={-1}>Item cadastrado</h2>
+        <p role="status">Etiqueta: {criado.codigoExibicao || criado.codigoBarras}</p>
+        <Link className="link-botao" to={`/itens/${criado.id}`}>Ver item</Link>
+        <Button onClick={() => { limparSucesso(); abrirCadastro() }}>Cadastrar outro item</Button>
+      </section>}
 
       <div className={estilos.toolbar}>
         <SearchInput
           id="busca-itens"
-          rotulo="Pesquisar item por ID, nome ou material"
+          rotulo="Pesquisar item por nome, marca ou categoria"
           valor={filtro.busca}
           aoMudar={(valor) => setFiltro((atual) => ({ ...atual, busca: valor }))}
         />
@@ -178,9 +190,9 @@ export default function ItensPage() {
               Limpar filtros
             </button>
           )}
-          <Button id="adicionar-item" variante="primario" onClick={abrirCadastro}>
+          {podeCadastrar && <Button id="adicionar-item" variante="primario" onClick={abrirCadastro}>
             Adicionar item
-          </Button>
+          </Button>}
         </div>
       </div>
 
@@ -191,12 +203,12 @@ export default function ItensPage() {
           </h2>
           <p className={estilos.contagem} aria-live="polite">
             {produtos.carregando
-              ? 'Carregando…'
+              ? 'Carregandoâ€¦'
               : `${visiveis.length} ${pluralizar(visiveis.length, 'item', 'itens')}`}
           </p>
         </div>
 
-        {produtos.carregando && <Skeleton descricao="Carregando os itens do inventário." linhas={5} />}
+        {produtos.carregando && <Skeleton descricao="Carregando os itens do inventÃ¡rio." linhas={5} />}
         {produtos.erro && <EstadoErro mensagem={produtos.erro} aoTentarNovamente={produtos.recarregar} />}
 
         {produtos.dados && visiveis.length === 0 && (
@@ -205,7 +217,7 @@ export default function ItensPage() {
             descricao={
               filtro.busca || filtro.status !== 'todos'
                 ? 'Ajuste a busca ou o filtro de status para encontrar o item.'
-                : 'Cadastre o primeiro item para começar o inventário.'
+                : 'Cadastre o primeiro item para comeÃ§ar o inventÃ¡rio.'
             }
             acao={
               filtrosSujos ? (
@@ -214,9 +226,9 @@ export default function ItensPage() {
                   Limpar filtros
                 </button>
               ) : (
-                <Button variante="primario" onClick={abrirCadastro}>
+                podeCadastrar ? <Button variante="primario" onClick={abrirCadastro}>
                   Adicionar item
-                </Button>
+                </Button> : undefined
               )
             }
           />
@@ -227,7 +239,7 @@ export default function ItensPage() {
             colunas={colunas}
             dados={visiveis}
             chave={(produto) => produto.id}
-            legenda="Itens do inventário com categoria, status, responsável e atualização"
+            legenda="Itens do inventÃ¡rio com categoria, status, responsÃ¡vel e atualizaÃ§Ã£o"
           />
         )}
       </section>
@@ -239,9 +251,9 @@ export default function ItensPage() {
       >
         {confirmandoDescarte ? (
           <div>
-            <p className={estilos.textoModal}>Descartar as informações preenchidas?</p>
+            <p className={estilos.textoModal}>Descartar as informaÃ§Ãµes preenchidas?</p>
             <p className={estilos.detalheModal}>
-              O item ainda não foi salvo. Ao fechar, o que você digitou se perde.
+              O item ainda nÃ£o foi salvo. Ao fechar, o que vocÃª digitou se perde.
             </p>
             <div className={estilos.acoesModal}>
               <Button variante="perigo" tamanho="grande" onClick={() => setModalAberto(false)}>
@@ -257,12 +269,12 @@ export default function ItensPage() {
             </div>
           </div>
         ) : (
-          <form onSubmit={aoSalvar} noValidate>
-            {categorias.carregando && <p className={estilos.statusModal} role="status">Carregando categorias…</p>}
+          <Formulario onSubmit={aoSalvar} noValidate>
+            {categorias.carregando && <p className={estilos.statusModal} role="status">Carregando categoriasâ€¦</p>}
             {categorias.erro && <EstadoErro mensagem={categorias.erro} aoTentarNovamente={categorias.recarregar} />}
             <div className={estilos.camposModal}>
               <FieldCard
-                id="item-nome"
+                id="item-nome" obrigatorio
                 rotulo="Item"
                 valor={form.nome}
                 aoMudar={(valor) => setForm((atual) => ({ ...atual, nome: valor }))}
@@ -273,10 +285,10 @@ export default function ItensPage() {
               />
               <FieldCard
                 id="item-material"
-                rotulo="Material"
+                rotulo="Categoria"
                 tipo="select"
                 valor={form.categoriaId}
-                aoMudar={(valor) => setForm((atual) => ({ ...atual, categoriaId: valor, modelId: '' }))}
+                aoMudar={(valor) => valor === '__nova__' ? categoriaRapida.abrir() : setForm((atual) => ({ ...atual, categoriaId: valor, modelId: '' }))}
                 erro={erros.categoriaId}
                 desabilitado={enviando}
                 opcoes={[
@@ -285,6 +297,7 @@ export default function ItensPage() {
                     valor: String(categoria.id),
                     rotulo: categoria.nome,
                   })),
+                  ...(permissoes.cadastrarCategoria ? [{ valor: '__nova__', rotulo: '+ Nova categoria' }] : []),
                 ]}
               />
               {modoDemonstracao ? <FieldCard
@@ -297,38 +310,35 @@ export default function ItensPage() {
                 maxLength={60}
                 desabilitado={enviando}
               /> : <>
-                <FieldCard id="item-modelo" rotulo="Modelo" tipo="select" valor={form.modelId}
-                  aoMudar={(valor) => setForm((atual) => ({ ...atual, modelId: valor }))}
+                <FieldCard id="item-modelo" obrigatorio rotulo="Modelo" tipo="select" valor={form.modelId}
+                  aoMudar={(valor) => { if (valor === '__novo__') { modeloRapido.abrir(); modeloRapido.alterar('categoriaId', form.categoriaId) } else setForm((atual) => ({ ...atual, modelId: valor })) }}
                   erro={erros.modelId} desabilitado={enviando || modelos.carregando}
-                  opcoes={[{ valor: '', rotulo: 'Selecione um modelo cadastrado' }, ...(modelos.dados ?? []).filter((modelo) => !form.categoriaId || String(modelo.categoriaId) === form.categoriaId).map((modelo) => ({ valor: String(modelo.id), rotulo: `${modelo.fabricante} ${modelo.nome}` }))]} />
-                {modelos.carregando && <p className={estilos.statusModal} role="status">Carregando modelos…</p>}
+                  opcoes={[{ valor: '', rotulo: 'Selecione um modelo cadastrado' }, ...(modelos.dados ?? []).filter((modelo) => !form.categoriaId || String(modelo.categoriaId) === form.categoriaId).map((modelo) => ({ valor: String(modelo.id), rotulo: `${modelo.fabricante} ${modelo.nome}` })), ...(permissoes.cadastrarModelo ? [{ valor: '__novo__', rotulo: '+ Novo modelo' }] : [])]} />
+                {modelos.carregando && <p className={estilos.statusModal} role="status">Carregando modelosâ€¦</p>}
                 {modelos.erro && <EstadoErro mensagem={modelos.erro} aoTentarNovamente={modelos.recarregar} />}
-                <FieldCard id="item-codigo" rotulo="Código de barras" valor={form.barcode}
-                  aoMudar={(valor) => setForm((atual) => ({ ...atual, barcode: valor }))}
-                  erro={erros.barcode} maxLength={120} desabilitado={enviando} placeholder="Código único da etiqueta" />
-                <FieldCard id="item-intensidade" rotulo="Intensidade de uso" tipo="select" valor={form.usageIntensity}
+                <FieldCard id="item-intensidade" obrigatorio rotulo="Intensidade de uso" tipo="select" valor={form.usageIntensity}
                   aoMudar={(valor) => setForm((atual) => ({ ...atual, usageIntensity: valor }))}
                   erro={erros.usageIntensity} desabilitado={enviando}
                   opcoes={[{ valor: '', rotulo: 'Selecione de 0 a 10' }, ...Array.from({ length: 11 }, (_, numero) => ({ valor: String(numero), rotulo: String(numero) }))]} />
-                <FieldCard id="item-tem-danos" rotulo="O item apresenta danos?" tipo="select" valor={form.hasDamages}
+                <FieldCard id="item-tem-danos" obrigatorio rotulo="O item apresenta danos?" tipo="select" valor={form.hasDamages}
                   aoMudar={(valor) => setForm((atual) => ({ ...atual, hasDamages: valor, damages: '' }))}
                   erro={erros.hasDamages} desabilitado={enviando}
-                  opcoes={[{ valor: '', rotulo: 'Selecione uma opção' }, { valor: 'sim', rotulo: 'Sim' }, { valor: 'nao', rotulo: 'Não' }]} />
-                {form.hasDamages === 'sim' && <FieldCard id="item-danos" rotulo="Dano identificado" tipo="select" valor={form.damages}
+                  opcoes={[{ valor: '', rotulo: 'Selecione uma opÃ§Ã£o' }, { valor: 'sim', rotulo: 'Sim' }, { valor: 'nao', rotulo: 'NÃ£o' }]} />
+                {form.hasDamages === 'sim' && <FieldCard id="item-danos" obrigatorio rotulo="Dano identificado" tipo="select" valor={form.damages}
                   aoMudar={(valor) => setForm((atual) => ({ ...atual, damages: valor }))}
                   erro={erros.damages} desabilitado={enviando}
                   opcoes={[
                     { valor: '', rotulo: 'Selecione o dano' },
                     { valor: 'BROKEN_SCREEN', rotulo: 'Tela quebrada' },
-                    { valor: 'MISSING_PART', rotulo: 'Peça ausente' },
-                    { valor: 'DOES_NOT_POWER_ON', rotulo: 'Não liga' },
-                    { valor: 'OXIDATION', rotulo: 'Oxidação' },
+                    { valor: 'MISSING_PART', rotulo: 'PeÃ§a ausente' },
+                    { valor: 'DOES_NOT_POWER_ON', rotulo: 'NÃ£o liga' },
+                    { valor: 'OXIDATION', rotulo: 'OxidaÃ§Ã£o' },
                     { valor: 'OTHER', rotulo: 'Outro dano' },
                   ]} />}
               </>}
               <FieldCard
-                id="item-condicao"
-                rotulo="Condição"
+                id="item-condicao" obrigatorio
+                rotulo="CondiÃ§Ã£o"
                 tipo="select"
                 valor={form.condicao}
                 aoMudar={(valor) => setForm((atual) => ({ ...atual, condicao: valor }))}
@@ -352,7 +362,7 @@ export default function ItensPage() {
 
             <div className={estilos.acoesModal}>
               <Button variante="primario" tamanho="grande" type="submit" disabled={enviando}>
-                {enviando ? 'Salvando…' : editando ? 'Salvar alterações' : 'Concluir cadastro'}
+                {enviando ? 'Salvandoâ€¦' : editando ? 'Salvar alteraÃ§Ãµes' : 'Concluir cadastro'}
               </Button>
               <Button
                 variante="secundario"
@@ -363,7 +373,7 @@ export default function ItensPage() {
                 Cancelar
               </Button>
             </div>
-          </form>
+          </Formulario>
         )}
       </Modal>
 
@@ -375,12 +385,12 @@ export default function ItensPage() {
       >
         {excluindo && (
           <div>
-            <p className={estilos.textoModal}>Excluir {excluindo.nome} do inventário?</p>
+            <p className={estilos.textoModal}>Excluir {excluindo.nome} do inventÃ¡rio?</p>
             <p className={estilos.detalheModal}>
-              {modoDemonstracao ? 'O item será excluído dos dados desta demonstração.' : 'O item será marcado como removido. Seu histórico será preservado.'}
+              {modoDemonstracao ? 'O item serÃ¡ excluÃ­do dos dados desta demonstraÃ§Ã£o.' : 'O item serÃ¡ marcado como removido. Seu histÃ³rico serÃ¡ preservado.'}
             </p>
             {erroExclusao && <p className={estilos.erroModal} role="alert">{erroExclusao}</p>}
-            <p role="status">{processandoExclusao ? 'Excluindo item…' : ''}</p>
+            <p role="status">{processandoExclusao ? 'Excluindo itemâ€¦' : ''}</p>
             <div className={estilos.acoesModal}>
               <Button
                 variante="perigo"
@@ -388,7 +398,7 @@ export default function ItensPage() {
                 onClick={aoConfirmarExclusao}
                 disabled={processandoExclusao}
               >
-                {processandoExclusao ? 'Excluindo…' : 'Excluir item'}
+                {processandoExclusao ? 'Excluindoâ€¦' : 'Excluir item'}
               </Button>
               <Button
                 variante="secundario"
@@ -403,6 +413,17 @@ export default function ItensPage() {
         )}
       </Modal>
 
+      <CadastroModelo cadastro={modeloRapido} categorias={categorias} />
+      <Modal aberto={categoriaRapida.aberto} titulo="Nova categoria" aoFechar={categoriaRapida.fechar}>
+        <h2>Nova categoria</h2>
+        <Formulario onSubmit={categoriaRapida.salvar} noValidate>
+          <FieldCard id="categoria-rapida-nome" obrigatorio rotulo="Nome" valor={categoriaRapida.form.nome} aoMudar={(valor) => categoriaRapida.alterar('nome', valor)} erro={categoriaRapida.erros.nome} maxLength={80} />
+          <FieldCard id="categoria-rapida-descricao" obrigatorio rotulo="Descrição" tipo="textarea" valor={categoriaRapida.form.descricao} aoMudar={(valor) => categoriaRapida.alterar('descricao', valor)} erro={categoriaRapida.erros.descricao} maxLength={255} />
+          {categoriaRapida.erro && <p role="alert">{categoriaRapida.erro}</p>}
+          <Button type="submit" disabled={categoriaRapida.enviando}>{categoriaRapida.enviando ? 'Salvando…' : 'Salvar categoria'}</Button>
+          <Button onClick={categoriaRapida.fechar} disabled={categoriaRapida.enviando}>Cancelar</Button>
+        </Formulario>
+      </Modal>
       <Toast mensagem={toast} />
     </>
   )

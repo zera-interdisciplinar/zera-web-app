@@ -1,22 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { FormEvent, SetStateAction } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useRequisicao } from './useRequisicao'
 import { useToast } from './useToast'
-import { criarProduto, atualizarProduto, excluirProduto, buscarPorCodigo } from '../services/produtoService'
+import { criarProduto, atualizarProduto, excluirProduto } from '../services/produtoService'
 import { criarItemReal, removerItemReal } from '../services/itemCadastroService'
 import { listarModelos } from '../services/modeloService'
 import { modoDemonstracao } from '../services/apiReal'
 import { mensagemDeErro } from '../types/api'
 import type { CadastroItemReal, DanoItemReal } from '../types/cadastroItem'
 import type { Condicao, ProdutoDetalhado } from '../types/produto'
-import type { EstadoEtiqueta, EstadoExclusaoItem, EstadoFormularioItem, FormItem, RetornoCadastroItens } from '../types/formularioItem'
+import type { EstadoExclusaoItem, EstadoFormularioItem, FormItem, RetornoCadastroItens } from '../types/formularioItem'
 import { validarCadastroItemReal } from '../utils/validacaoItemReal'
 import { validarNovoProduto } from '../utils/validacao'
-import { validarCodigoEtiqueta } from '../utils/validacaoInventario'
+import { usePermissoes } from './usePermissoes'
+import { observarCatalogo } from '../services/catalogoEventos'
 
 const FORM_INICIAL: FormItem = {
-  nome: '', categoriaId: '', marca: '', condicao: '', barcode: '', modelId: '',
+  nome: '', categoriaId: '', marca: '', condicao: '', modelId: '',
   usageIntensity: '', hasDamages: '', damages: '',
 }
 const ESTADO_INICIAL: EstadoFormularioItem = {
@@ -29,29 +29,28 @@ const CONDICOES: Record<string, CadastroItemReal['condition']> = {
 const DANOS: DanoItemReal[] = ['BROKEN_SCREEN', 'MISSING_PART', 'DOES_NOT_POWER_ON', 'OXIDATION', 'OTHER']
 const ERROS_POR_CAMPO: Record<keyof FormItem, string[]> = {
   nome: ['nome', 'name'], categoriaId: ['categoriaId'], marca: ['marca'],
-  condicao: ['condicao', 'condition'], barcode: ['barcode'], modelId: ['modelId'],
+  condicao: ['condicao', 'condition'], modelId: ['modelId'],
   usageIntensity: ['usageIntensity'], hasDamages: ['hasDamages', 'damages'], damages: ['damages'],
 }
 
 export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens {
-  const navegar = useNavigate()
+  const { cadastrarItem: podeCadastrar, editarItem: podeEditar, excluirItem: podeExcluir } = usePermissoes()
+  const [criado, setCriado] = useState<ProdutoDetalhado | null>(null)
   const [estado, setEstado] = useState<EstadoFormularioItem>(ESTADO_INICIAL)
   const [exclusao, setExclusao] = useState<EstadoExclusaoItem>({ excluindo: null, processandoExclusao: false, erroExclusao: null })
-  const [etiqueta, setEtiqueta] = useState<EstadoEtiqueta>({ codigo: '', buscandoCodigo: false, erroCodigo: null })
   const [toast, mostrarToast] = useToast()
   const montado = useRef(false)
   const salvando = useRef(false)
   const removendo = useRef(false)
   const restaurarFoco = useRef(false)
-  const buscaEtiqueta = useRef<AbortController | null>(null)
   const buscarModelos = useCallback((sinal: AbortSignal) => listarModelos(sinal), [])
   const modelos = useRequisicao(buscarModelos, !modoDemonstracao)
+  useEffect(() => observarCatalogo(modelos.recarregar), [modelos.recarregar])
 
   useEffect(() => {
     montado.current = true
     return () => {
       montado.current = false
-      buscaEtiqueta.current?.abort()
     }
   }, [])
 
@@ -62,15 +61,16 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
     return () => cancelAnimationFrame(quadro)
   }, [exclusao.excluindo])
 
-  const abrirCadastro = useCallback(() => setEstado({ ...ESTADO_INICIAL, modalAberto: true }), [])
+  const abrirCadastro = useCallback(() => { if (podeCadastrar) setEstado({ ...ESTADO_INICIAL, modalAberto: true }) }, [podeCadastrar])
   const abrirEdicao = useCallback((produto: ProdutoDetalhado) => {
+    if (!podeEditar) return
     const form: FormItem = {
       nome: produto.nome, categoriaId: String(produto.categoriaId), marca: produto.marca,
-      condicao: produto.condicao, barcode: produto.codigoBarras, modelId: '',
+      condicao: produto.condicao, modelId: '',
       usageIntensity: '', hasDamages: '', damages: '',
     }
     setEstado({ ...ESTADO_INICIAL, modalAberto: true, editando: produto, form, formInicial: form })
-  }, [])
+  }, [podeEditar])
   const setForm = useCallback((atualizar: SetStateAction<FormItem>) => {
     if (salvando.current) return
     setEstado((atual) => {
@@ -88,10 +88,9 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
     setEstado((atual) => ({ ...atual, confirmandoDescarte: confirmando }))
   }, [])
   const setExcluindo = useCallback((item: ProdutoDetalhado | null) => {
+    if (item && !podeExcluir) return
     if (!removendo.current) setExclusao({ excluindo: item, processandoExclusao: false, erroExclusao: null })
-  }, [])
-  function setCodigo(codigo: string) { setEtiqueta((atual) => ({ ...atual, codigo, erroCodigo: null })) }
-
+  }, [podeExcluir])
   const formularioSujo = (Object.keys(estado.form) as (keyof FormItem)[]).some((campo) => estado.form[campo] !== estado.formInicial[campo])
   function tentarFecharModal() {
     if (salvando.current) return
@@ -102,33 +101,15 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
     setModalAberto(false)
   }
 
-  async function localizarCodigo(evento: FormEvent): Promise<void> {
-    evento.preventDefault()
-    const validacao = validarCodigoEtiqueta({ codigo: etiqueta.codigo })
-    if (!validacao.valido) { setEtiqueta((atual) => ({ ...atual, erroCodigo: validacao.erros.codigo ?? null })); return }
-    buscaEtiqueta.current?.abort()
-    const controlador = new AbortController()
-    buscaEtiqueta.current = controlador
-    setEtiqueta((atual) => ({ ...atual, buscandoCodigo: true, erroCodigo: null }))
-    try {
-      const item = await buscarPorCodigo(validacao.dados.codigo, controlador.signal)
-      if (montado.current && !controlador.signal.aborted) navegar(`/itens/${item.id}`)
-    } catch (erro: unknown) {
-      if (montado.current && !controlador.signal.aborted) setEtiqueta((atual) => ({ ...atual, erroCodigo: mensagemDeErro(erro) }))
-    } finally {
-      if (montado.current && !controlador.signal.aborted) setEtiqueta((atual) => ({ ...atual, buscandoCodigo: false }))
-    }
-  }
-
   async function aoSalvar(evento: FormEvent<HTMLFormElement>): Promise<void> {
     evento.preventDefault()
-    if (salvando.current) return
+    if (salvando.current || !podeCadastrar || (estado.editando && !podeEditar)) return
     const { form, editando } = estado
     const dano = DANOS.find((opcao) => opcao === form.damages)
     const validacao = modoDemonstracao
       ? validarNovoProduto({ nome: form.nome, categoriaId: Number(form.categoriaId), marca: form.marca, condicao: form.condicao as Condicao })
       : validarCadastroItemReal({
-        name: form.nome, barcode: form.barcode, modelId: form.modelId,
+        name: form.nome, barcode: crypto.randomUUID(), modelId: form.modelId,
         condition: CONDICOES[form.condicao],
         usageIntensity: form.usageIntensity === '' ? Number.NaN : Number(form.usageIntensity),
         hasDamages: form.hasDamages === 'sim' ? true : form.hasDamages === 'nao' ? false : null,
@@ -138,7 +119,7 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
     if (!validacao.valido) {
       const ids: Record<string, string> = {
         nome: 'item-nome', name: 'item-nome', categoriaId: 'item-material', marca: 'item-marca',
-        barcode: 'item-codigo', modelId: 'item-modelo', condicao: 'item-condicao', condition: 'item-condicao',
+        modelId: 'item-modelo', condicao: 'item-condicao', condition: 'item-condicao',
         usageIntensity: 'item-intensidade', hasDamages: 'item-tem-danos', damages: 'item-danos',
       }
       document.getElementById(ids[Object.keys(validacao.erros)[0]])?.focus()
@@ -153,7 +134,7 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
         mostrarToast('Item cadastrado como rascunho. Acompanhe a aprovação nos detalhes.')
         setEstado((atual) => ({ ...atual, modalAberto: false }))
         aoAtualizar()
-        navegar(`/itens/${criado.id}`)
+        setCriado(criado)
       } else if ('nome' in validacao.dados) {
         if (editando) {
           await atualizarProduto(editando.id, validacao.dados)
@@ -162,7 +143,7 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
         } else {
           const criado = await criarProduto(validacao.dados)
           if (!montado.current) return
-          mostrarToast(`Item cadastrado. Etiqueta ${criado.codigoBarras} pronta para impressão.`)
+          mostrarToast(`"${criado.nome}" cadastrado.`)
         }
         setEstado((atual) => ({ ...atual, modalAberto: false }))
         aoAtualizar()
@@ -176,7 +157,7 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
   }
 
   async function aoConfirmarExclusao(): Promise<void> {
-    if (!exclusao.excluindo || removendo.current) return
+    if (!exclusao.excluindo || removendo.current || !podeExcluir) return
     const item = exclusao.excluindo
     removendo.current = true
     setExclusao((atual) => ({ ...atual, processandoExclusao: true, erroExclusao: null }))
@@ -197,8 +178,8 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
   }
 
   return {
-    ...estado, ...exclusao, ...etiqueta, modoDemonstracao, modelos, toast, formularioSujo,
-    abrirCadastro, abrirEdicao, setForm, setCodigo, setModalAberto, setConfirmandoDescarte,
-    setExcluindo, tentarFecharModal, aoSalvar, aoConfirmarExclusao, localizarCodigo,
+    ...estado, ...exclusao, criado, limparSucesso: () => setCriado(null), modoDemonstracao, modelos, toast, formularioSujo, podeCadastrar, podeExcluir,
+    abrirCadastro, abrirEdicao, setForm, setModalAberto, setConfirmandoDescarte,
+    setExcluindo, tentarFecharModal, aoSalvar, aoConfirmarExclusao,
   }
 }

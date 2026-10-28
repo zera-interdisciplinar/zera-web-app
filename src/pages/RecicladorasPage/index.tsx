@@ -1,3 +1,4 @@
+import { Formulario } from '../../components/Formulario'
 import { useCallback, useMemo, useState } from 'react'
 import { Button } from '../../components/Button'
 import { DataTable } from '../../components/DataTable'
@@ -10,6 +11,7 @@ import { PageHeader } from '../../components/PageHeader'
 import { SearchInput } from '../../components/SearchInput'
 import { Skeleton } from '../../components/Skeleton'
 import { Toast } from '../../components/Toast'
+import { LocaisReciclagem } from '../../components/LocaisReciclagem'
 import { useRequisicao } from '../../hooks/useRequisicao'
 import { useToast } from '../../hooks/useToast'
 import { criarRecicladora, listarRecicladoras } from '../../services/relatorioService'
@@ -23,6 +25,14 @@ import estilos from '../../../styles/pages/RecicladorasPage/RecicladorasPage.mod
 const FORM_INICIAL: NovaRecicladora = { nome: '', cnpj: '', cidade: '', email: '' }
 
 export default function RecicladorasPage() {
+  if (!modoDemonstracao) return <>
+    <PageHeader titulo="Locais de reciclagem" subtitulo="Consulte pontos próximos para planejar o destino dos itens." />
+    <LocaisReciclagem />
+  </>
+  return <RecicladorasDemonstracao />
+}
+
+function RecicladorasDemonstracao() {
   const buscar = useCallback((sinal: AbortSignal) => listarRecicladoras(sinal), [])
   const recicladoras = useRequisicao<Recicladora[]>(buscar)
   const [toast, mostrarToast] = useToast()
@@ -136,10 +146,10 @@ export default function RecicladorasPage() {
         titulo="Adicionar recicladora"
         aoFechar={() => setModalAberto(false)}
       >
-        <form onSubmit={aoSalvar} noValidate>
+        <Formulario onSubmit={aoSalvar} noValidate>
           <div className={estilos.camposModal}>
             <FieldCard
-              id="recicladora-nome"
+              id="recicladora-nome" obrigatorio
               rotulo="Nome"
               valor={form.nome}
               aoMudar={(valor) => setForm((atual) => ({ ...atual, nome: valor }))}
@@ -149,7 +159,7 @@ export default function RecicladorasPage() {
               desabilitado={enviando}
             />
             <FieldCard
-              id="recicladora-cnpj"
+              id="recicladora-cnpj" obrigatorio
               rotulo="CNPJ"
               valor={form.cnpj}
               aoMudar={(valor) => setForm((atual) => ({ ...atual, cnpj: valor }))}
@@ -168,7 +178,7 @@ export default function RecicladorasPage() {
               maxLength={60}
               desabilitado={enviando}
             /> : <FieldCard
-              id="recicladora-email"
+              id="recicladora-email" obrigatorio
               rotulo="E-mail"
               tipo="email"
               valor={form.email ?? ''}
@@ -199,7 +209,7 @@ export default function RecicladorasPage() {
               Cancelar
             </Button>
           </div>
-        </form>
+        </Formulario>
       </Modal>
 
       <Toast mensagem={toast} />

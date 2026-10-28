@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { randomUUID } from 'node:crypto'
+import { carregarEnvDemoNosTestes } from './envDemo'
 
 const env = import.meta.env as unknown as Record<string, string | undefined>
 
@@ -15,7 +16,10 @@ function credenciaisDemoConfiguradas() {
   })
 }
 
-beforeEach(() => vi.resetModules())
+beforeEach(() => {
+  carregarEnvDemoNosTestes()
+  vi.resetModules()
+})
 
 afterEach(() => {
   vi.restoreAllMocks()

@@ -10,7 +10,6 @@ export interface FormItem {
   categoriaId: string
   marca: string
   condicao: string
-  barcode: string
   modelId: string
   usageIntensity: string
   hasDamages: string
@@ -34,18 +33,16 @@ export interface EstadoExclusaoItem {
   erroExclusao: string | null
 }
 
-export interface EstadoEtiqueta {
-  codigo: string
-  buscandoCodigo: boolean
-  erroCodigo: string | null
-}
-
 export interface EstadoFiltrosItens {
   filtro: FiltroItens
   ultimoParametro: string
 }
 
-export interface RetornoCadastroItens extends EstadoFormularioItem, EstadoExclusaoItem, EstadoEtiqueta {
+export interface RetornoCadastroItens extends EstadoFormularioItem, EstadoExclusaoItem {
+  criado: ProdutoDetalhado | null
+  limparSucesso: () => void
+  podeCadastrar: boolean
+  podeExcluir: boolean
   modoDemonstracao: boolean
   modelos: EstadoRequisicao<Modelo[]>
   toast: string | null
@@ -53,12 +50,10 @@ export interface RetornoCadastroItens extends EstadoFormularioItem, EstadoExclus
   abrirCadastro: () => void
   abrirEdicao: (item: ProdutoDetalhado) => void
   setForm: Dispatch<SetStateAction<FormItem>>
-  setCodigo: (codigo: string) => void
   setModalAberto: (aberto: boolean) => void
   setConfirmandoDescarte: (confirmando: boolean) => void
   setExcluindo: (item: ProdutoDetalhado | null) => void
   tentarFecharModal: () => void
   aoSalvar: (evento: FormEvent<HTMLFormElement>) => Promise<void>
   aoConfirmarExclusao: () => Promise<void>
-  localizarCodigo: (evento: FormEvent) => Promise<void>
 }

@@ -7,12 +7,7 @@ import '@fontsource/jetbrains-mono/latin-500.css'
 import '../styles/global.css'
 import { App } from './App'
 
-async function preparar() {
-  if (import.meta.env.VITE_USE_MSW === 'true') {
-    const { worker } = await import('./mocks/browser')
-    await worker.start({ onUnhandledRequest: 'bypass', quiet: true, serviceWorker: { url: `${import.meta.env.BASE_URL}mockServiceWorker.js` } })
-  }
-
+function preparar() {
   const raiz = document.getElementById('root')
   if (!raiz) throw new Error('Elemento #root não encontrado.')
 
@@ -23,4 +18,4 @@ async function preparar() {
   )
 }
 
-void preparar()
+preparar()

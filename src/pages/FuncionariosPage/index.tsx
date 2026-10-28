@@ -1,3 +1,4 @@
+import { Formulario } from '../../components/Formulario'
 import { useCallback, useMemo, useState } from 'react'
 import { Button } from '../../components/Button'
 import { DataTable } from '../../components/DataTable'
@@ -152,10 +153,10 @@ export default function FuncionariosPage() {
         titulo="Adicionar funcionário"
         aoFechar={() => setModalAberto(false)}
       >
-        <form onSubmit={aoSalvar} noValidate>
+        <Formulario onSubmit={aoSalvar} noValidate>
           <div className={estilos.camposModal}>
             <FieldCard
-              id="funcionario-nome"
+              id="funcionario-nome" obrigatorio
               rotulo="Nome"
               valor={form.nome}
               aoMudar={(valor) => setForm((atual) => ({ ...atual, nome: valor }))}
@@ -165,7 +166,7 @@ export default function FuncionariosPage() {
               desabilitado={enviando}
             />
             <FieldCard
-              id="funcionario-email"
+              id="funcionario-email" obrigatorio
               rotulo="E-mail"
               tipo="email"
               valor={form.email}
@@ -176,7 +177,7 @@ export default function FuncionariosPage() {
               desabilitado={enviando}
             />
             <FieldCard
-              id="funcionario-perfil"
+              id="funcionario-perfil" obrigatorio
               rotulo="Perfil"
               tipo="select"
               valor={form.perfil}
@@ -191,7 +192,7 @@ export default function FuncionariosPage() {
               ]}
             />
             <FieldCard
-              id="funcionario-unidade"
+              id="funcionario-unidade" obrigatorio
               rotulo="Unidade"
               valor={form.unidade}
               aoMudar={(valor) => setForm((atual) => ({ ...atual, unidade: valor }))}
@@ -221,7 +222,7 @@ export default function FuncionariosPage() {
               Cancelar
             </Button>
           </div>
-        </form>
+        </Formulario>
       </Modal>
 
       <Toast mensagem={toast} />

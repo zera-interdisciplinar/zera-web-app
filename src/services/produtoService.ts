@@ -46,7 +46,7 @@ export async function editarItemReal(id: number | string, dados: UpdateItemReque
 
 export async function criarProduto(novo: NovoProduto): Promise<ProdutoDetalhado> {
   try {
-    if (!modoDemonstracao) throw new Error('Informe o modelo e o código de barras para cadastrar este item.')
+    if (!modoDemonstracao) throw new Error('Abra o cadastro real de itens para registrar este item.')
     return await requisitar<ProdutoDetalhado>('/items', { metodo: 'POST', corpo: novo })
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível cadastrar o item.')

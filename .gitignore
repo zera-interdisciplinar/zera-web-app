@@ -16,3 +16,16 @@ playwright-report/
 
 work/
 CONTRIBUTING.local.md
+build/
+coverage/
+.vite/
+.venv/
+venv/
+.idea/
+.vscode/
+.tsupgrader/
+*.log
+logs/
+*.key
+*.p12
+*.pfx

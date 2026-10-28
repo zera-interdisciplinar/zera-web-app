@@ -2,13 +2,25 @@ import { defineConfig, devices } from '@playwright/test'
 import { loadEnv } from 'vite'
 
 const root = process.cwd()
-const envFromFile = loadEnv('development', root, 'VITE_')
-for (const [key, value] of Object.entries(envFromFile)) {
-  process.env[key] ??= value
+const envFromFile = loadEnv('development', root, '')
+const qaKeys = ['QA_GESTOR_EMAIL', 'QA_GESTOR_PASSWORD', 'QA_OPERARIO_EMAIL', 'QA_OPERARIO_PASSWORD']
+for (const key of qaKeys) {
+  const value = envFromFile[key]
+  if (value) process.env[key] ??= value
 }
 
-const envTest = { ...process.env, VITE_USE_MSW: 'true' }
-const envReal = { ...process.env, VITE_USE_MSW: 'false' }
+const envTest = {
+  ...process.env,
+  ...loadEnv('development', root, 'VITE_'),
+  VITE_USE_MSW: 'true',
+  VITE_DASHBOARD_DEMO_MODE: 'true',
+}
+const envReal = {
+  ...process.env,
+  ...loadEnv('development', root, 'VITE_'),
+  VITE_USE_MSW: 'false',
+  VITE_DASHBOARD_DEMO_MODE: 'false',
+}
 
 export default defineConfig({
   testDir: './e2e',
@@ -18,6 +30,7 @@ export default defineConfig({
   use: {
     ...devices['Desktop Chrome'],
     browserName: 'chromium',
+    channel: process.platform === 'win32' ? 'msedge' : undefined,
     headless: true,
     serviceWorkers: 'allow',
   },

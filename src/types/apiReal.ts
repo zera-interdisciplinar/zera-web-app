@@ -53,13 +53,14 @@ export interface ItemResponse {
   unitId: string
   model: ModelResponse | null
   createdByName: string | null
+  createdBy?: string | null
   createdAt: string
   updatedAt: string
 }
 
 export interface HomeSummaryResponse {
   activeItems: number
-  activeItemsChangePercent: number
+  activeItemsChangePercent: number | null
   pendingApproval: number
   inMaintenance: number
   awaitingEvaluation: number
@@ -68,22 +69,22 @@ export interface HomeSummaryResponse {
 
 export interface DisposalIndicatorsResponse {
   totalWeightKg: number
-  recyclingRatePercent: number
-  recyclingRateChangePoints: number
-  totalWeightChangePercent: number
+  recyclingRatePercent: number | null
+  recyclingRateChangePoints: number | null
+  totalWeightChangePercent: number | null
   monthlyWeightKg: Array<{ month: string; weightKg: number }>
 }
 
 export interface EventResponse {
-  id: string
-  itemId: string
-  type: 'CREATED' | 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'MAINTENANCE_STARTED' | 'MAINTENANCE_FINISHED' | 'EVALUATED' | 'DISPOSED' | 'REMOVED' | 'RESTORED' | 'STATUS_CHANGED'
-  fromStatus: ItemResponse['status'] | null
-  toStatus: ItemResponse['status'] | null
-  reason: string | null
-  actorId: string | null
-  actorName: string | null
-  occurredAt: string
+  readonly id: string
+  readonly itemId: string
+  readonly type: 'CREATED' | 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'MAINTENANCE_STARTED' | 'MAINTENANCE_FINISHED' | 'EVALUATED' | 'DISPOSED' | 'REMOVED' | 'RESTORED' | 'STATUS_CHANGED'
+  readonly fromStatus: ItemResponse['status'] | null
+  readonly toStatus: ItemResponse['status'] | null
+  readonly reason: string | null
+  readonly actorId: string | null
+  readonly actorName: string | null
+  readonly occurredAt: string
 }
 
 export interface DisposalResponse {
@@ -94,7 +95,7 @@ export interface DisposalResponse {
   placeName: string | null
   disposedAt: string
   notes: string | null
-  items: Array<{ itemId: string; displayCode: string | null; name: string | null; weightKg: number }>
+  items: Array<{ itemId: string; displayCode: string | null; name: string | null; weightKg: number | null }>
   totalWeightKg: number
   createdByName: string | null
   createdAt: string

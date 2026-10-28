@@ -1,33 +1,33 @@
 // TODO(contrato): os Swaggers não confirmam estas associações nem classificações.
 // Itens, materiais, classes e quantidades são suposições explícitas para modo demo.
 const distribuicaoMateriais = [
-  { material: 'Metal', quantidade: 22 },
-  { material: 'Outros', quantidade: 2 },
-  { material: 'Pilhas e baterias', quantidade: 8 },
-  { material: 'Plástico (eletrônicos)', quantidade: 22 },
-  { material: 'Plástico', quantidade: 26 },
-  { material: 'Têxteis', quantidade: 16 },
-  { material: 'Vidro', quantidade: 8 },
+  { material: 'Metal', quantidade: 18 },
+  { material: 'Outros', quantidade: 7 },
+  { material: 'Pilhas e baterias', quantidade: 11 },
+  { material: 'Plástico (eletrônicos)', quantidade: 14 },
+  { material: 'Plástico', quantidade: 19 },
+  { material: 'Têxteis', quantidade: 10 },
+  { material: 'Vidro', quantidade: 6 },
 ] as const
 
-const itens = Array.from({ length: 32 }, (_, indice) => ({
+const itens = Array.from({ length: 41 }, (_, indice) => ({
   id: indice + 1,
-  condicao: indice < 20 ? 'Novo' : 'Usado',
-  reciclavel: indice < 30,
-  perigoso: indice < 30,
+  condicao: indice < 23 ? 'Novo' : 'Usado',
+  reciclavel: indice < 31,
+  perigoso: indice >= 36,
 }))
 
 const associacoes = distribuicaoMateriais.flatMap(({ material, quantidade }, indiceMaterial) =>
   Array.from({ length: quantidade }, (_, indiceAssociacao) => {
-    const idItem = ((indiceMaterial * 13 + indiceAssociacao) % itens.length) + 1
+    const idItem = ((indiceMaterial * 17 + indiceAssociacao * 3) % itens.length) + 1
     return {
       idItem,
       material,
       reciclavel: !(material === 'Outros' || (material === 'Metal' && indiceAssociacao === 0)),
       perigoso:
         material === 'Pilhas e baterias' ||
-        (material === 'Outros' && indiceAssociacao === 0) ||
-        (material === 'Metal' && indiceAssociacao < 20),
+        (material === 'Outros' && indiceAssociacao < 3) ||
+        (material === 'Metal' && indiceAssociacao < 4),
     }
   }),
 )

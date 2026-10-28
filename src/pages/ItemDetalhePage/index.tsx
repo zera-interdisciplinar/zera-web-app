@@ -1,3 +1,4 @@
+import { Formulario } from '../../components/Formulario'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
@@ -27,6 +28,7 @@ import { FluxoItemReal } from '../../components/FluxoItemReal'
 import type { EventResponse } from '../../types/apiReal'
 import { EdicaoItemReal } from '../../components/EdicaoItemReal'
 import { useAuth } from '../../hooks/useAuth'
+import { rotuloEvento } from '../../utils/eventos'
 
 const ROTULO_RISCO: Record<RiscoFalha, string> = {
   baixo: 'risco baixo',
@@ -56,7 +58,7 @@ export default function ItemDetalhePage() {
       <EmptyState
         nivelTitulo="h1"
         titulo="Item não encontrado"
-        descricao="O endereço não traz um identificador válido. Confira o código da etiqueta ou volte à lista de itens."
+        descricao="O endereço não traz um identificador válido. Volte à lista de itens e tente novamente."
         acao={
           <Link to="/itens" className="link-botao">Voltar para itens</Link>
         }
@@ -152,10 +154,6 @@ function Detalhe({ produtoId }: { produtoId: number | string }) {
           <h1 className="titulo-pagina" tabIndex={-1} ref={tituloRef}>
             {item.nome}
           </h1>
-          <p className={estilos.subtitulo}>
-            <span className="texto-mono">{item.codigoBarras}</span>
-            <span className="somente-leitor-de-tela"> — código de barras do item</span>
-          </p>
         </div>
         <div className={estilos.cabecalhoDireita}>
           <StatusText status={item.status} />
@@ -180,7 +178,7 @@ function Detalhe({ produtoId }: { produtoId: number | string }) {
           {eventos.carregando && <Skeleton descricao="Carregando eventos do item." linhas={3} />}
           {eventos.erro && <EstadoErro mensagem={eventos.erro} aoTentarNovamente={eventos.recarregar} />}
           {eventos.dados && <p role="status">{eventos.dados.length} eventos encontrados.</p>}
-          <ul>{eventos.dados?.map((evento) => <li key={evento.id}><time dateTime={evento.occurredAt}>{formatarDataRelativa(evento.occurredAt)}</time> — {evento.type} — {evento.actorName ?? 'Responsável não informado'}{evento.reason && `: ${evento.reason}`}</li>)}</ul>
+          <ul>{eventos.dados?.map((evento) => <li key={evento.id}><time dateTime={evento.occurredAt}>{formatarDataRelativa(evento.occurredAt)}</time> — {rotuloEvento(evento)}{temPerfil(['gestor', 'administrador']) && ` — ${evento.actorName ?? 'Responsável não informado'}`}{evento.reason && `: ${evento.reason}`}</li>)}</ul>
         </div>}
 
         {abaAtiva === 'dados' && (
@@ -204,10 +202,10 @@ function Detalhe({ produtoId }: { produtoId: number | string }) {
                   {formatarData(item.dataEntrada)} ({item.diasEmEstoque} dias)
                 </dd>
               </div>
-              <div>
-                <dt>Responsável</dt>
+              {temPerfil(['gestor', 'administrador']) && <div>
+                <dt>Cadastrado por</dt>
                 <dd>{item.responsavel}</dd>
-              </div>
+              </div>}
               <div>
                 <dt>Última atualização</dt>
                 <dd>{formatarDataRelativa(item.atualizacao)}</dd>
@@ -258,7 +256,7 @@ function Detalhe({ produtoId }: { produtoId: number | string }) {
 
               <div>
                 <h2 className={estilos.tituloSecao}>Registrar manutenção</h2>
-                {temPerfil(['funcionario', 'administrador']) ? <form onSubmit={aoRegistrarManutencao} noValidate className={estilos.formManutencao}>
+                {temPerfil(['funcionario', 'administrador']) ? <Formulario onSubmit={aoRegistrarManutencao} noValidate className={estilos.formManutencao}>
                   <FieldCard
                     id="tipo-manutencao"
                     rotulo="Tipo"
@@ -306,7 +304,7 @@ function Detalhe({ produtoId }: { produtoId: number | string }) {
                   <Button variante="primario" type="submit" disabled={enviando}>
                     {enviando ? 'Registrando…' : 'Registrar manutenção'}
                   </Button>
-                </form> : <p>Seu perfil permite consultar o histórico. O registro exige Funcionário ou Administrador.</p>}
+                </Formulario> : <p>Seu perfil permite consultar o histórico. O registro exige Funcionário ou Administrador.</p>}
               </div>
             </div>
           </div>

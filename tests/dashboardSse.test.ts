@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { randomUUID } from 'node:crypto'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
@@ -6,20 +6,22 @@ import { http } from 'msw'
 import { setupServer } from 'msw/node'
 import { analisarChunkSse, acompanharDashboard, criarUrlDashboardSse } from '../src/services/dashboardSse'
 import { dashboardSnapshotMock, respostaSse } from '../src/mocks/dashboardSseFixture'
-import { formatarNumero, formatarPontosPercentuais, formatarVariacao } from '../src/utils/formatarDashboard'
+import { formatarErroDashboard, formatarNumero, formatarPontosPercentuais, formatarVariacao } from '../src/utils/formatarDashboard'
+import { dashboardDemoEnabled } from '../src/config/dashboardMode'
 import type { FiltrosDashboard } from '../src/types/dashboardAnalytics'
 import { VisaoGeralTab } from '../src/components/DashboardTabs/VisaoGeralTab'
 import { ItensVidaUtilTab } from '../src/components/DashboardTabs/ItensVidaUtilTab'
 import { EvolucaoMovimentacoesTab } from '../src/components/DashboardTabs/EvolucaoMovimentacoesTab'
 import { QualidadeDadosTab } from '../src/components/DashboardTabs/QualidadeDadosTab'
 import { MateriaisSustentabilidadeTab } from '../src/components/DashboardTabs/MateriaisSustentabilidadeTab'
-import { definirSessaoApi } from '../src/services/apiReal'
+import { definirSessaoApi, observarExpiracaoSessao, obterSessaoApi } from '../src/services/apiReal'
 
-const endpoint = criarUrlDashboardSse({ period: '6m', view: 'todos' } as FiltrosDashboard).origin
-  + '/api/v1/dashboard/overview'
+const urlEndpoint = criarUrlDashboardSse({ period: '6m', view: 'todos' })
+const endpoint = `${urlEndpoint.origin}${urlEndpoint.pathname}`
 const server = setupServer()
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+beforeEach(() => definirSessaoApi(randomUUID(), null))
 afterEach(() => {
   server.resetHandlers()
   definirSessaoApi(null, null)
@@ -37,6 +39,14 @@ describe('parser SSE do dashboard', () => {
     expect(url.pathname.match(/\/api/g)).toHaveLength(1)
   })
 
+  it('usa a base do proxy sem /api final e mantém exatamente o path do contrato', () => {
+    const url = criarUrlDashboardSse({ period: '30d', view: 'pendentes', unitId: 'unit-1', responsible: 'user-1', q: 'notebook' }, 'https://web.example.invalid/api/analytics')
+    expect(url.pathname).toBe('/api/analytics/api/v1/dashboard/overview')
+    expect(url.searchParams.get('unit_id')).toBe('unit-1')
+    expect(url.searchParams.get('responsible')).toBe('user-1')
+    expect(url.searchParams.get('q')).toBe('notebook')
+    expect(url.searchParams.has('access_token')).toBe(false)
+  })
   it('processa CRLF dividido entre chunks, comentários e eventos nomeados', () => {
     const primeiro = analisarChunkSse('', 'event: snapshot\r')
     expect(primeiro.eventos).toEqual([])
@@ -55,15 +65,20 @@ describe('parser SSE do dashboard', () => {
 describe('valores nulos do contrato', () => {
   it('não transforma nulos em zero nem em percentual enganoso', () => {
     expect(formatarNumero(null)).toBe('—')
-    expect(formatarVariacao(null)).toBe('Sem comparação disponível')
-    expect(formatarPontosPercentuais(null)).toBe('variação indisponível')
+    expect(formatarVariacao(null)).toBe('—')
+    expect(formatarPontosPercentuais(null)).toBe('—')
+  })
+
+  it('mostra a mensagem de autorização definida para 403', () => {
+    expect(formatarErroDashboard(403, 'negado')).toBe('Seu perfil não tem acesso ao painel de analytics.')
+    expect(formatarErroDashboard(503, 'indisponível')).toBe('HTTP 503: indisponível')
   })
 })
 
 describe('origem dos cards e gráficos', () => {
   const filtros: FiltrosDashboard = { period: '6m', view: 'todos' }
 
-  it('exibe o selo em cada card/gráfico abastecido por fixture no modo MSW', () => {
+  it('exibe o selo em cada card/gráfico abastecido por fixture', () => {
     const visaoGeral = renderToStaticMarkup(createElement(VisaoGeralTab, { snapshot: dashboardSnapshotMock, demo: true }))
     const vidaUtil = renderToStaticMarkup(createElement(ItensVidaUtilTab, { demo: true, filtros }))
     const evolucao = renderToStaticMarkup(createElement(EvolucaoMovimentacoesTab, { demo: true, filtros }))
@@ -84,8 +99,7 @@ describe('origem dos cards e gráficos', () => {
     snapshotNulo.circularidade.percent = null
 
     const tela = renderToStaticMarkup(createElement(VisaoGeralTab, { snapshot: snapshotNulo, demo: true }))
-    expect(tela).toContain('Sem comparação disponível')
-    expect(tela).toContain('variação indisponível')
+    expect(tela).toContain('Variação: —')
     expect(tela).not.toContain('NaN')
     expect(tela).not.toContain('undefined')
     expect(tela).toContain('Circularidade: —')
@@ -100,16 +114,84 @@ describe('origem dos cards e gráficos', () => {
     const telas = [visaoGeral, vidaUtil, evolucao, qualidade, materiais]
 
     expect(telas.join('')).not.toContain('DEMONSTRAÇÃO')
-    expect(visaoGeral).not.toContain('Lenovo')
+    expect(visaoGeral).not.toContain('Orbit Labs')
     expect(visaoGeral).not.toContain('Fixture MSW')
     expect(telas.join('')).toContain('fonte confirmada')
     expect(vidaUtil).not.toContain('na seleção de demonstração')
     expect(evolucao).not.toContain('na seleção de demonstração')
   })
+
+  it('só permite fixtures com MSW explicitamente ligado', () => {
+    expect(dashboardDemoEnabled('true', 'true')).toBe(true)
+    expect(dashboardDemoEnabled('false', 'true')).toBe(false)
+    expect(dashboardDemoEnabled('true', 'false')).toBe(false)
+    expect(dashboardDemoEnabled(undefined, 'false')).toBe(false)
+    expect(dashboardDemoEnabled('true', '')).toBe(false)
+  })
 })
 
 describe('integração MSW do stream', () => {
   const filtros: FiltrosDashboard = { period: '6m', view: 'todos' }
+
+  it.each([401, 403, 503])('preserva HTTP %s e só expira sessão em 401', async (status) => {
+    server.use(http.get(endpoint, () => Response.json({ detail: 'falha controlada' }, { status })))
+    const expirou = vi.fn()
+    const remover = observarExpiracaoSessao(expirou)
+    const erro = vi.fn()
+    try {
+      await acompanharDashboard(filtros, new AbortController().signal, {
+        onSnapshot: vi.fn(), onUnavailable: vi.fn(), onError: erro, onState: vi.fn(),
+      })
+      expect(erro).toHaveBeenCalledWith({ status, detail: 'falha controlada' })
+      expect(expirou).toHaveBeenCalledTimes(status === 401 ? 1 : 0)
+      expect(Boolean(obterSessaoApi().accessToken)).toBe(status !== 401)
+    } finally { remover() }
+  })
+
+  it('recusa snapshot incompleto antes de entregar dados à tela', async () => {
+    const fetchControlado = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response('event: snapshot\ndata: {"batch_id":"invalido","kpis":{}}\n\n', {
+      headers: { 'Content-Type': 'text/event-stream' },
+    }))
+    const snapshot = vi.fn()
+    const erro = vi.fn()
+    try {
+      await acompanharDashboard(filtros, new AbortController().signal, {
+        onSnapshot: snapshot, onUnavailable: vi.fn(), onError: erro, onState: vi.fn(),
+      })
+      expect(snapshot).not.toHaveBeenCalled()
+      expect(erro).toHaveBeenCalledWith(expect.objectContaining({ status: 0, detail: expect.stringContaining('fora do contrato') }))
+    } finally { fetchControlado.mockRestore() }
+  })
+
+  it('comunica falha de rede e permite cancelar antes da reconexão', async () => {
+    server.use(http.get(endpoint, () => Response.error()))
+    const controlador = new AbortController()
+    const erro = vi.fn(() => controlador.abort())
+    await acompanharDashboard(filtros, controlador.signal, {
+      onSnapshot: vi.fn(), onUnavailable: vi.fn(), onError: erro, onState: vi.fn(),
+    })
+    expect(erro).toHaveBeenCalledWith({ status: 0, detail: expect.stringContaining('Tentando reconectar') })
+  })
+
+  it('reabre o stream depois de EOF e recebe o novo lote', async () => {
+    let chamadas = 0
+    server.use(http.get(endpoint, () => {
+      chamadas += 1
+      const data = { ...dashboardSnapshotMock, batch_id: `lote-${chamadas}` }
+      return chamadas === 1
+        ? new Response(`event: snapshot\ndata: ${JSON.stringify(data)}\n\n`, { headers: { 'Content-Type': 'text/event-stream' } })
+        : respostaSse('snapshot', data)
+    }))
+    const controlador = new AbortController()
+    const batches: string[] = []
+    const estado = vi.fn()
+    await acompanharDashboard(filtros, controlador.signal, {
+      onSnapshot(snapshot) { batches.push(snapshot.batch_id); if (batches.length === 2) controlador.abort() },
+      onUnavailable: vi.fn(), onError: vi.fn(), onState: estado,
+    })
+    expect(batches).toEqual(['lote-1', 'lote-2'])
+    expect(estado).toHaveBeenCalledWith('reconnecting')
+  })
 
   it('aplica o snapshot e encerra a leitura ao cancelar', async () => {
     server.use(http.get(endpoint, () => respostaSse('snapshot', dashboardSnapshotMock)))

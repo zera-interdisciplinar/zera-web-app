@@ -1,3 +1,4 @@
+import { Formulario } from '../Formulario'
 import type { EdicaoItemRealProps } from '../../types/componentes/EdicaoItemReal'
 export type { EdicaoItemRealProps } from '../../types/componentes/EdicaoItemReal'
 
@@ -15,19 +16,23 @@ const OPCOES_CONDICAO = [
 
 export function EdicaoItemReal({ item, aoConcluir }: EdicaoItemRealProps) {
   const edicao = useEdicaoItem(item, aoConcluir)
+  if (!edicao.permitido) return null
   return <>
     <Button onClick={edicao.abrir}>Editar item</Button>
     <p role="status">{edicao.sucesso}</p>
     <Modal aberto={edicao.aberto} titulo="Editar item" aoFechar={edicao.fechar}>
-      <form onSubmit={edicao.salvar} noValidate>
-        <FieldCard id="api-item-nome" rotulo="Nome" valor={edicao.form.name} aoMudar={(valor) => edicao.alterar('name', valor)} maxLength={120} desabilitado={edicao.enviando} erro={edicao.erros.name} />
-        <FieldCard id="api-item-condicao" rotulo="Condição" tipo="select" valor={edicao.form.condition} aoMudar={(valor) => edicao.alterar('condition', valor)} opcoes={OPCOES_CONDICAO} desabilitado={edicao.enviando} erro={edicao.erros.condition} />
+      {edicao.confirmarDescarte ? <div><h2>Descartar alterações?</h2><Button variante="perigo" onClick={edicao.descartar}>Descartar alterações</Button><Button onClick={edicao.continuarEditando}>Continuar editando</Button></div> :
+      <Formulario onSubmit={edicao.salvar} noValidate>
+        <FieldCard id="api-item-nome" obrigatorio rotulo="Nome" valor={edicao.form.name} aoMudar={(valor) => edicao.alterar('name', valor)} maxLength={120} desabilitado={edicao.enviando} erro={edicao.erros.name} />
+        <FieldCard id="api-item-condicao" obrigatorio rotulo="Condição" tipo="select" valor={edicao.form.condition} aoMudar={(valor) => edicao.alterar('condition', valor)} opcoes={OPCOES_CONDICAO} desabilitado={edicao.enviando} erro={edicao.erros.condition} />
         <p>Deixe as observações em branco para manter o texto já cadastrado.</p>
         <FieldCard id="api-item-notas" rotulo="Novas observações" tipo="textarea" valor={edicao.form.notes} aoMudar={(valor) => edicao.alterar('notes', valor)} maxLength={500} desabilitado={edicao.enviando} erro={edicao.erros.notes} />
         {edicao.erro && <p role="alert">{edicao.erro}</p>}
         <p role="status">{edicao.enviando ? 'Salvando item…' : ''}</p>
-        <Button type="submit" disabled={edicao.enviando}>Salvar alterações</Button>
-      </form>
+        <Button type="submit" disabled={edicao.enviando || !edicao.alterado}>Salvar alterações</Button>
+        <Button onClick={edicao.fechar} disabled={edicao.enviando}>Cancelar</Button>
+      </Formulario>
+      }
     </Modal>
   </>
 }

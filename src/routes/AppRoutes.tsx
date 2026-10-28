@@ -6,6 +6,7 @@ import { Skeleton } from '../components/Skeleton'
 import { SkipLink } from '../components/SkipLink'
 
 const LoginPage = lazy(() => import('../pages/LoginPage'))
+const RecuperarSenhaPage = lazy(() => import('../pages/RecuperarSenhaPage'))
 const DashboardPage = lazy(() => import('../pages/DashboardPage'))
 const ItensPage = lazy(() => import('../pages/ItensPage'))
 const ItemDetalhePage = lazy(() => import('../pages/ItemDetalhePage'))
@@ -35,7 +36,7 @@ export function AppRoutes() {
     <Suspense fallback={<CarregandoPagina />}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-
+        <Route path="/esqueci-senha" element={<RecuperarSenhaPage />} />
         <Route
           element={
             <PrivateRoute>
@@ -46,14 +47,14 @@ export function AppRoutes() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/itens" element={<ItensPage />} />
           <Route path="/itens/:id" element={<ItemDetalhePage />} />
-          <Route path="/itens/:id/triagem" element={<PrivateRoute perfis={['funcionario', 'administrador']}><TriagemPage /></PrivateRoute>} />
+          <Route path="/itens/:id/triagem" element={<PrivateRoute permissao="realizarTriagem"><TriagemPage /></PrivateRoute>} />
           <Route path="/modelos" element={<ModelosPage />} />
           <Route path="/recicladoras" element={<RecicladorasPage />} />
-          <Route path="/descartes" element={<PrivateRoute perfis={['gestor', 'administrador']}><DescartesPage /></PrivateRoute>} />
+          <Route path="/descartes" element={<PrivateRoute permissao="consultarDescartes"><DescartesPage /></PrivateRoute>} />
           <Route
             path="/funcionarios"
             element={
-              <PrivateRoute perfis={['administrador']}>
+              <PrivateRoute permissao="consultarUsuarios">
                 <FuncionariosPage />
               </PrivateRoute>
             }
@@ -61,7 +62,7 @@ export function AppRoutes() {
           <Route
             path="/relatorios"
             element={
-              <PrivateRoute perfis={['gestor', 'administrador']}>
+              <PrivateRoute permissao="consultarRelatorios">
                 <RelatoriosPage />
               </PrivateRoute>
             }
@@ -69,7 +70,7 @@ export function AppRoutes() {
           <Route
             path="/configuracoes"
             element={
-              <PrivateRoute perfis={['administrador']}>
+              <PrivateRoute permissao="consultarConfiguracoes">
                 <ConfiguracoesPage />
               </PrivateRoute>
             }

@@ -125,8 +125,7 @@ function FluxoTriagem({ produtoId }: { produtoId: number }) {
           <div>
             <h2 className="titulo-card">Classificação</h2>
             <p className={estilos.contextoItem}>
-              <span className="texto-mono">{item.codigoBarras}</span> · {item.categoriaNome} ·
-              entrou em {formatarData(item.dataEntrada)} · {item.diasEmEstoque} dias em estoque
+              {item.categoriaNome} · entrou em {formatarData(item.dataEntrada)} · {item.diasEmEstoque} dias em estoque
             </p>
 
             <div className={estilos.opcoes} role="radiogroup" aria-label="Classificação do item">
@@ -221,7 +220,7 @@ function FluxoTriagem({ produtoId }: { produtoId: number }) {
               <div>
                 <dt>Item</dt>
                 <dd>
-                  {item.marca} {item.nome} (<span className="texto-mono">{item.codigoBarras}</span>)
+                  {item.marca} {item.nome}
                 </dd>
               </div>
               <div>

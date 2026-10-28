@@ -16,6 +16,19 @@ export interface ResultadoValidacao<T> {
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 const CNPJ = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/
 
+export interface ResultadoEmailRecuperacao {
+  valido: boolean
+  email: string
+  erro?: string
+}
+
+export function validarEmailRecuperacao(entrada: string): ResultadoEmailRecuperacao {
+  const email = sanitizarTexto(entrada).slice(0, 120).toLowerCase()
+  if (!EMAIL.test(email)) return { valido: false, email, erro: 'Informe um e-mail válido.' }
+  if (email.split('@')[1] !== 'zera.com') return { valido: false, email, erro: 'Use um e-mail @zera.com.' }
+  return { valido: true, email }
+}
+
 export function validarCredenciais(entrada: Credenciais): ResultadoValidacao<Credenciais> {
   const dados: Credenciais = {
     email: sanitizarTexto(entrada.email).slice(0, 120).toLowerCase(),
@@ -115,14 +128,12 @@ export function validarNovoUsuario(entrada: NovoUsuario): ResultadoValidacao<Nov
 export function validarConfiguracoes(entrada: Configuracoes): ResultadoValidacao<Configuracoes> {
   const dados: Configuracoes = {
     diasLoteCritico: Number.isFinite(entrada.diasLoteCritico) ? entrada.diasLoteCritico : 0,
-    metaCircularidade: Number.isFinite(entrada.metaCircularidade) ? entrada.metaCircularidade : 0,
+
   }
   const erros: ErrosDeCampo<Configuracoes> = {}
 
   if (dados.diasLoteCritico < 7 || dados.diasLoteCritico > 365)
     erros.diasLoteCritico = 'Entre 7 e 365 dias.'
-  if (dados.metaCircularidade < 1 || dados.metaCircularidade > 100)
-    erros.metaCircularidade = 'Entre 1% e 100%.'
 
   return { valido: Object.keys(erros).length === 0, erros, dados }
 }

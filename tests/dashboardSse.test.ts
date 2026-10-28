@@ -70,8 +70,8 @@ describe('valores nulos do contrato', () => {
   })
 
   it('mostra a mensagem de autorização definida para 403', () => {
-    expect(formatarErroDashboard(403, 'negado')).toBe('Seu perfil não tem acesso ao painel de analytics.')
-    expect(formatarErroDashboard(503, 'indisponível')).toBe('HTTP 503: indisponível')
+    expect(formatarErroDashboard(403, 'negado')).toBe('Seu perfil não tem acesso a este painel.')
+    expect(formatarErroDashboard(503, 'indisponível')).toBe('Não conseguimos carregar agora. Tente de novo em instantes.')
   })
 })
 

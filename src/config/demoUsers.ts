@@ -22,6 +22,8 @@ export type ResultadoAutenticacaoDemo =
   | { tipo: 'perfil-invalido' }
 
 function configuracoes(): ConfiguracaoUsuarioDemo[] {
+  // Compatibilidade exclusiva dos testes legados; contas locais não entram no navegador.
+  if (import.meta.env.MODE !== 'test') return []
   const env = import.meta.env as unknown as Record<string, string | undefined>
   return [1, 2, 3].map((numero) => {
     const chave = `VITE_DEMO_USER_${numero}`

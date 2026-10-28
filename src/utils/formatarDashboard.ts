@@ -17,7 +17,7 @@ export function formatarPontosPercentuais(valor: number | null | undefined): str
 
 export function formatarErroDashboard(status: number, detalhe: string): string {
   if (status === 401) return 'Sua sessão expirou. Entre novamente para continuar.'
-  if (status === 403) return 'Seu perfil não tem acesso ao painel de analytics.'
-  if (status === 0) return detalhe
-  return `HTTP ${status || '—'}: ${detalhe}`
+  if (status === 403) return 'Seu perfil não tem acesso a este painel.'
+  if (import.meta.env.DEV) console.warn('[Zera] Falha no painel', { status, resposta: Boolean(detalhe) })
+  return 'Não conseguimos carregar agora. Tente de novo em instantes.'
 }

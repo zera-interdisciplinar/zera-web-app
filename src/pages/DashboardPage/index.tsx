@@ -45,10 +45,10 @@ const statusLabels: Record<string, string> = {
 function labelConexao(estado: string): string {
   const labels: Record<string, string> = {
     connecting: 'Conectando ao dashboard',
-    connected: 'API disponível',
+    connected: 'Dados atualizados',
     reconnecting: 'Reconectando ao dashboard',
-    unavailable: 'API indisponível',
-    error: 'API indisponível',
+    unavailable: 'Dados indisponíveis',
+    error: 'Dados indisponíveis',
   }
   return labels[estado] ?? estado
 }
@@ -108,7 +108,7 @@ function PainelGestao() {
       <div className={estilos.tituloLinha}>
         <PageHeader titulo="Painel do Zera" subtitulo="Indicadores de inventário, movimentações e sustentabilidade." />
         <span className={`${estilos.estado} ${estilos[`estado_${estado}`]}`} role="status" aria-live="polite">
-          {aba === 'operational' ? 'API de inventário' : labelConexao(estado)}
+          {aba === 'operational' ? 'Inventário da unidade' : labelConexao(estado)}
         </span>
       </div>
 

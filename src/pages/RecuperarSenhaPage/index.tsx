@@ -56,8 +56,7 @@ export default function RecuperarSenhaPage() {
 
           {confirmacao && (
             <div className={estilos.confirmacao}>
-              <p role="status">Se houver uma conta com este e-mail, as instruções aparecerão quando o serviço de recuperação estiver disponível.</p>
-              <p className={estilos.pendencia}>O endpoint de recuperação ainda não foi confirmado pela API.</p>
+              <p role="status">A recuperação de senha ainda não está disponível. Peça ajuda ao responsável pelo acesso da sua unidade.</p>
             </div>
           )}
 

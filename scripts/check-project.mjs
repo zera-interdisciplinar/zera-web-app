@@ -24,7 +24,7 @@ for (const pasta of ['src/components', 'src/pages']) {
     else if (!readdirSync(`${pasta}/${entrada.name}`).includes('index.tsx')) problemas.push(`${pasta}/${entrada.name}: falta index.tsx`)
   }
 }
-const tokens = JSON.parse(readFileSync('docs/design-tokens.json', 'utf8'))
+const tokens = JSON.parse(readFileSync('tests/fixtures/design-tokens.json', 'utf8'))
 const css = readFileSync('styles/tokens.css', 'utf8')
 for (const [nome, token] of Object.entries(tokens.color)) {
   const hex = token.$value.hex

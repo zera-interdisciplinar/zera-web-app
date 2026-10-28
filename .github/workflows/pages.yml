@@ -30,15 +30,13 @@ jobs:
       - run: npm run build -- --base=/zera-web-app/
         env:
           VITE_ROUTER_MODE: hash
-          VITE_USE_MSW: 'true'
-          VITE_API_BASE_URL: /api
+          VITE_USE_MSW: 'false'
+          VITE_DASHBOARD_DEMO_MODE: 'false'
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_ADMIN_API_URL: ${{ vars.VITE_ADMIN_API_URL }}
+          VITE_INVENTORY_API_URL: ${{ vars.VITE_INVENTORY_API_URL }}
       - name: Check publication scope
-        run: |
-          test ! -f ENTREGAS.md
-          test ! -d fixtures.local
-          test ! -f dist/ENTREGAS.md
-          test ! -f dist/.env
-          ! grep -R -l 'admin@zera.com.br' dist/assets
+        run: node scripts/check-publication.mjs
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         with:

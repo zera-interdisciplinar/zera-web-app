@@ -11,7 +11,7 @@ function Indicador({ titulo, valor, nota }: { titulo: string; valor: number | nu
 export function OperacionalTab() {
   const { resumo, descartes } = usePainelInventario()
   return (
-    <section className={estilos.conteudo} aria-label="Painel operacional do inventário">
+    <section className={estilos.conteudo} aria-label="Painel operacional do inventário" data-estado={resumo.carregando || descartes.carregando ? 'carregando' : resumo.erro || descartes.erro ? 'erro' : 'sucesso'}>
       <button type="button" disabled={resumo.carregando || descartes.carregando} onClick={() => { resumo.recarregar(); descartes.recarregar() }}>Atualizar dados</button>
       {(resumo.carregando || descartes.carregando) && <p role="status">Consultando inventário…</p>}
       {resumo.erro && <EstadoErro mensagem={resumo.erro} aoTentarNovamente={resumo.recarregar} />}

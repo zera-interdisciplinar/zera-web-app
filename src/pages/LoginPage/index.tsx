@@ -1,7 +1,9 @@
 import { Formulario } from '../../components/Formulario'
 import { useEffect, useState } from 'react'
 import { AtSign, LockKeyhole, Mail } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { destinoAposLogin } from '../../utils/destinoLogin'
+import { usePublicacao } from '../../hooks/usePublicacao'
 import { Button } from '../../components/Button'
 import { FieldCard } from '../../components/FieldCard'
 import { Logo } from '../../components/Logo'
@@ -23,14 +25,16 @@ interface EstadoBloqueio {
 export default function LoginPage() {
   const { entrar, entrando, erro, autenticado } = useAuth()
   const navegar = useNavigate()
+  const localizacao = useLocation()
+  const { paginaEstatica } = usePublicacao()
   const [formulario, setFormulario] = useState<Credenciais>({ email: '', senha: '' })
   const [erros, setErros] = useState<ErrosDeCampo<Credenciais>>({})
   const [mostrarErro, setMostrarErro] = useState(false)
   const [bloqueio, setBloqueio] = useState<EstadoBloqueio>({ falhas: 0, bloqueadoAte: 0, restante: 0 })
 
   useEffect(() => {
-    if (autenticado) navegar('/', { replace: true })
-  }, [autenticado, navegar])
+    if (autenticado) navegar(destinoAposLogin(localizacao.state), { replace: true })
+  }, [autenticado, navegar, localizacao.state])
 
   useEffect(() => {
     if (!bloqueio.bloqueadoAte) return
@@ -62,7 +66,7 @@ export default function LoginPage() {
     const resultado = await entrar(validacao.dados)
     if (resultado === 'autenticado') {
       setBloqueio({ falhas: 0, bloqueadoAte: 0, restante: 0 })
-      navegar('/', { replace: true })
+      navegar(destinoAposLogin(localizacao.state), { replace: true })
       return
     }
 
@@ -154,6 +158,7 @@ export default function LoginPage() {
                     {erro}
                   </p>
                 )}
+                {mostrarErro && erro && paginaEstatica && <p>Se não conseguir entrar por esta versão, <a href="https://zera-web-app-kappa.vercel.app/login">acesse o Zera na Vercel</a> e tente novamente.</p>}
 
                 {bloqueio.restante > 0 && (
                   <p className={estilos.contador} role="status" aria-live="polite">

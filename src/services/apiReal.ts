@@ -93,14 +93,30 @@ export async function requisitarApiReal<T>(recurso: Recurso, caminho: string, op
 
   let resposta: Response
   try {
-    resposta = await fetch(url, {
+    const consultar = () => fetch(url, {
       method: opcoes.metodo ?? 'GET',
       headers,
       body: opcoes.corpo === undefined ? undefined : JSON.stringify(opcoes.corpo),
       signal: AbortSignal.any([AbortSignal.timeout(15_000), ...(opcoes.sinal ? [opcoes.sinal] : [])]),
       credentials: 'omit',
       redirect: 'error',
+      cache: 'no-store',
     })
+    for (let tentativa = 0; ; tentativa += 1) {
+      try {
+        resposta = await consultar()
+        if ((opcoes.metodo ?? 'GET') !== 'GET' || ![502, 503, 504].includes(resposta.status) || tentativa >= 2) break
+        await resposta.text()
+      } catch (erro) {
+        if ((opcoes.metodo ?? 'GET') !== 'GET' || opcoes.sinal?.aborted || tentativa >= 2) throw erro
+      }
+      await new Promise<void>((resolve, reject) => {
+        if (opcoes.sinal?.aborted) return reject(new DOMException('Consulta cancelada.', 'AbortError'))
+        const cancelar = () => { clearTimeout(timer); reject(new DOMException('Consulta cancelada.', 'AbortError')) }
+        const timer = setTimeout(() => { opcoes.sinal?.removeEventListener('abort', cancelar); resolve() }, 300 * 2 ** tentativa)
+        opcoes.sinal?.addEventListener('abort', cancelar, { once: true })
+      })
+    }
   } catch (erro) {
     if (erro instanceof DOMException && erro.name === 'AbortError') throw erro
     registrarFalha('rede')

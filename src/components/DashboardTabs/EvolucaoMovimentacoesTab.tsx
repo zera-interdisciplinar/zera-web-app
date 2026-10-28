@@ -1,9 +1,12 @@
 import { SeloDemonstracao } from './SeloDemonstracao'
 import type { DashboardSnapshot, FiltrosDashboard } from '../../types/dashboardAnalytics'
 import { DataTable } from '../DataTable'
+import { GraficoDados } from '../GraficoDados'
+import { Skeleton } from '../Skeleton'
 import estilos from '../../../styles/components/DashboardTabs/EvolucaoMovimentacoesTab.module.css'
 
-export function EvolucaoMovimentacoesTab({ demo = false, snapshot = null }: { demo?: boolean; filtros?: FiltrosDashboard; snapshot?: DashboardSnapshot | null } = {}) {
+export function EvolucaoMovimentacoesTab({ demo = false, snapshot = null, aguardando = false }: { demo?: boolean; filtros?: FiltrosDashboard; snapshot?: DashboardSnapshot | null; aguardando?: boolean } = {}) {
+  if (!snapshot && aguardando) return <Skeleton descricao="Preparando os dados…" linhas={3} />
   return (
     <section className={estilos.sourceState} aria-labelledby="fonte-evolucao">
       <h2 id="fonte-evolucao">Evolução e movimentações</h2>
@@ -16,6 +19,8 @@ export function EvolucaoMovimentacoesTab({ demo = false, snapshot = null }: { de
           { titulo: 'Encaminhados', numerica: true, render: (ponto) => ponto.encaminhados },
         ]}
       /> : <p>Ainda não há dados para exibir aqui.</p>}
+      {snapshot && <GraficoDados demo={demo} titulo="Evolução mensal dos cadastros" eixo="Mês" unidade="itens" vazio="Nenhum cadastro contabilizado neste período." pontos={snapshot.itens_por_mes.map(p => ({ rotulo: p.mes, valor: p.cadastrados }))} />}
+      {snapshot && <GraficoDados demo={demo} titulo="Encaminhamentos por mês" eixo="Mês" unidade="itens" vazio="Nenhum encaminhamento contabilizado neste período." pontos={snapshot.itens_por_mes.map(p => ({ rotulo: p.mes, valor: p.encaminhados }))} />}
       <p>O histórico detalhado de eventos e movimentações ainda não está disponível.</p>
     </section>
   )

@@ -1,43 +1,25 @@
-# Zera — gestão de resíduos eletrônicos
+# Zera
 
-Aplicação Vite, React e TypeScript para acompanhar categorias, modelos e equipamentos identificados por etiqueta: inventário, triagem, manutenção, alertas, recicladoras e descartes. Funcionários operam o inventário e a triagem; gestores consultam estoque, categorias, análise preventiva e prévias de relatórios; administradores também acessam usuários, relatórios e configurações. As permissões do backend prevalecem sobre a interface.
+Gestão de equipamentos eletrônicos, do cadastro ao descarte.
 
-MSW é uma demonstração local explicitamente ativada e identificada nas telas. O administrador demonstrativo depende de uma fixture local ignorada pelo Git e não distribuída. O build de produção não ativa MSW. Integrações reais usam APIs HTTPS autenticadas; PostgreSQL e Neo4j não são acessados pelo navegador. Evidências e limitações estão em `AUDITORIA.md`. A avaliação acadêmica `ENTREGAS.md` é mantida somente no checkout local.
+Equipamentos esquecidos no estoque ocupam espaço e dificultam o reaproveitamento. O Zera reúne o inventário da unidade e ajuda nossa equipe a acompanhar o destino de cada item.
 
-O painel de acessibilidade permite ler o conteúdo em voz alta usando uma voz local em português, sem microfone nem leitura dos campos de formulário. A leitura para ao fechar o painel ou sair da página. A navegação por leitor de tela do sistema permanece disponível pelos landmarks, headings, labels e mensagens anunciadas.
+A gente cadastra categorias e modelos, registra os itens e acompanha suas aprovações e movimentações. O painel apresenta os indicadores disponíveis da unidade. A busca por locais de reciclagem ajuda a planejar os descartes.
 
-No PowerShell, a partir da pasta `ZERA - Entrega Final` do workspace. Antes de reinstalar, encerre os terminais de dev/preview deste projeto com `Ctrl+C`, para liberar os binários no Windows:
+Funcionários acompanham os itens que cadastraram. Gestores consultam o inventário da unidade, criam categorias e acompanham os responsáveis pelos cadastros. A autorização de cada operação também depende dos serviços configurados.
 
-```powershell
-cd .\Zera-Web
-if (-not (Test-Path .env)) { Copy-Item .env.example .env }
-npm ci
-if ($LASTEXITCODE -ne 0) { throw 'A instalação falhou. Corrija antes de iniciar o frontend.' }
-npm run dev
-```
+## Desenvolvimento
 
-O servidor abre em `http://localhost:5173`. Configure apenas URLs públicas HTTPS nas variáveis de API para usar os serviços reais. Nunca coloque credenciais de banco ou tokens em `VITE_*`.
+Usamos React 19, TypeScript, Vite, React Router e CSS Modules. Os testes usam Vitest e Playwright.
 
-Quando precisar do backend legado do workspace, com Docker Desktop disponível:
+Com Node.js 22.12 ou superior, copie `.env.example` para `.env` e configure os serviços. Instale as dependências com `npm ci` e inicie com `npm run dev`.
 
-```powershell
-docker compose -f '..\07 - Operacoes Ageis (DevOps)\Infraestrutura (Docker)\docker-compose.yml' up -d postgres redis backend-api
-```
+Para conferir uma alteração, execute `npm run lint`, `npm test` e `npm run build`. Os fluxos de navegador ficam em `npm run test:e2e`.
 
-O Compose fica fora de um clone standalone. Esses três serviços foram iniciados e verificados; esse backend usa contratos diferentes do QA. O frontend demonstrativo funciona sem Docker. Não execute a inicialização geral do grafo: o artefato do workspace contém exclusão de dados Neo4j.
+As telas estão em `src/pages`, os componentes em `src/components` e o acesso aos serviços em `src/services`. Os estilos ficam em `styles`; os testes, em `tests` e `e2e`. A pasta `server` reúne o proxy usado no desenvolvimento e pelas funções de publicação.
 
-Para validar, use outro terminal na pasta do projeto. Esses comandos terminam após a verificação:
+## Publicação
 
-```powershell
-npm run lint
-npm run build
-npm test
-```
+[Zera no GitHub Pages](https://zera-interdisciplinar.github.io/zera-web-app/). As bases dos serviços devem aceitar HTTPS e ser configuradas no ambiente de publicação. Na Vercel, as funções do projeto encaminham as chamadas aos serviços privados.
 
-Para visualizar o build, execute separadamente:
-
-```powershell
-npm run preview
-```
-
-`dev` e `preview` mantêm o terminal ocupado até `Ctrl+C`. Não execute `npm ci` enquanto um deles estiver rodando neste checkout.
+Feito por [EnzoCasares](https://github.com/EnzoCasares).

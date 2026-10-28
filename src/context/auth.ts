@@ -6,7 +6,7 @@ export interface ValorAuth {
   autenticado: boolean
   entrando: boolean
   erro: string | null
-  entrar: (credenciais: Credenciais) => Promise<boolean>
+  entrar: (credenciais: Credenciais) => Promise<'autenticado' | 'credenciais-invalidas' | 'falha'>
   sair: () => void
   temPerfil: (perfis: Perfil[]) => boolean
 }

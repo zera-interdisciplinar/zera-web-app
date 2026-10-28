@@ -142,7 +142,7 @@ export const usuarios: Usuario[] = [
   {
     id: 1,
     nome: 'Natalia Flores',
-    email: 'gestora@zera.com',
+    email: 'gestora@example.invalid',
     perfil: 'gestor',
     unidade: 'Operações',
     cargo: 'Gestora',
@@ -150,14 +150,14 @@ export const usuarios: Usuario[] = [
   {
     id: 2,
     nome: 'Gustavo Amex',
-    email: 'funcionario@zera.com',
+    email: 'funcionario@example.invalid',
     perfil: 'funcionario',
     unidade: 'Almoxarifado central',
   },
   {
     id: 3,
     nome: 'Administrador Zera',
-    email: 'admin@zera.com.br',
+    email: 'admin@example.invalid',
     perfil: 'administrador',
     unidade: 'Matriz',
     cargo: 'Administrador do sistema',
@@ -165,20 +165,19 @@ export const usuarios: Usuario[] = [
   {
     id: 4,
     nome: 'Rafael Bittar',
-    email: 'rafael.bittar@zera.com',
+    email: 'rafael.bittar@example.invalid',
     perfil: 'funcionario',
     unidade: 'Galpão 2 — triagem',
   },
   {
     id: 5,
     nome: 'Camila Duarte',
-    email: 'camila.duarte@zera.com',
+    email: 'camila.duarte@example.invalid',
     perfil: 'gestor',
     unidade: 'Unidade Lins',
   },
 ]
 
-export const SENHA_MINIMA_DEMO = 6
 
 export const responsaveis: string[] = [
   'Gustavo Amex',

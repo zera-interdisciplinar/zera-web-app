@@ -1,0 +1,11 @@
+.conteudo { display: grid; gap: var(--sp-4); }
+.gradeKpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--sp-3); }
+.kpi { min-width: 0; min-height: 112px; padding: var(--sp-4); background: var(--branco); border: 1px solid var(--borda); border-radius: var(--r-card); }
+.kpi h2 { font-size: .82rem; font-weight: 500; color: var(--texto-secundario); }
+.valor { margin-top: var(--sp-3); font-family: var(--fonte-display); font-size: clamp(1.5rem, 2vw, 2rem); line-height: 1.1; color: var(--texto); overflow-wrap: anywhere; }
+.nota { margin-top: var(--sp-2); font-size: .72rem; color: var(--texto-secundario); }
+.gradeGraficos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4); }
+.aviso, .semDado { padding: var(--sp-4); color: var(--texto-secundario); font-size: .9rem; }
+.semDado { display: grid; height: 100%; min-height: 190px; place-items: center; text-align: center; }
+@media (max-width: 900px) { .gradeKpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .gradeGraficos { grid-template-columns: minmax(0, 1fr); } .gradeKpis { grid-template-columns: minmax(0, 1fr); } }

@@ -1,10 +1,7 @@
+import type { StepperProps } from '../../types/componentes/Stepper'
+export type { StepperProps } from '../../types/componentes/Stepper'
 import { Check } from 'lucide-react'
-import estilos from './Stepper.module.css'
-
-export interface StepperProps {
-  etapas: string[]
-  atual: number
-}
+import estilos from '../../../styles/components/Stepper/Stepper.module.css'
 
 export function Stepper({ etapas, atual }: StepperProps) {
   return (

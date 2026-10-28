@@ -1,15 +1,9 @@
+import type { ModalProps } from '../../types/componentes/Modal'
+export type { ModalProps } from '../../types/componentes/Modal'
 import { useCallback, useEffect, useRef } from 'react'
-import type { ReactNode } from 'react'
-import { X } from 'lucide-react'
-import estilos from './Modal.module.css'
 
-export interface ModalProps {
-  aberto: boolean
-  titulo: string
-  aoFechar: () => void
-  children: ReactNode
-  larguraMaxima?: number
-}
+import { X } from 'lucide-react'
+import estilos from '../../../styles/components/Modal/Modal.module.css'
 
 const FOCAVEIS =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -22,6 +16,8 @@ export function Modal({ aberto, titulo, aoFechar, children, larguraMaxima = 880 
 
   const aoTeclar = useCallback(
     (evento: KeyboardEvent) => {
+      const abertos = document.querySelectorAll('[role="dialog"][aria-modal="true"]')
+      if (abertos[abertos.length - 1] !== dialogoRef.current) return
       if (evento.key === 'Escape') {
         evento.preventDefault()
         fecharRef.current()
@@ -62,16 +58,19 @@ export function Modal({ aberto, titulo, aoFechar, children, larguraMaxima = 880 
       fundo.push(...Array.from(ramo.parentElement?.children ?? []).filter((item): item is HTMLElement => item instanceof HTMLElement && item !== ramo))
     }
     const anteriores = fundo.map((item) => item.inert)
+    const rolagemAnterior = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
     fundo.forEach((item) => { item.inert = true })
     const primeiroCampo = dialogo?.querySelector<HTMLElement>('input, select, textarea')
     const primeiroFocavel = dialogo?.querySelector<HTMLElement>(FOCAVEIS)
-    ;(primeiroCampo ?? primeiroFocavel)?.focus()
+    ;(primeiroCampo ?? primeiroFocavel)?.focus({ preventScroll: true })
 
     document.addEventListener('keydown', aoTeclar)
 
     return () => {
       document.removeEventListener('keydown', aoTeclar)
       fundo.forEach((item, indice) => { item.inert = anteriores[indice] })
+      document.body.style.overflow = rolagemAnterior
       origemFocoRef.current?.focus()
     }
   }, [aberto, aoTeclar])
@@ -97,6 +96,7 @@ export function Modal({ aberto, titulo, aoFechar, children, larguraMaxima = 880 
         >
           <X size={24} aria-hidden="true" />
         </button>
+        <h2 className={estilos.titulo}>{titulo}</h2>
         {children}
       </div>
     </div>

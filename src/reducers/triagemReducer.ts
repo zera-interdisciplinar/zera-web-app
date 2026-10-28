@@ -9,13 +9,19 @@ export const ITENS_CHECKLIST: string[] = [
   'Ficha de segurança do fabricante anexada ao lote',
 ]
 
-export interface EstadoTriagem {
-  etapa: EtapaTriagem
+interface DadosTriagem {
   classificacao: Classificacao | null
   checklist: Record<string, boolean>
   enviando: boolean
   erro: string | null
 }
+
+export type EstadoTriagem = DadosTriagem & (
+  | { etapa: 'classificacao' }
+  | { etapa: 'periculosidade' }
+  | { etapa: 'confirmacao' }
+  | { etapa: 'concluida' }
+)
 
 export type AcaoTriagem =
   | { tipo: 'classificar'; classificacao: Classificacao }

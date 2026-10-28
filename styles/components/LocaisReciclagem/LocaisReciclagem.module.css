@@ -1,0 +1,17 @@
+.cartao { background: var(--branco); border-radius: var(--r-card); padding: var(--sp-6); }
+.instrucao { color: var(--texto-secundario); margin-top: var(--sp-2); }
+.formulario { display: grid; gap: var(--sp-4); margin-top: var(--sp-6); }
+.formulario > button { justify-self: start; }
+.campos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-4); }
+.campo { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+.campo label { font-size: .875rem; font-weight: 700; }
+.campo input { width: 100%; min-height: 44px; border: 1px solid var(--borda-controle); border-radius: var(--r-field); padding: var(--sp-3); background: var(--branco); }
+.erro { color: var(--perigo); margin-top: var(--sp-2); }
+.feedback { margin-top: var(--sp-4); }
+.lista { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4); padding: 0; margin: var(--sp-4) 0 0; }
+.local { border: 1px solid var(--borda); border-radius: var(--r-card); padding: var(--sp-5); display: flex; flex-direction: column; gap: var(--sp-2); overflow-wrap: anywhere; }
+.local h3 { font-size: 1.125rem; }
+.local button { margin-top: auto; align-self: start; }
+.distancia { color: var(--navy); font-weight: 700; }
+@media (max-width: 800px) { .campos, .lista { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 640px) { .cartao { padding: var(--sp-4); } }

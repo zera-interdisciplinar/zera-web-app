@@ -20,6 +20,8 @@ As telas estão em `src/pages`, os componentes em `src/components` e o acesso ao
 
 ## Publicação
 
-[Zera no GitHub Pages](https://zera-interdisciplinar.github.io/zera-web-app/). As bases dos serviços devem aceitar HTTPS e ser configuradas no ambiente de publicação. Na Vercel, as funções do projeto encaminham as chamadas aos serviços privados.
+[Zera na Vercel](https://zera-web-app-kappa.vercel.app) · [Zera no GitHub Pages](https://zera-interdisciplinar.github.io/zera-web-app/).
+
+O Pages usa o proxy HTTPS publicado na Vercel. A chave dos serviços fica somente no servidor; as bases públicas são configuradas no ambiente de publicação.
 
 Feito por [EnzoCasares](https://github.com/EnzoCasares).

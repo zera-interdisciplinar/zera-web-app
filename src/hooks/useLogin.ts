@@ -80,7 +80,6 @@ export function useLogin() {
 
     setMostrarErro(true)
     setErros({})
-    setFormulario({ email: '', senha: '' })
     requestAnimationFrame(() => document.getElementById('email')?.focus())
     if (resultado === 'credenciais-invalidas') {
       setBloqueio((atual) => {

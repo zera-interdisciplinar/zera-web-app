@@ -21,6 +21,8 @@ import type { NovaRecicladora, Recicladora } from '../../types/relatorio'
 import { validarNovaRecicladora } from '../../utils/validacao'
 import type { ErrosDeCampo } from '../../utils/validacao'
 import estilos from '../../../styles/pages/RecicladorasPage/RecicladorasPage.module.css'
+import { usePermissoes } from '../../hooks/usePermissoes'
+import { normalizarBusca } from '../../utils/busca'
 
 const FORM_INICIAL: NovaRecicladora = { nome: '', cnpj: '', cidade: '', email: '' }
 
@@ -28,11 +30,13 @@ export default function RecicladorasPage() {
   if (!modoDemonstracao) return <>
     <PageHeader titulo="Locais de reciclagem" subtitulo="Consulte pontos próximos para planejar o destino dos itens." />
     <LocaisReciclagem />
+    <CadastroRecicladoras />
   </>
-  return <RecicladorasDemonstracao />
+  return <CadastroRecicladoras />
 }
 
-function RecicladorasDemonstracao() {
+function CadastroRecicladoras() {
+  const { gerirEstoque } = usePermissoes()
   const buscar = useCallback((sinal: AbortSignal) => listarRecicladoras(sinal), [])
   const recicladoras = useRequisicao<Recicladora[]>(buscar)
   const [toast, mostrarToast] = useToast()
@@ -46,12 +50,12 @@ function RecicladorasDemonstracao() {
 
   const visiveis = useMemo<Recicladora[]>(() => {
     const dados = recicladoras.dados ?? []
-    const termo = busca.trim().toLowerCase()
+    const termo = normalizarBusca(busca)
     if (termo.length === 0) return dados
     return dados.filter(
       (recicladora) =>
-        recicladora.nome.toLowerCase().includes(termo) ||
-        (recicladora.email ?? recicladora.cidade).toLowerCase().includes(termo) ||
+        normalizarBusca(recicladora.nome).includes(termo) ||
+        normalizarBusca(recicladora.email ?? recicladora.cidade).includes(termo) ||
         recicladora.cnpj.includes(termo),
     )
   }, [recicladoras.dados, busca])
@@ -70,6 +74,7 @@ function RecicladorasDemonstracao() {
 
   async function aoSalvar(evento: React.FormEvent<HTMLFormElement>) {
     evento.preventDefault()
+    if (enviando || !gerirEstoque) return
     setErroEnvio(null)
 
     const validacao = validarNovaRecicladora(form, !modoDemonstracao)
@@ -92,10 +97,10 @@ function RecicladorasDemonstracao() {
 
   return (
     <>
-      <PageHeader
+      {modoDemonstracao ? <PageHeader
         titulo="Recicladoras"
         subtitulo="Cooperativas que recebem os lotes de descarte."
-      />
+      /> : <h2 className="titulo-card">Recicladoras cadastradas</h2>}
 
       <div className={estilos.toolbar}>
         <SearchInput
@@ -105,9 +110,9 @@ function RecicladorasDemonstracao() {
           aoMudar={setBusca}
           placeholder={modoDemonstracao ? 'Pesquisar por nome, cidade ou CNPJ...' : 'Pesquisar por nome, e-mail ou CNPJ...'}
         />
-        <Button variante="primario" onClick={() => setModalAberto(true)}>
+        {gerirEstoque && <Button variante="primario" onClick={() => setModalAberto(true)}>
           Adicionar recicladora
-        </Button>
+        </Button>}
       </div>
 
       <section className={estilos.cartao} aria-labelledby="titulo-lista">
@@ -126,7 +131,7 @@ function RecicladorasDemonstracao() {
             descricao={
               busca
                 ? 'Confira o termo digitado ou limpe a busca.'
-                : 'Cadastre a primeira cooperativa para poder enviar relatórios de descarte.'
+                : gerirEstoque ? 'Cadastre uma recicladora para manter os contatos da equipe.' : 'Nenhuma recicladora foi cadastrada ainda.'
             }
           />
         )}

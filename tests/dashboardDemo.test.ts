@@ -16,7 +16,7 @@ describe('dashboard de demonstração', () => {
     vi.stubEnv('VITE_USE_MSW', 'true')
     vi.stubEnv('VITE_DASHBOARD_DEMO_MODE', 'true')
     const tela = renderToStaticMarkup(createElement(DashboardPage))
-    expect(tela).toContain('DADOS DE DEMONSTRAÇÃO: API de analytics indisponível neste ambiente.')
+    expect(tela).toContain('DADOS DE DEMONSTRAÇÃO · Registros fictícios para conhecer o Zera.')
     expect(tela).toContain('data-estado="sucesso"')
     expect(tela.match(/DEMONSTRAÇÃO<\/span>/g)).toHaveLength(14)
   })

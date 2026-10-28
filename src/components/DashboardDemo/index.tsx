@@ -8,7 +8,7 @@ import { dashboardSnapshotMock } from '../../mocks/dashboardSseFixture'
 export function DashboardDemo() {
   return <main id="conteudo" data-estado="sucesso" style={{ padding: '1.5rem' }}>
     <h1>Painel de demonstração</h1>
-    <p role="status">DADOS DE DEMONSTRAÇÃO: API de analytics indisponível neste ambiente.</p>
+    <p role="status">DADOS DE DEMONSTRAÇÃO · Registros fictícios para conhecer o Zera.</p>
     <VisaoGeralTab snapshot={dashboardSnapshotMock} demo />
     <ItensVidaUtilTab demo /><EvolucaoMovimentacoesTab demo /><QualidadeDadosTab demo /><MateriaisSustentabilidadeTab demo />
   </main>

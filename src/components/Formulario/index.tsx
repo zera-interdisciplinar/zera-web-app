@@ -7,7 +7,7 @@ export function Formulario({ onSubmit, onInput, children, ...props }: ComponentP
   function atualizar(focar: boolean) {
     requestAnimationFrame(() => {
       const invalidos = Array.from(ref.current?.querySelectorAll<HTMLElement>('[aria-invalid="true"]') ?? [])
-      setCampos(invalidos.map((campo) => ref.current?.querySelector(`label[for="${campo.id}"]`)?.textContent?.replace(' *', '') ?? 'Campo obrigatório'))
+      setCampos(invalidos.map((campo) => (campo.querySelector('legend')?.textContent ?? ref.current?.querySelector(`label[for="${campo.id}"]`)?.textContent)?.replace(' *', '') ?? 'Campo obrigatório'))
       if (focar) invalidos[0]?.focus()
     })
   }

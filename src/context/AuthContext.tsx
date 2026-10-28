@@ -1,61 +1,42 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { autenticar } from '../services/authService'
-import { definirSessaoApi, modoDemonstracao, observarExpiracaoSessao } from '../services/apiReal'
+import { autenticar, limparRenovacaoSessao, mensagemErroLogin, renovarSessao } from '../services/authService'
+import { definirSessaoApi, observarExpiracaoSessao } from '../services/apiReal'
 import type { Credenciais, Perfil, Usuario } from '../types/usuario'
-import { mensagemDeErro } from '../types/api'
-import { CHAVE_SESSAO, carregar, remover, salvar } from '../utils/storage'
+import { ApiError } from '../types/api'
 import { AuthContext } from './auth'
 import type { ValorAuth } from './auth'
-
-interface SessaoPersistida {
-  usuario: Usuario
-  expiraEm: string
-}
-
-const migracoes = {
-  1: (): SessaoPersistida | null => null,
-}
 
 interface Props {
   children: ReactNode
 }
 
 export function AuthProvider({ children }: Props) {
-  const [usuario, setUsuario] = useState<Usuario | null>(() => {
-    if (!modoDemonstracao) return null
-    const sessao = carregar<SessaoPersistida>(CHAVE_SESSAO, migracoes)
-    if (!sessao) return null
-    if (new Date(sessao.expiraEm).getTime() <= Date.now()) {
-      remover(CHAVE_SESSAO)
-      return null
-    }
-    return sessao.usuario
-  })
+  const [usuario, setUsuario] = useState<Usuario | null>(null)
   const [entrando, setEntrando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
-  const [expiraEm, setExpiraEm] = useState(() => modoDemonstracao ? carregar<SessaoPersistida>(CHAVE_SESSAO, migracoes)?.expiraEm ?? null : null)
+  const [expiraEm, setExpiraEm] = useState<string | null>(null)
 
-  const entrar = useCallback(async (credenciais: Credenciais): Promise<boolean> => {
+  const entrar = useCallback(async (credenciais: Credenciais): Promise<'autenticado' | 'credenciais-invalidas' | 'falha'> => {
     setEntrando(true)
     setErro(null)
     try {
       const sessao = await autenticar(credenciais)
-      if (modoDemonstracao) salvar<SessaoPersistida>(CHAVE_SESSAO, sessao)
       setUsuario(sessao.usuario)
       setExpiraEm(sessao.expiraEm)
-      return true
+      return 'autenticado'
     } catch (falha) {
-      setErro(mensagemDeErro(falha))
-      return false
+      const credenciaisInvalidas = falha instanceof ApiError && (falha.status === 401 || falha.status === 403)
+      setErro(mensagemErroLogin(falha))
+      return credenciaisInvalidas ? 'credenciais-invalidas' : 'falha'
     } finally {
       setEntrando(false)
     }
   }, [])
 
   const sair = useCallback(() => {
+    limparRenovacaoSessao()
     definirSessaoApi(null, null)
-    remover(CHAVE_SESSAO)
     setUsuario(null)
     setExpiraEm(null)
   }, [])
@@ -67,9 +48,22 @@ export function AuthProvider({ children }: Props) {
 
   useEffect(() => {
     if (!expiraEm) return
+    let ativo = true
     const restante = Date.parse(expiraEm) - Date.now()
-    const temporizador = window.setTimeout(sair, Math.max(0, Math.min(restante, 2_147_483_647)))
-    return () => window.clearTimeout(temporizador)
+    const renovar = async () => {
+      try {
+        const validade = await renovarSessao()
+        if (ativo) setExpiraEm(validade)
+      } catch {
+        if (ativo) {
+          sair()
+          setErro('Sua sessão expirou. Entre novamente para continuar.')
+        }
+      }
+    }
+    const antecedencia = Math.min(30_000, Math.max(0, restante / 2))
+    const temporizador = window.setTimeout(() => { void renovar() }, Math.max(0, Math.min(restante - antecedencia, 2_147_483_647)))
+    return () => { ativo = false; window.clearTimeout(temporizador) }
   }, [expiraEm, sair])
 
   const temPerfil = useCallback(

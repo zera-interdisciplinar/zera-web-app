@@ -1,5 +1,5 @@
 import { HttpResponse, http, delay } from 'msw'
-import { validarCredencialDemo } from '../services/demoService'
+
 import type { AlertaLote } from '../types/alerta'
 import type { Categoria, NovaCategoria } from '../types/categoria'
 import type { Configuracoes } from '../types/configuracao'
@@ -13,17 +13,19 @@ import type {
   StatusItem,
 } from '../types/produto'
 import type { ItemRelatorio, NovaRecicladora, Relatorio } from '../types/relatorio'
-import type { Credenciais, NovoUsuario, SessaoAutenticada, Usuario } from '../types/usuario'
+import type { NovoUsuario, SessaoAutenticada, Usuario } from '../types/usuario'
 import { diasDesde, montarCodigoBarras } from '../utils/formatacao'
 import {
-  SENHA_MINIMA_DEMO,
+
   categorias as categoriasIniciais,
   modelos as modelosIniciais,
   recicladoras as recicladorasIniciais,
   usuarios as usuariosIniciais,
 } from './dados/catalogo'
 import { gerarManutencoes, gerarProdutos } from './dados/produtos'
+import { dashboardOverviewMock, dashboardSnapshotMock, respostaSse } from './dashboardSseFixture'
 import type { ResultadoTriagem } from '../services/produtoService'
+import { autenticarUsuarioDemo } from '../config/demoUsers'
 
 const BASE = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
@@ -60,7 +62,7 @@ const banco = {
       totalItens: 41,
     },
   ] as Relatorio[],
-  configuracoes: { diasLoteCritico: 90, metaCircularidade: 75 } as Configuracoes,
+  configuracoes: { diasLoteCritico: 90 } as Configuracoes,
 }
 banco.manutencoes = gerarManutencoes(banco.produtos)
 
@@ -126,7 +128,7 @@ function resumoDashboard(): ResumoDashboard {
       { mes: 'Jul', total: 140, atual: false },
       { mes: 'Ago', total: 200, atual: true },
     ],
-    circularidade: { percentual: 68, meta: banco.configuracoes.metaCircularidade },
+    circularidade: { percentual: 68 },
   }
 }
 
@@ -196,9 +198,11 @@ function itensParaDescarte(): ItemRelatorio[] {
       const detalhado = detalhar(produto)
       return {
         produtoId: produto.id,
-        codigoBarras: produto.codigoBarras,
         descricao: `${produto.marca} ${produto.nome}`,
         categoriaNome: detalhado.categoriaNome,
+        fabricante: produto.marca,
+        modelo: produto.nome,
+        condicao: produto.condicao,
         diasEmEstoque: detalhado.diasEmEstoque,
       }
     })
@@ -206,28 +210,44 @@ function itensParaDescarte(): ItemRelatorio[] {
     .slice(0, 40)
 }
 
-export const handlers = [
-  http.post(`${BASE}/auth/login`, async ({ request }) => {
-    await delay(420)
-    const credenciais = (await request.json()) as Credenciais
-    const usuario = banco.usuarios.find((item) => item.email === credenciais.email.toLowerCase())
+const handlersLoginDemo = import.meta.env.VITE_USE_MSW === 'true'
+  ? [http.post(`${BASE}/auth/login`, async ({ request }) => {
+      await delay(320)
 
-    const senhaValida =
-      usuario?.perfil === 'administrador'
-        ? await validarCredencialDemo(credenciais.senha)
-        : credenciais.senha.length >= SENHA_MINIMA_DEMO
+      let credenciais: { email?: unknown; senha?: unknown }
+      try {
+        credenciais = (await request.json()) as typeof credenciais
+      } catch {
+        return HttpResponse.json({ mensagem: 'E-mail ou senha inválidos.' }, { status: 401 })
+      }
 
-    if (!usuario || !senhaValida) {
-      return HttpResponse.json(
-        { mensagem: 'E-mail ou senha não conferem. Confira as credenciais de acesso.' },
-        { status: 401 },
+      const resultado = autenticarUsuarioDemo(
+        typeof credenciais.email === 'string' ? credenciais.email : '',
+        typeof credenciais.senha === 'string' ? credenciais.senha : '',
       )
-    }
+      if (resultado.tipo === 'credenciais-invalidas') {
+        return HttpResponse.json({ mensagem: 'E-mail ou senha inválidos.' }, { status: 401 })
+      }
+      if (resultado.tipo === 'perfil-invalido') {
+        return HttpResponse.json({ mensagem: 'Perfil de demonstração inválido.' }, { status: 400 })
+      }
 
-    const expiraEm = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString()
-    const sessao: SessaoAutenticada = { usuario, expiraEm }
-    return HttpResponse.json(sessao)
-  }),
+      const usuarioBase = banco.usuarios.find((usuario) => usuario.perfil === resultado.usuario.perfil)
+      const usuario: Usuario = {
+        id: resultado.usuario.id,
+        nome: resultado.usuario.nome,
+        email: resultado.usuario.email,
+        perfil: resultado.usuario.perfil,
+        unidade: usuarioBase?.unidade ?? '',
+      }
+      const expiraEm = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString()
+      const sessao: SessaoAutenticada = { usuario, expiraEm }
+      return HttpResponse.json(sessao)
+    })]
+  : []
+
+export const handlers = [
+  ...handlersLoginDemo,
 
   http.get(`${BASE}/categories`, async () => {
     await delay(220)
@@ -394,6 +414,12 @@ export const handlers = [
     await delay(340)
     return HttpResponse.json(resumoDashboard())
   }),
+
+  http.get(`${BASE}/v1/dashboard/overview`, () => respostaSse('snapshot', dashboardSnapshotMock)),
+
+  // TODO(contrato): endpoint de fixture para campos complementares ausentes do ms-analytics-bff.
+  // TODO(contrato): rota fora do contrato confirmado; mantida só como fixture MSW local.
+  http.get(`${BASE}/v1/dashboard/overview/supplement`, () => HttpResponse.json(dashboardOverviewMock)),
 
   http.get(`${BASE}/alerts/batches`, async () => {
     await delay(300)

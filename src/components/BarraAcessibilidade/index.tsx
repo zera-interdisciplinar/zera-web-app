@@ -1,32 +1,11 @@
+import type { ReconhecimentoVoz, JanelaComVoz } from '../../types/componentes/BarraAcessibilidade'
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import emblema from '../../assets/z-mark.png'
+import emblema from '../../../assets/z-mark.png'
 import { useAcessibilidade } from '../../hooks/useAcessibilidade'
 import type { PreferenciasAcessibilidade, SimulacaoCores } from '../../types/acessibilidade'
-import estilos from './BarraAcessibilidade.module.css'
+import estilos from '../../../styles/components/BarraAcessibilidade/BarraAcessibilidade.module.css'
 import { LeituraConteudo } from '../LeituraConteudo'
-
-interface ResultadoVoz {
-  results: ArrayLike<ArrayLike<{ transcript: string }>>
-}
-
-interface ReconhecimentoVoz {
-  lang: string
-  continuous: boolean
-  interimResults: boolean
-  onresult: ((evento: ResultadoVoz) => void) | null
-  onerror: (() => void) | null
-  onend: (() => void) | null
-  start: () => void
-  stop: () => void
-}
-
-type ConstrutorVoz = new () => ReconhecimentoVoz
-
-interface JanelaComVoz extends Window {
-  SpeechRecognition?: ConstrutorVoz
-  webkitSpeechRecognition?: ConstrutorVoz
-}
 
 const destinosVoz: Record<string, string> = {
   'ir para painel': '/',

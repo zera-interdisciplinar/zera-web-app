@@ -1,17 +1,6 @@
-import estilos from './BarChart.module.css'
-
-export interface PontoBarra {
-  rotulo: string
-  valor: number
-  destaque?: boolean
-}
-
-export interface BarChartProps {
-  pontos: PontoBarra[]
-  maximoEixo: number
-  descricao: string
-  rotuloValor?: string
-}
+import type { BarChartProps } from '../../types/componentes/BarChart'
+export type { PontoBarra, BarChartProps } from '../../types/componentes/BarChart'
+import estilos from '../../../styles/components/BarChart/BarChart.module.css'
 
 const LARGURA = 600
 const ALTURA = 270

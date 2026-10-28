@@ -1,10 +1,7 @@
+import type { EstadoErroProps } from '../../types/componentes/EstadoErro'
+export type { EstadoErroProps } from '../../types/componentes/EstadoErro'
 import { Button } from '../Button'
-import estilos from './EstadoErro.module.css'
-
-export interface EstadoErroProps {
-  mensagem: string
-  aoTentarNovamente?: () => void
-}
+import estilos from '../../../styles/components/EstadoErro/EstadoErro.module.css'
 
 export function EstadoErro({ mensagem, aoTentarNovamente }: EstadoErroProps) {
   return (

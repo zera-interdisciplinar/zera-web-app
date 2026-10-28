@@ -1,11 +1,7 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
-import estilos from './Button.module.css'
+import type { ButtonProps } from '../../types/componentes/Button'
+export type { ButtonProps } from '../../types/componentes/Button'
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variante?: 'primario' | 'navy' | 'secundario' | 'perigo'
-  tamanho?: 'padrao' | 'grande'
-  children: ReactNode
-}
+import estilos from '../../../styles/components/Button/Button.module.css'
 
 export function Button({
   variante = 'primario',

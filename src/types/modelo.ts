@@ -7,6 +7,7 @@ export interface Modelo {
   especificacoes: Record<string, string>
   vidaUtilMeses: number | null
   materiais?: string[]
+  aprovacao?: string
 }
 
 export interface NovoModelo {

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
 import { AxeBuilder } from '@axe-core/playwright'
 
-import { preparar, base } from './api-controlada'
+import { preparar } from './api-controlada'
 
 async function axe(page: Page) {
   const resultado = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()

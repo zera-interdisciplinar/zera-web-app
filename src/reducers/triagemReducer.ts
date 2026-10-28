@@ -49,11 +49,14 @@ export function triagemReducer(estado: EstadoTriagem, acao: AcaoTriagem): Estado
     case 'classificar':
       return { ...estado, classificacao: acao.classificacao, erro: null }
 
-    case 'alternar-checklist':
+    case 'alternar-checklist': {
+      const checklist = { ...estado.checklist, [acao.item]: !estado.checklist[acao.item] }
       return {
         ...estado,
-        checklist: { ...estado.checklist, [acao.item]: !estado.checklist[acao.item] },
+        checklist,
+        erro: ITENS_CHECKLIST.every((item) => checklist[item]) ? null : estado.erro,
       }
+    }
 
     case 'avancar': {
       if (estado.etapa === 'classificacao') {

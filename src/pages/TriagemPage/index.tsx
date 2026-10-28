@@ -1,4 +1,5 @@
 import { useReducer } from 'react'
+import { Formulario } from '../../components/Formulario'
 import { Link, useParams } from 'react-router-dom'
 import { Button } from '../../components/Button'
 import { EmptyState } from '../../components/EmptyState'
@@ -122,13 +123,14 @@ function FluxoTriagem({ produtoId }: { produtoId: number }) {
 
       <section className={estilos.cartao}>
         {estado.etapa === 'classificacao' && (
-          <div>
+          <Formulario noValidate onSubmit={(evento) => { evento.preventDefault(); despachar({ tipo: 'avancar', exigeChecklist }) }}>
             <h2 className="titulo-card">Classificação</h2>
             <p className={estilos.contextoItem}>
               {item.categoriaNome} · entrou em {formatarData(item.dataEntrada)} · {item.diasEmEstoque} dias em estoque
             </p>
 
-            <div className={estilos.opcoes} role="radiogroup" aria-label="Classificação do item">
+            <fieldset id="triagem-classificacao" className={estilos.opcoes} role="radiogroup" aria-label="Classificação do item" aria-required="true" aria-invalid={estado.erro && !estado.classificacao ? true : undefined} aria-describedby={estado.erro && !estado.classificacao ? 'triagem-classificacao-erro' : undefined}>
+              <legend>Classificação <span aria-label="obrigatório">*</span></legend>
               {(Object.keys(ROTULO_CLASSIFICACAO) as Classificacao[]).map((opcao) => (
                 <label
                   key={opcao}
@@ -137,6 +139,7 @@ function FluxoTriagem({ produtoId }: { produtoId: number }) {
                   <input
                     type="radio"
                     name="classificacao"
+                    required
                     value={opcao}
                     checked={estado.classificacao === opcao}
                     onChange={() => despachar({ tipo: 'classificar', classificacao: opcao })}
@@ -145,10 +148,10 @@ function FluxoTriagem({ produtoId }: { produtoId: number }) {
                   <span className={estilos.opcaoDetalhe}>{ROTULO_CLASSIFICACAO[opcao].detalhe}</span>
                 </label>
               ))}
-            </div>
+            </fieldset>
 
             {estado.erro && (
-              <p className={estilos.erro} role="alert">
+              <p id="triagem-classificacao-erro" className={estilos.erro} role="alert">
                 {estado.erro}
               </p>
             )}
@@ -157,23 +160,23 @@ function FluxoTriagem({ produtoId }: { produtoId: number }) {
               <Link to={`/itens/${item.id}`} className="link-botao">Voltar</Link>
               <Button
                 variante="primario"
-                onClick={() => despachar({ tipo: 'avancar', exigeChecklist })}
+                type="submit"
               >
                 Avançar
               </Button>
             </div>
-          </div>
+          </Formulario>
         )}
 
         {estado.etapa === 'periculosidade' && (
-          <div>
+          <Formulario noValidate onSubmit={(evento) => { evento.preventDefault(); despachar({ tipo: 'avancar', exigeChecklist }) }}>
             <h2 className="titulo-card">Checklist de periculosidade</h2>
             <p className={estilos.contextoItem}>
               {item.categoriaNome} é resíduo de risco. Confira cada ponto no item físico antes de
               liberar o descarte.
             </p>
 
-            <fieldset className={estilos.checklist}>
+            <fieldset id="triagem-checklist" className={estilos.checklist} aria-invalid={estado.erro ? true : undefined} aria-describedby={estado.erro ? 'triagem-checklist-erro' : undefined}>
               <legend className="somente-leitor-de-tela">
                 Itens obrigatórios do checklist de periculosidade
               </legend>
@@ -181,6 +184,7 @@ function FluxoTriagem({ produtoId }: { produtoId: number }) {
                 <label key={ponto} className={estilos.checkItem}>
                   <input
                     type="checkbox"
+                    required
                     checked={estado.checklist[ponto] === true}
                     onChange={() => despachar({ tipo: 'alternar-checklist', item: ponto })}
                   />
@@ -190,7 +194,7 @@ function FluxoTriagem({ produtoId }: { produtoId: number }) {
             </fieldset>
 
             {estado.erro && (
-              <p className={estilos.erro} role="alert">
+              <p id="triagem-checklist-erro" className={estilos.erro} role="alert">
                 {estado.erro}
               </p>
             )}
@@ -204,12 +208,12 @@ function FluxoTriagem({ produtoId }: { produtoId: number }) {
               </Button>
               <Button
                 variante="primario"
-                onClick={() => despachar({ tipo: 'avancar', exigeChecklist })}
+                type="submit"
               >
                 Avançar para confirmação
               </Button>
             </div>
-          </div>
+          </Formulario>
         )}
 
         {estado.etapa === 'confirmacao' && estado.classificacao && (

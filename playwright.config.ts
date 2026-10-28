@@ -3,10 +3,14 @@ import { loadEnv } from 'vite'
 
 const root = process.cwd()
 const envFromFile = loadEnv('development', root, '')
-const qaKeys = ['QA_GESTOR_EMAIL', 'QA_GESTOR_PASSWORD', 'QA_OPERARIO_EMAIL', 'QA_OPERARIO_PASSWORD']
-for (const key of qaKeys) {
+const qaKeys = ['QA_GESTOR_EMAIL', 'QA_GESTOR_PASSWORD', 'QA_OPERARIO_EMAIL', 'QA_OPERARIO_PASSWORD', 'QA_OPERADOR_EMAIL', 'QA_OPERADOR_PASSWORD']
+for (const key of process.env.ZERA_RUN_LIVE_QA === 'true' ? qaKeys : []) {
   const value = envFromFile[key]
   if (value) process.env[key] ??= value
+}
+if (process.env.ZERA_RUN_LIVE_QA === 'true') {
+  process.env.QA_OPERARIO_EMAIL ||= envFromFile.ZERA_QA_OPERADOR_EMAIL || envFromFile.QA_OPERADOR_EMAIL
+  process.env.QA_OPERARIO_PASSWORD ||= envFromFile.ZERA_QA_OPERADOR_PASSWORD || envFromFile.QA_OPERADOR_PASSWORD
 }
 
 const envTest = {

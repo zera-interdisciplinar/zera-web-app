@@ -6,6 +6,8 @@ export interface Modelo {
   nome: string
   especificacoes: Record<string, string>
   vidaUtilMeses: number | null
+  garantiaMeses?: number | null
+  pesoEstimadoKg?: number | null
   materiais?: string[]
   aprovacao?: string
 }

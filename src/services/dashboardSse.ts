@@ -150,7 +150,8 @@ export async function acompanharDashboard(
       }
       const headers = new Headers({ Accept: 'text/event-stream' })
       if (sessao.accessToken) headers.set('Authorization', `Bearer ${sessao.accessToken}`)
-      if (filtros.unitId) headers.set('X-Unit-Id', filtros.unitId)
+      const unidade = filtros.unitId ?? sessao.unitId
+      if (unidade) headers.set('X-Unit-Id', unidade)
 
       const cancelamento = new AbortController()
       const limiteAbertura = setTimeout(() => cancelamento.abort(new DOMException('Tempo de abertura excedido.', 'TimeoutError')), 15_000)

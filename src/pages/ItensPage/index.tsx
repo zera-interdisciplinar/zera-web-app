@@ -30,7 +30,7 @@ const STATUS_OPCOES = (Object.keys(ROTULO_STATUS) as StatusItem[]).map((valor) =
 
 export default function ItensPage() {
   const {
-    usuario,
+    mostrarResponsavel,
     permissoes,
     produtos,
     categorias,
@@ -83,7 +83,7 @@ export default function ItensPage() {
       },
       { titulo: 'Categoria', render: (produto) => produto.categoriaNome },
       { titulo: 'Status', render: (produto) => <StatusText status={produto.status} /> },
-      ...(usuario?.perfil !== 'funcionario' ? [{ titulo: 'Cadastrado por', render: (produto: ProdutoDetalhado) => produto.responsavel }] : []),
+      ...(mostrarResponsavel ? [{ titulo: 'Cadastrado por', render: (produto: ProdutoDetalhado) => produto.responsavel }] : []),
       { titulo: 'Atualização', render: (produto) => formatarDataRelativa(produto.atualizacao) },
       ...[{
         titulo: 'Ação',
@@ -100,7 +100,7 @@ export default function ItensPage() {
         ),
       }],
     ],
-    [abrirEdicao, setExcluindo, modoDemonstracao, podeExcluir, usuario?.perfil],
+    [abrirEdicao, setExcluindo, modoDemonstracao, podeExcluir, mostrarResponsavel],
   )
 
   return (

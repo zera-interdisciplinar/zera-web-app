@@ -1,10 +1,10 @@
 import { useAmbiente } from './useAmbiente'
-import { useAuth } from './useAuth'
+import { usePermissoes } from './usePermissoes'
 import { useDescartes } from './useDescartes'
 
 export function useListaDescartes() {
-  const { usuario } = useAuth()
+  const mostrarResponsavel = usePermissoes().filtrarResponsavel
   const { modoDemonstracao } = useAmbiente()
   const descartes = useDescartes()
-  return { usuario, modoDemonstracao, descartes }
+  return { mostrarResponsavel, modoDemonstracao, descartes }
 }

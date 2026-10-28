@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom'
 import type { FiltroItens, ProdutoDetalhado, StatusItem } from '../types/produto'
 import { ROTULO_STATUS } from '../types/produto'
 import { normalizarBusca } from '../utils/busca'
-import { useAuth } from './useAuth'
 import { useCadastroCategoria } from './useCadastroCategoria'
 import { useCadastroItens } from './useCadastroItens'
 import { useCadastroModelo } from './useCadastroModelo'
@@ -17,8 +16,8 @@ const STATUS_OPCOES = (Object.keys(ROTULO_STATUS) as StatusItem[]).map((valor) =
 }))
 
 export function useListaItens() {
-  const { usuario } = useAuth()
   const permissoes = usePermissoes()
+  const mostrarResponsavel = permissoes.filtrarResponsavel
   const produtos = useProdutos()
   const categorias = useCategorias()
   const [parametros, setParametros] = useSearchParams()
@@ -82,7 +81,7 @@ export function useListaItens() {
     })
   }, [produtos.dados, filtro, categoriaDaUrl, responsavelDaUrl, periodoDaUrl])
   return {
-    usuario,
+    mostrarResponsavel,
     permissoes,
     produtos,
     categorias,

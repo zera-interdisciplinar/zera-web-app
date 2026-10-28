@@ -11,7 +11,7 @@ import { formatarData } from '../../utils/formatacao'
 const destinos = { RECYCLING: 'Reciclagem', LANDFILL: 'Aterro', DONATION: 'Doação' }
 
 export default function DescartesPage() {
-  const { usuario, modoDemonstracao, descartes } = useListaDescartes()
+  const { mostrarResponsavel, modoDemonstracao, descartes } = useListaDescartes()
 
   return <>
     <PageHeader titulo="Registros de descarte" subtitulo="Consulte o destino, a data e o peso dos itens descartados." />
@@ -27,7 +27,7 @@ export default function DescartesPage() {
         { titulo: 'Local', render: (item) => item.placeName ?? 'Não informado' },
         { titulo: 'Itens', render: (item) => item.items.length, numerica: true },
         { titulo: 'Peso (kg)', render: (item) => item.totalWeightKg.toLocaleString('pt-BR'), numerica: true },
-        ...(usuario?.perfil !== 'funcionario' ? [{ titulo: 'Responsável', render: (item: DisposalResponse) => item.createdByName ?? 'Não informado' }] : []),
+        ...(mostrarResponsavel ? [{ titulo: 'Responsável', render: (item: DisposalResponse) => item.createdByName ?? 'Não informado' }] : []),
       ]} />}
     </>}
   </>

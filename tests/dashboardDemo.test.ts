@@ -18,7 +18,7 @@ describe('dashboard de demonstração', () => {
     const tela = renderToStaticMarkup(createElement(DashboardPage))
     expect(tela).toContain('DADOS DE DEMONSTRAÇÃO · Registros fictícios para conhecer o Zera.')
     expect(tela).toContain('data-estado="sucesso"')
-    expect(tela.match(/DEMONSTRAÇÃO<\/span>/g)).toHaveLength(14)
+    expect(tela.match(/DEMONSTRAÇÃO<\/span>/g)).toHaveLength(15)
   })
 
   it('não usa fixture nem selo com MSW=false, mesmo se a flag do dashboard estiver ligada', () => {

@@ -4,6 +4,8 @@ import { expect, it } from 'vitest'
 import { EvolucaoMovimentacoesTab } from '../src/components/DashboardTabs/EvolucaoMovimentacoesTab'
 import { QualidadeDadosTab } from '../src/components/DashboardTabs/QualidadeDadosTab'
 import { dashboardSnapshotMock } from '../src/mocks/dashboardSseFixture'
+import { VisaoGeralTab } from '../src/components/DashboardTabs/VisaoGeralTab'
+import { GraficoDados } from '../src/components/GraficoDados'
 
 it('exibe as séries mensais e alertas recebidos sem inventar eventos', () => {
   const snapshot = structuredClone(dashboardSnapshotMock)
@@ -16,4 +18,12 @@ it('exibe as séries mensais e alertas recebidos sem inventar eventos', () => {
   expect(evolucao).toContain('>3<')
   expect(qualidade).toContain('>4<')
   expect(qualidade).toContain('Alta')
+})
+
+it('distingue zero publicado de preparação, sem barras com altura inventada', () => {
+  const vazio = renderToStaticMarkup(createElement(GraficoDados, { titulo: 'Série real vazia', eixo: 'Mês', unidade: 'itens', pontos: [{ rotulo: '2026-10', valor: 0 }], vazio: 'Nenhum cadastro contabilizado neste período.' }))
+  expect(vazio).toContain('Nenhum cadastro contabilizado neste período.')
+  expect(vazio).not.toContain('<svg')
+  expect(renderToStaticMarkup(createElement(VisaoGeralTab, { snapshot: null }))).toContain('Preparando os dados')
+  expect(renderToStaticMarkup(createElement(VisaoGeralTab, { snapshot: null, aguardando: false }))).toBe('')
 })

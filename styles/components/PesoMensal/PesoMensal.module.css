@@ -5,3 +5,7 @@
 .cartao summary { cursor: pointer; min-height: 44px; padding: .5rem; }
 .cartao table { border-collapse: collapse; width: 100%; }
 .cartao :is(th, td) { padding: .5rem; text-align: left; border-bottom: 1px solid #c6ced8; }
+.fundoPadrao { fill: var(--navy); }
+.listra { stroke: var(--branco); }
+.grade { stroke: var(--borda-controle); }
+.barra { fill: var(--azul); }

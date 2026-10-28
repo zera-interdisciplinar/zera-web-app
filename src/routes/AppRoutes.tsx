@@ -1,9 +1,8 @@
 import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { AppShell } from '../components/AppShell'
+import { CarregandoPagina } from '../components/CarregandoPagina'
 import { PrivateRoute } from '../components/PrivateRoute'
-import { Skeleton } from '../components/Skeleton'
-import { SkipLink } from '../components/SkipLink'
 
 const LoginPage = lazy(() => import('../pages/LoginPage'))
 const RecuperarSenhaPage = lazy(() => import('../pages/RecuperarSenhaPage'))
@@ -18,18 +17,6 @@ const RelatoriosPage = lazy(() => import('../pages/RelatoriosPage'))
 const ConfiguracoesPage = lazy(() => import('../pages/ConfiguracoesPage'))
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'))
 const DescartesPage = lazy(() => import('../pages/DescartesPage'))
-
-function CarregandoPagina() {
-  return (
-    <>
-    <SkipLink />
-    <main id="conteudo" tabIndex={-1} data-carregando style={{ padding: 'var(--sp-8)' }}>
-      <h1 className="somente-leitor-de-tela">Carregando a página</h1>
-      <Skeleton descricao="Carregando a página." linhas={3} />
-    </main>
-    </>
-  )
-}
 
 export function AppRoutes() {
   return (

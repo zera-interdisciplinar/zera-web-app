@@ -1,14 +1,16 @@
-import { Formulario } from '../../components/Formulario'
-import { useEffect, useMemo, useRef } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
 import { Pencil, RotateCcw, Trash2 } from 'lucide-react'
+import { useMemo } from 'react'
+import { Link } from 'react-router-dom'
+import estilos from '../../../styles/pages/ItensPage/ItensPage.module.css'
 import { Button } from '../../components/Button'
-import { DataTable } from '../../components/DataTable'
+import { CadastroModelo } from '../../components/CadastroModelo'
 import type { Coluna } from '../../components/DataTable'
+import { DataTable } from '../../components/DataTable'
 import { EmptyState } from '../../components/EmptyState'
 import { EstadoErro } from '../../components/EstadoErro'
 import { FieldCard } from '../../components/FieldCard'
 import { FilterChip } from '../../components/FilterChip'
+import { Formulario } from '../../components/Formulario'
 import { IconButton } from '../../components/IconButton'
 import { Modal } from '../../components/Modal'
 import { PageHeader } from '../../components/PageHeader'
@@ -16,19 +18,10 @@ import { SearchInput } from '../../components/SearchInput'
 import { Skeleton } from '../../components/Skeleton'
 import { StatusText } from '../../components/StatusText'
 import { Toast } from '../../components/Toast'
-import { useCategorias } from '../../hooks/useCategorias'
-import { useCadastroItens } from '../../hooks/useCadastroItens'
-import { useProdutos } from '../../hooks/useProdutos'
-import type { FiltroItens, ProdutoDetalhado, StatusItem } from '../../types/produto'
+import { useListaItens } from '../../hooks/useListaItens'
+import type { ProdutoDetalhado, StatusItem } from '../../types/produto'
 import { ROTULO_CONDICAO, ROTULO_STATUS } from '../../types/produto'
 import { formatarDataRelativa, pluralizar } from '../../utils/formatacao'
-import estilos from '../../../styles/pages/ItensPage/ItensPage.module.css'
-import { useAuth } from '../../hooks/useAuth'
-import { useCadastroCategoria } from '../../hooks/useCadastroCategoria'
-import { useCadastroModelo } from '../../hooks/useCadastroModelo'
-import { CadastroModelo } from '../../components/CadastroModelo'
-import { usePermissoes } from '../../hooks/usePermissoes'
-import { normalizarBusca } from '../../utils/busca'
 
 const STATUS_OPCOES = (Object.keys(ROTULO_STATUS) as StatusItem[]).map((valor) => ({
   valor,
@@ -36,66 +29,48 @@ const STATUS_OPCOES = (Object.keys(ROTULO_STATUS) as StatusItem[]).map((valor) =
 }))
 
 export default function ItensPage() {
-  const { usuario } = useAuth()
-  const permissoes = usePermissoes()
-  const produtos = useProdutos()
-  const categorias = useCategorias()
-  const [parametros, setParametros] = useSearchParams()
   const {
-    modelos, modoDemonstracao, criado, limparSucesso,
-    modalAberto, editando, form, setForm, erros, enviando, erroEnvio,
-    confirmandoDescarte, setConfirmandoDescarte, excluindo, setExcluindo,
-    processandoExclusao, erroExclusao, abrirCadastro, abrirEdicao, tentarFecharModal,
-    aoSalvar, aoConfirmarExclusao, setModalAberto, toast,
-    podeCadastrar, podeExcluir,
-  } = useCadastroItens(produtos.recarregar)
-  const sucessoRef = useRef<HTMLHeadingElement>(null)
-  useEffect(() => { if (criado) sucessoRef.current?.focus() }, [criado])
-  const categoriaRapida = useCadastroCategoria((categoria) => setForm((atual) => ({ ...atual, categoriaId: String(categoria.id), modelId: '' })))
-  const modeloRapido = useCadastroModelo((modelo) => setForm((atual) => ({ ...atual, categoriaId: String(modelo.categoriaId), modelId: String(modelo.id) })))
+    usuario,
+    permissoes,
+    produtos,
+    categorias,
+    modelos,
+    modoDemonstracao,
+    criado,
+    limparSucesso,
+    modalAberto,
+    editando,
+    form,
+    setForm,
+    erros,
+    enviando,
+    erroEnvio,
+    confirmandoDescarte,
+    setConfirmandoDescarte,
+    excluindo,
+    setExcluindo,
+    processandoExclusao,
+    erroExclusao,
+    abrirCadastro,
+    abrirEdicao,
+    tentarFecharModal,
+    aoSalvar,
+    aoConfirmarExclusao,
+    setModalAberto,
+    toast,
+    podeCadastrar,
+    podeExcluir,
+    sucessoRef,
+    categoriaRapida,
+    modeloRapido,
+    filtro,
+    setFiltro,
+    filtrosSujos,
+    limparFiltros,
+    visiveis,
+  } = useListaItens()
 
-  const categoriaDaUrl = parametros.get('categoria')
-  const responsavelDaUrl = parametros.get('responsavel')
-  const periodoDaUrl = parametros.get('periodo')
-  const filtro = useMemo<FiltroItens>(() => ({
-    busca: parametros.get('q') ?? '',
-    status: STATUS_OPCOES.find((opcao) => opcao.valor === parametros.get('status'))?.valor ?? 'todos',
-  }), [parametros])
-  function setFiltro(atualizar: FiltroItens | ((atual: FiltroItens) => FiltroItens)) {
-    const proximo = typeof atualizar === 'function' ? atualizar(filtro) : atualizar
-    setParametros((atuais) => {
-      const novos = new URLSearchParams(atuais)
-      if (proximo.busca) novos.set('q', proximo.busca); else novos.delete('q')
-      if (proximo.status !== 'todos') novos.set('status', proximo.status); else novos.delete('status')
-      return novos
-    }, { replace: true })
-  }
-  const filtrosSujos = filtro.busca.trim() !== '' || filtro.status !== 'todos' || Boolean(categoriaDaUrl || responsavelDaUrl || periodoDaUrl)
-  function limparFiltros() { setParametros({}) }
-
-  const visiveis = useMemo<ProdutoDetalhado[]>(() => {
-    const dados = produtos.dados ?? []
-    const termo = normalizarBusca(filtro.busca)
-
-    return dados.filter((produto) => {
-      if (categoriaDaUrl && String(produto.categoriaId) !== categoriaDaUrl) return false
-      if (responsavelDaUrl && produto.responsavel !== responsavelDaUrl) return false
-      const meses = periodoDaUrl === 'últimos 3 meses' ? 3 : periodoDaUrl === 'últimos 6 meses' ? 6 : periodoDaUrl === 'último ano' ? 12 : null
-      if (meses !== null) {
-        const limite = new Date()
-        limite.setMonth(limite.getMonth() - meses)
-        if (Date.parse(produto.atualizacao) < limite.getTime()) return false
-      }
-      if (filtro.status !== 'todos' && produto.status !== filtro.status) return false
-      if (termo.length === 0) return true
-      return (
-        normalizarBusca(produto.nome).includes(termo) ||
-        normalizarBusca(produto.marca).includes(termo) ||
-        normalizarBusca(produto.categoriaNome).includes(termo)
-      )
-    })
-  }, [produtos.dados, filtro, categoriaDaUrl, responsavelDaUrl, periodoDaUrl])
-
+  // Preserva as definições da tabela enquanto o formulário é atualizado.
   const colunas = useMemo<Coluna<ProdutoDetalhado>[]>(
     () => [
       {

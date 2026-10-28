@@ -1,33 +1,15 @@
-import { Formulario } from '../../components/Formulario'
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { Mail } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import estilos from '../../../styles/pages/RecuperarSenhaPage/RecuperarSenhaPage.module.css'
 import { Button } from '../../components/Button'
 import { FieldCard } from '../../components/FieldCard'
+import { Formulario } from '../../components/Formulario'
 import { Logo } from '../../components/Logo'
 import { SkipLink } from '../../components/SkipLink'
-import { validarEmailRecuperacao } from '../../utils/validacao'
-import estilos from '../../../styles/pages/RecuperarSenhaPage/RecuperarSenhaPage.module.css'
+import { useRecuperarSenha } from '../../hooks/useRecuperarSenha'
 
 export default function RecuperarSenhaPage() {
-  const [email, setEmail] = useState('')
-  const [erro, setErro] = useState<string | undefined>()
-  const [confirmacao, setConfirmacao] = useState(false)
-
-  function aoEnviar(evento: React.FormEvent<HTMLFormElement>) {
-    evento.preventDefault()
-    setConfirmacao(false)
-    const validacao = validarEmailRecuperacao(email)
-    setEmail(validacao.email)
-    setErro(validacao.erro)
-    if (!validacao.valido) {
-      document.getElementById('email')?.focus()
-      return
-    }
-
-    // TODO(contrato): não há endpoint de recuperação confirmado no OpenAPI acessível.
-    setConfirmacao(true)
-  }
+  const { email, setEmail, erro, setErro, confirmacao, setConfirmacao, aoEnviar } = useRecuperarSenha()
 
   return (
     <>

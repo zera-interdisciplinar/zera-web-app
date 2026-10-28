@@ -1,21 +1,18 @@
 import { DataTable } from '../../components/DataTable'
-import { PageHeader } from '../../components/PageHeader'
-import { Skeleton } from '../../components/Skeleton'
-import { EstadoErro } from '../../components/EstadoErro'
 import { EmptyState } from '../../components/EmptyState'
-import { useDescartes } from '../../hooks/useDescartes'
+import { EstadoErro } from '../../components/EstadoErro'
+import { PageHeader } from '../../components/PageHeader'
 import { RegistroDescarte } from '../../components/RegistroDescarte'
-import { useAmbiente } from '../../hooks/useAmbiente'
-import { formatarData } from '../../utils/formatacao'
-import { useAuth } from '../../hooks/useAuth'
+import { Skeleton } from '../../components/Skeleton'
+import { useListaDescartes } from '../../hooks/useListaDescartes'
 import type { DisposalResponse } from '../../types/apiReal'
+import { formatarData } from '../../utils/formatacao'
 
 const destinos = { RECYCLING: 'Reciclagem', LANDFILL: 'Aterro', DONATION: 'Doação' }
 
 export default function DescartesPage() {
-  const { usuario } = useAuth()
-  const { modoDemonstracao } = useAmbiente()
-  const descartes = useDescartes()
+  const { usuario, modoDemonstracao, descartes } = useListaDescartes()
+
   return <>
     <PageHeader titulo="Registros de descarte" subtitulo="Consulte o destino, a data e o peso dos itens descartados." />
     {modoDemonstracao ? <EmptyState titulo="Nenhum descarte registrado" descricao="Os registros de descarte serão apresentados aqui quando estiverem disponíveis." /> : <>

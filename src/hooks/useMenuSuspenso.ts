@@ -5,8 +5,11 @@ export function useMenuSuspenso() {
   const gatilhoRef = useRef<HTMLButtonElement | null>(null)
   const menuRef = useRef<HTMLUListElement | null>(null)
 
+  // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const alternar = useCallback(() => setAberto((valor) => !valor), [])
+  // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const fechar = useCallback(() => setAberto(false), [])
+  // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const fecharDevolvendoFoco = useCallback(() => {
     setAberto(false)
     gatilhoRef.current?.focus()
@@ -34,6 +37,7 @@ export function useMenuSuspenso() {
     selecionado?.focus()
   }, [aberto])
 
+  // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const aoTeclarMenu = useCallback(
     (evento: React.KeyboardEvent) => {
       const itens = Array.from(

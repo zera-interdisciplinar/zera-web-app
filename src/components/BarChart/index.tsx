@@ -1,31 +1,33 @@
 import type { BarChartProps } from '../../types/componentes/BarChart'
 export type { PontoBarra, BarChartProps } from '../../types/componentes/BarChart'
 import estilos from '../../../styles/components/BarChart/BarChart.module.css'
+import { formatarNumero } from '../../utils/formatarDashboard'
 
-const LARGURA = 600
 const ALTURA = 270
 const BASE = 230
 const ALTURA_UTIL = 220
 const LARGURA_BARRA = 56
-const AREA_PLOTAGEM = 520
 
-export function BarChart({ pontos, maximoEixo, descricao, rotuloValor = 'Itens cadastrados' }: BarChartProps) {
+export function BarChart({ pontos, maximoEixo, descricao, rotuloValor = 'Itens cadastrados', rotuloEixo = 'Mês' }: BarChartProps) {
   const marcas = Array.from({ length: 5 }, (_, indice) => (maximoEixo / 4) * indice)
-  const slot = AREA_PLOTAGEM / pontos.length
+  const areaPlotagem = Math.max(520, pontos.length * 100)
+  const largura = areaPlotagem + 80
+  const slot = areaPlotagem / pontos.length
 
   return (
-    <div className={estilos.envoltorio}>
+    <div className={estilos.envoltorio} role="region" aria-label={`${descricao}; área rolável`} tabIndex={0}>
       <svg
-        viewBox={`0 0 ${LARGURA} ${ALTURA}`}
+        viewBox={`0 0 ${largura} ${ALTURA}`}
+        width={largura}
         role="img"
         aria-label={descricao}
         className={estilos.grafico}
       >
         {pontos.map((ponto, indice) => {
-          const altura = Math.max(4, (ponto.valor / maximoEixo) * ALTURA_UTIL)
+          const altura = (ponto.valor / maximoEixo) * ALTURA_UTIL
           const x = indice * slot + (slot - LARGURA_BARRA) / 2
           return (
-            <g key={ponto.rotulo}>
+            <g key={ponto.id ?? ponto.rotulo}>
               <rect
                 x={x}
                 y={BASE - altura}
@@ -35,7 +37,7 @@ export function BarChart({ pontos, maximoEixo, descricao, rotuloValor = 'Itens c
                 className={ponto.destaque ? estilos.barraDestaque : estilos.barra}
               />
               <text x={x + LARGURA_BARRA / 2} y={BASE + 24} textAnchor="middle" className={estilos.rotuloMes}>
-                {ponto.rotulo}
+                <title>{ponto.rotulo}</title>{ponto.rotulo.length > 15 ? `${ponto.rotulo.slice(0, 14)}…` : ponto.rotulo}
               </text>
             </g>
           )
@@ -43,11 +45,11 @@ export function BarChart({ pontos, maximoEixo, descricao, rotuloValor = 'Itens c
         {marcas.map((marca) => (
           <text
             key={marca}
-            x={AREA_PLOTAGEM + 24}
+            x={areaPlotagem + 24}
             y={BASE - (marca / maximoEixo) * ALTURA_UTIL + 4}
             className={estilos.marcaEixo}
           >
-            {marca}
+            {formatarNumero(marca, 2)}
           </text>
         ))}
       </svg>
@@ -58,15 +60,15 @@ export function BarChart({ pontos, maximoEixo, descricao, rotuloValor = 'Itens c
         <caption>{descricao}</caption>
         <thead>
           <tr>
-            <th scope="col">Mês</th>
+            <th scope="col">{rotuloEixo}</th>
             <th scope="col">{rotuloValor}</th>
           </tr>
         </thead>
         <tbody>
           {pontos.map((ponto) => (
-            <tr key={ponto.rotulo}>
+            <tr key={ponto.id ?? ponto.rotulo}>
               <th scope="row">{ponto.rotulo}</th>
-              <td>{ponto.valor}</td>
+              <td>{formatarNumero(ponto.valor, 2)}</td>
             </tr>
           ))}
         </tbody>

@@ -1,6 +1,6 @@
 import { Formulario } from '../../components/Formulario'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useRef } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Pencil, RotateCcw, Trash2 } from 'lucide-react'
 import { Button } from '../../components/Button'
 import { DataTable } from '../../components/DataTable'
@@ -18,10 +18,8 @@ import { StatusText } from '../../components/StatusText'
 import { Toast } from '../../components/Toast'
 import { useCategorias } from '../../hooks/useCategorias'
 import { useCadastroItens } from '../../hooks/useCadastroItens'
-import { usePreferenciasInventario } from '../../hooks/usePreferenciasInventario'
 import { useProdutos } from '../../hooks/useProdutos'
 import type { FiltroItens, ProdutoDetalhado, StatusItem } from '../../types/produto'
-import type { EstadoFiltrosItens } from '../../types/formularioItem'
 import { ROTULO_CONDICAO, ROTULO_STATUS } from '../../types/produto'
 import { formatarDataRelativa, pluralizar } from '../../utils/formatacao'
 import estilos from '../../../styles/pages/ItensPage/ItensPage.module.css'
@@ -42,9 +40,7 @@ export default function ItensPage() {
   const permissoes = usePermissoes()
   const produtos = useProdutos()
   const categorias = useCategorias()
-  const [preferencias, atualizarPreferencias] = usePreferenciasInventario()
-  const [parametros] = useSearchParams()
-  const navegar = useNavigate()
+  const [parametros, setParametros] = useSearchParams()
   const {
     modelos, modoDemonstracao, criado, limparSucesso,
     modalAberto, editando, form, setForm, erros, enviando, erroEnvio,
@@ -58,43 +54,24 @@ export default function ItensPage() {
   const categoriaRapida = useCadastroCategoria((categoria) => setForm((atual) => ({ ...atual, categoriaId: String(categoria.id), modelId: '' })))
   const modeloRapido = useCadastroModelo((modelo) => setForm((atual) => ({ ...atual, categoriaId: String(modelo.categoriaId), modelId: String(modelo.id) })))
 
-  const [{ filtro, ultimoParametro }, setEstadoFiltros] = useState<EstadoFiltrosItens>({
-    filtro: {
-      busca: parametros.get('q') ?? '',
-      status: STATUS_OPCOES.some((opcao) => opcao.valor === parametros.get('status')) ? parametros.get('status') as StatusItem : preferencias.statusFiltro,
-    },
-    ultimoParametro: parametros.toString(),
-  })
-  const setFiltro = useCallback((atualizar: FiltroItens | ((atual: FiltroItens) => FiltroItens)) => {
-    setEstadoFiltros((atual) => ({ ...atual, filtro: typeof atualizar === 'function' ? atualizar(atual.filtro) : atualizar }))
-  }, [])
-
-  const statusDaUrl = parametros.get('status')
-  const buscaDaUrl = parametros.get('q')
   const categoriaDaUrl = parametros.get('categoria')
   const responsavelDaUrl = parametros.get('responsavel')
   const periodoDaUrl = parametros.get('periodo')
-
-  if (parametros.toString() !== ultimoParametro) {
-    setEstadoFiltros((atual) => ({
-      ultimoParametro: parametros.toString(),
-      filtro: {
-        ...atual.filtro,
-        status: STATUS_OPCOES.some((opcao) => opcao.valor === statusDaUrl)
-          ? (statusDaUrl as StatusItem)
-          : 'todos',
-        busca: buscaDaUrl ?? '',
-      },
-    }))
+  const filtro = useMemo<FiltroItens>(() => ({
+    busca: parametros.get('q') ?? '',
+    status: STATUS_OPCOES.find((opcao) => opcao.valor === parametros.get('status'))?.valor ?? 'todos',
+  }), [parametros])
+  function setFiltro(atualizar: FiltroItens | ((atual: FiltroItens) => FiltroItens)) {
+    const proximo = typeof atualizar === 'function' ? atualizar(filtro) : atualizar
+    setParametros((atuais) => {
+      const novos = new URLSearchParams(atuais)
+      if (proximo.busca) novos.set('q', proximo.busca); else novos.delete('q')
+      if (proximo.status !== 'todos') novos.set('status', proximo.status); else novos.delete('status')
+      return novos
+    }, { replace: true })
   }
-
-  const filtrosSujos = filtro.busca.trim() !== '' || filtro.status !== 'todos'
-
-  const limparFiltros = useCallback(() => {
-    setFiltro({ busca: '', status: 'todos' })
-    atualizarPreferencias({ statusFiltro: 'todos' })
-    navegar('/itens')
-  }, [atualizarPreferencias, navegar, setFiltro])
+  const filtrosSujos = filtro.busca.trim() !== '' || filtro.status !== 'todos' || Boolean(categoriaDaUrl || responsavelDaUrl || periodoDaUrl)
+  function limparFiltros() { setParametros({}) }
 
   const visiveis = useMemo<ProdutoDetalhado[]>(() => {
     const dados = produtos.dados ?? []
@@ -181,7 +158,6 @@ export default function ItensPage() {
             aoSelecionar={(valor) => {
               const status = valor as StatusItem | 'todos'
               setFiltro((atual) => ({ ...atual, status }))
-              atualizarPreferencias({ statusFiltro: status })
             }}
           />
           {filtrosSujos && (
@@ -211,7 +187,7 @@ export default function ItensPage() {
         {produtos.carregando && <Skeleton descricao="Carregando os itens do inventário." linhas={5} />}
         {produtos.erro && <EstadoErro mensagem={produtos.erro} aoTentarNovamente={produtos.recarregar} />}
 
-        {produtos.dados && visiveis.length === 0 && (
+        {!produtos.carregando && !produtos.erro && produtos.dados && visiveis.length === 0 && (
           <EmptyState
             titulo={filtro.busca || filtro.status !== 'todos' ? 'Nenhum item com esses filtros' : 'Nenhum item cadastrado ainda'}
             descricao={

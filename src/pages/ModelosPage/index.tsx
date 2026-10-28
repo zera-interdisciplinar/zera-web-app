@@ -1,5 +1,6 @@
 import { CadastroModelo } from '../../components/CadastroModelo'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Button } from '../../components/Button'
 import { DataTable } from '../../components/DataTable'
 import type { Coluna } from '../../components/DataTable'
@@ -19,7 +20,9 @@ import { normalizarBusca } from '../../utils/busca'
 
 export default function ModelosPage() {
   const categorias = useCategorias()
-  const [busca, setBusca] = useState('')
+  const [parametros, setParametros] = useSearchParams()
+  const busca = parametros.get('q') ?? ''
+  function setBusca(valor: string) { setParametros(valor ? { q: valor } : {}, { replace: true }) }
   const cadastro = useCadastroModelo()
   const { modelos, permitido, modoDemonstracao, toast, abrir, alterar } = cadastro
 
@@ -86,7 +89,7 @@ export default function ModelosPage() {
         {modelos.carregando && <Skeleton descricao="Carregando os modelos." linhas={4} />}
         {modelos.erro && <EstadoErro mensagem={modelos.erro} aoTentarNovamente={modelos.recarregar} />}
 
-        {modelos.dados && visiveis.length === 0 && (
+        {!modelos.carregando && !modelos.erro && modelos.dados && visiveis.length === 0 && (
           <EmptyState
             titulo={busca ? 'Nenhum modelo com essa busca' : 'Nenhum modelo cadastrado'}
             descricao={

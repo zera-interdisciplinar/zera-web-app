@@ -38,7 +38,7 @@ test('login preserva a marca e o formulário sem controles de demonstração ou 
 })
 
 test('login real do operário QA leva à área privada', async ({ page }) => {
-  test.skip(!operario.email || !operario.senha, 'PENDENTE_USUARIO: configurar QA_OPERARIO_EMAIL e QA_OPERARIO_PASSWORD no .env')
+  test.skip(process.env.ZERA_RUN_LIVE_QA !== 'true' || !operario.email || !operario.senha, 'Login remoto exige ativação explícita com ZERA_RUN_LIVE_QA=true e credenciais locais.')
   await page.goto(`${baseReal}/login`)
   await page.getByLabel('Email').fill(operario.email)
   await page.locator('#senha').fill(operario.senha)

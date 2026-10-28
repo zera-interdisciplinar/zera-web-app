@@ -1,8 +1,9 @@
 {
   "functions": {
-    "api/analytics/*.ts": { "maxDuration": 300 }
+    "api/proxy.ts": { "maxDuration": 300 }
   },
   "rewrites": [
+    { "source": "/api/:service(administrative|inventory|analytics)/:path*", "destination": "/api/proxy?__zera_service=:service&__zera_path=:path*" },
     { "source": "/((?!api(?:/|$)).*)", "destination": "/index.html" }
   ]
 }

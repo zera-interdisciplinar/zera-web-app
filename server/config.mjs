@@ -11,6 +11,21 @@ export function configuracaoProxy(env = process.env) {
   }
 }
 
+// Rewrites explícitos evitam depender de catch-all do framework do front.
+export function restaurarCaminhoProxy(caminho) {
+  const url = new URL(caminho, 'http://localhost')
+  if (url.pathname !== '/api/proxy') return caminho
+  const services = url.searchParams.getAll('__zera_service')
+  const paths = url.searchParams.getAll('__zera_path')
+  if (services.length !== 1 || paths.length !== 1
+    || !['administrative', 'inventory', 'analytics'].includes(services[0])
+    || !/^(?:api\/v1\/[A-Za-z0-9/_.%~-]+|health)$/.test(paths[0])) return '/rota-invalida'
+  url.searchParams.delete('__zera_service')
+  url.searchParams.delete('__zera_path')
+  const query = url.searchParams.toString()
+  return `/api/${services[0]}/${paths[0]}${query ? `?${query}` : ''}`
+}
+
 export function validarBaseProxy(base) {
   const url = new URL(base)
   const local = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)

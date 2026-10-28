@@ -18,6 +18,8 @@ test('gestor: categorias, todos os modelos, validação, limites e Outro', async
   await page.locator('#categoria-nome').fill('Eletrônicos usados')
   await page.locator('#categoria-descricao').fill('Para reaproveitar')
   await page.getByRole('button', { name: 'Salvar categoria', exact: true }).click()
+  await expect(page.getByRole('dialog', { name: 'Adicionar categoria', exact: true })).toBeHidden()
+  await expect(page.getByRole('status').filter({ hasText: 'Categoria Eletrônicos usados cadastrada.' })).toBeVisible()
   await page.locator('#busca-modelos').fill('ELETRONICOS USADOS')
   await expect(page).toHaveURL(/q=ELETRONICOS/)
   const categoria = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Eletrônicos usados', exact: true }) })

@@ -45,14 +45,6 @@
   overflow-wrap: anywhere;
 }
 
-:global(html[data-modo-foco='ativo']) .shell {
-  display: block;
-}
-
-:global(html[data-modo-foco='ativo']) .coluna {
-  display: block;
-}
-
 @media (max-width: 960px) {
   .shell,
   .cabecalho {

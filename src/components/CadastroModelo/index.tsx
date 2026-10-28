@@ -52,7 +52,7 @@ export function CadastroModelo({ cadastro, categorias }: { cadastro: RetornoCada
             />
             <FieldCard
               id="modelo-vida-util"
-              rotulo={modoDemonstracao ? "Vida Ãºtil (meses)" : "Vida Ãºtil estimada (meses, opcional)"}
+              rotulo={modoDemonstracao ? "Vida útil (meses)" : "Vida útil estimada (meses, opcional)"}
               tipo="numero"
               valor={form.vidaUtilMeses}
               aoMudar={(valor) => alterar('vidaUtilMeses', valor)}
@@ -61,16 +61,17 @@ export function CadastroModelo({ cadastro, categorias }: { cadastro: RetornoCada
               desabilitado={enviando}
             />
             {modoDemonstracao ? <FieldCard
-              id="modelo-especificacoes" rotulo="EspecificaÃ§Ãµes" tipo="textarea"
+              id="modelo-especificacoes" rotulo="Especificações" tipo="textarea"
               valor={form.especificacoes} aoMudar={(valor) => alterar('especificacoes', valor)}
-              placeholder={'Uma por linha, no formato Chave: valor\nEx: MemÃ³ria: 8 GB DDR4'}
+              placeholder={'Uma por linha, no formato Chave: valor\nEx: Memória: 8 GB DDR4'}
               desabilitado={enviando} maxLength={2000}
             /> : <>
               <fieldset id="modelo-materiais" tabIndex={-1} className={estilos.materiais} disabled={enviando}
+                aria-invalid={Boolean(erros.materials)}
                 aria-describedby={erros.materials ? 'modelo-materiais-erro' : 'modelo-materiais-ajuda'}>
                 <legend>Materiais</legend>
-                <p id="modelo-materiais-ajuda">Selecione os materiais que compÃµem o modelo.</p>
-                {materiais.carregando && <p role="status">Carregando materiaisâ€¦</p>}
+                <p id="modelo-materiais-ajuda">Selecione os materiais que compõem o modelo.</p>
+                {materiais.carregando && <p role="status">Carregando materiais…</p>}
                 {materiais.erro && <EstadoErro mensagem={materiais.erro} aoTentarNovamente={materiais.recarregar} />}
                 <div className={estilos.listaMateriais}>
                   {(materiais.dados ?? []).map((material) => <label key={material.id} htmlFor={`material-modelo-${material.id}`}>
@@ -79,7 +80,7 @@ export function CadastroModelo({ cadastro, categorias }: { cadastro: RetornoCada
                     {material.name}
                   </label>)}
                 </div>
-                {materiais.dados?.length === 0 && <p>Nenhum material disponÃ­vel para seleÃ§Ã£o.</p>}
+                {materiais.dados?.length === 0 && <p>Nenhum material disponível para seleção.</p>}
                 {erros.materials && <p id="modelo-materiais-erro" role="alert">{erros.materials}</p>}
                 {form.materiais.includes('OTHER') && <FieldCard id="modelo-outro-material" obrigatorio rotulo="Qual outro material?" valor={form.outroMaterial} aoMudar={(valor) => alterar('outroMaterial', valor)} maxLength={120} erro={erros.outroMaterial} />}
                 {form.materiais.includes('OTHER') && <p>A descrição será incluída nas observações do modelo.</p>}
@@ -88,7 +89,7 @@ export function CadastroModelo({ cadastro, categorias }: { cadastro: RetornoCada
                 aoMudar={(valor) => alterar('garantiaMeses', valor)} erro={erros.warrantyMonths} desabilitado={enviando} />
               <FieldCard id="modelo-peso" rotulo="Peso estimado (kg, opcional)" tipo="numero" valor={form.pesoEstimadoKg}
                 aoMudar={(valor) => alterar('pesoEstimadoKg', valor)} erro={erros.estimatedWeightKg} desabilitado={enviando} />
-              <FieldCard id="modelo-observacoes" rotulo="ObservaÃ§Ãµes (opcional)" tipo="textarea" valor={form.observacoes}
+              <FieldCard id="modelo-observacoes" rotulo="Observações (opcional)" tipo="textarea" valor={form.observacoes}
                 aoMudar={(valor) => alterar('observacoes', valor)} erro={erros.notes} maxLength={500} desabilitado={enviando} />
             </>}
           </div>
@@ -99,10 +100,10 @@ export function CadastroModelo({ cadastro, categorias }: { cadastro: RetornoCada
             </p>
           )}
 
-          <p role="status">{enviando ? 'Salvando modeloâ€¦' : ''}</p>
+          <p role="status">{enviando ? 'Salvando modelo…' : ''}</p>
           <div className={estilos.acoesModal}>
             <Button variante="primario" tamanho="grande" type="submit" disabled={enviando}>
-              {enviando ? 'Salvandoâ€¦' : 'Concluir cadastro'}
+              {enviando ? 'Salvando…' : 'Concluir cadastro'}
             </Button>
             <Button
               variante="secundario"

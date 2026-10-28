@@ -103,7 +103,7 @@ export default function ItensPage() {
     return dados.filter((produto) => {
       if (categoriaDaUrl && String(produto.categoriaId) !== categoriaDaUrl) return false
       if (responsavelDaUrl && produto.responsavel !== responsavelDaUrl) return false
-      const meses = periodoDaUrl === 'Ãºltimos 3 meses' ? 3 : periodoDaUrl === 'Ãºltimos 6 meses' ? 6 : periodoDaUrl === 'Ãºltimo ano' ? 12 : null
+      const meses = periodoDaUrl === 'últimos 3 meses' ? 3 : periodoDaUrl === 'últimos 6 meses' ? 6 : periodoDaUrl === 'último ano' ? 12 : null
       if (meses !== null) {
         const limite = new Date()
         limite.setMonth(limite.getMonth() - meses)
@@ -132,9 +132,9 @@ export default function ItensPage() {
       { titulo: 'Categoria', render: (produto) => produto.categoriaNome },
       { titulo: 'Status', render: (produto) => <StatusText status={produto.status} /> },
       ...(usuario?.perfil !== 'funcionario' ? [{ titulo: 'Cadastrado por', render: (produto: ProdutoDetalhado) => produto.responsavel }] : []),
-      { titulo: 'AtualizaÃ§Ã£o', render: (produto) => formatarDataRelativa(produto.atualizacao) },
+      { titulo: 'Atualização', render: (produto) => formatarDataRelativa(produto.atualizacao) },
       ...[{
-        titulo: 'AÃ§Ã£o',
+        titulo: 'Ação',
         render: (produto: ProdutoDetalhado) => (
           <span className={estilos.acoes}>
             {modoDemonstracao && <IconButton rotulo={`Editar ${produto.nome}`} onClick={() => abrirEdicao(produto)}>
@@ -154,7 +154,7 @@ export default function ItensPage() {
   return (
     <>
       <PageHeader
-        titulo="GestÃ£o de itens"
+        titulo="Gestão de itens"
         subtitulo="Cadastre, filtre e acompanhe o ciclo de cada item."
       />
       {criado && <section className={estilos.cartao} aria-label="Cadastro concluído">
@@ -203,12 +203,12 @@ export default function ItensPage() {
           </h2>
           <p className={estilos.contagem} aria-live="polite">
             {produtos.carregando
-              ? 'Carregandoâ€¦'
+              ? 'Carregando…'
               : `${visiveis.length} ${pluralizar(visiveis.length, 'item', 'itens')}`}
           </p>
         </div>
 
-        {produtos.carregando && <Skeleton descricao="Carregando os itens do inventÃ¡rio." linhas={5} />}
+        {produtos.carregando && <Skeleton descricao="Carregando os itens do inventário." linhas={5} />}
         {produtos.erro && <EstadoErro mensagem={produtos.erro} aoTentarNovamente={produtos.recarregar} />}
 
         {produtos.dados && visiveis.length === 0 && (
@@ -217,7 +217,7 @@ export default function ItensPage() {
             descricao={
               filtro.busca || filtro.status !== 'todos'
                 ? 'Ajuste a busca ou o filtro de status para encontrar o item.'
-                : 'Cadastre o primeiro item para comeÃ§ar o inventÃ¡rio.'
+                : 'Cadastre o primeiro item para começar o inventário.'
             }
             acao={
               filtrosSujos ? (
@@ -239,7 +239,7 @@ export default function ItensPage() {
             colunas={colunas}
             dados={visiveis}
             chave={(produto) => produto.id}
-            legenda="Itens do inventÃ¡rio com categoria, status, responsÃ¡vel e atualizaÃ§Ã£o"
+            legenda="Itens do inventário com categoria, status, responsável e atualização"
           />
         )}
       </section>
@@ -251,9 +251,9 @@ export default function ItensPage() {
       >
         {confirmandoDescarte ? (
           <div>
-            <p className={estilos.textoModal}>Descartar as informaÃ§Ãµes preenchidas?</p>
+            <p className={estilos.textoModal}>Descartar as informações preenchidas?</p>
             <p className={estilos.detalheModal}>
-              O item ainda nÃ£o foi salvo. Ao fechar, o que vocÃª digitou se perde.
+              O item ainda não foi salvo. Ao fechar, o que você digitou se perde.
             </p>
             <div className={estilos.acoesModal}>
               <Button variante="perigo" tamanho="grande" onClick={() => setModalAberto(false)}>
@@ -270,7 +270,7 @@ export default function ItensPage() {
           </div>
         ) : (
           <Formulario onSubmit={aoSalvar} noValidate>
-            {categorias.carregando && <p className={estilos.statusModal} role="status">Carregando categoriasâ€¦</p>}
+            {categorias.carregando && <p className={estilos.statusModal} role="status">Carregando categorias…</p>}
             {categorias.erro && <EstadoErro mensagem={categorias.erro} aoTentarNovamente={categorias.recarregar} />}
             <div className={estilos.camposModal}>
               <FieldCard
@@ -314,7 +314,7 @@ export default function ItensPage() {
                   aoMudar={(valor) => { if (valor === '__novo__') { modeloRapido.abrir(); modeloRapido.alterar('categoriaId', form.categoriaId) } else setForm((atual) => ({ ...atual, modelId: valor })) }}
                   erro={erros.modelId} desabilitado={enviando || modelos.carregando}
                   opcoes={[{ valor: '', rotulo: 'Selecione um modelo cadastrado' }, ...(modelos.dados ?? []).filter((modelo) => !form.categoriaId || String(modelo.categoriaId) === form.categoriaId).map((modelo) => ({ valor: String(modelo.id), rotulo: `${modelo.fabricante} ${modelo.nome}` })), ...(permissoes.cadastrarModelo ? [{ valor: '__novo__', rotulo: '+ Novo modelo' }] : [])]} />
-                {modelos.carregando && <p className={estilos.statusModal} role="status">Carregando modelosâ€¦</p>}
+                {modelos.carregando && <p className={estilos.statusModal} role="status">Carregando modelos…</p>}
                 {modelos.erro && <EstadoErro mensagem={modelos.erro} aoTentarNovamente={modelos.recarregar} />}
                 <FieldCard id="item-intensidade" obrigatorio rotulo="Intensidade de uso" tipo="select" valor={form.usageIntensity}
                   aoMudar={(valor) => setForm((atual) => ({ ...atual, usageIntensity: valor }))}
@@ -323,22 +323,22 @@ export default function ItensPage() {
                 <FieldCard id="item-tem-danos" obrigatorio rotulo="O item apresenta danos?" tipo="select" valor={form.hasDamages}
                   aoMudar={(valor) => setForm((atual) => ({ ...atual, hasDamages: valor, damages: '' }))}
                   erro={erros.hasDamages} desabilitado={enviando}
-                  opcoes={[{ valor: '', rotulo: 'Selecione uma opÃ§Ã£o' }, { valor: 'sim', rotulo: 'Sim' }, { valor: 'nao', rotulo: 'NÃ£o' }]} />
+                  opcoes={[{ valor: '', rotulo: 'Selecione uma opção' }, { valor: 'sim', rotulo: 'Sim' }, { valor: 'nao', rotulo: 'Não' }]} />
                 {form.hasDamages === 'sim' && <FieldCard id="item-danos" obrigatorio rotulo="Dano identificado" tipo="select" valor={form.damages}
                   aoMudar={(valor) => setForm((atual) => ({ ...atual, damages: valor }))}
                   erro={erros.damages} desabilitado={enviando}
                   opcoes={[
                     { valor: '', rotulo: 'Selecione o dano' },
                     { valor: 'BROKEN_SCREEN', rotulo: 'Tela quebrada' },
-                    { valor: 'MISSING_PART', rotulo: 'PeÃ§a ausente' },
-                    { valor: 'DOES_NOT_POWER_ON', rotulo: 'NÃ£o liga' },
-                    { valor: 'OXIDATION', rotulo: 'OxidaÃ§Ã£o' },
+                    { valor: 'MISSING_PART', rotulo: 'Peça ausente' },
+                    { valor: 'DOES_NOT_POWER_ON', rotulo: 'Não liga' },
+                    { valor: 'OXIDATION', rotulo: 'Oxidação' },
                     { valor: 'OTHER', rotulo: 'Outro dano' },
                   ]} />}
               </>}
               <FieldCard
                 id="item-condicao" obrigatorio
-                rotulo="CondiÃ§Ã£o"
+                rotulo="Condição"
                 tipo="select"
                 valor={form.condicao}
                 aoMudar={(valor) => setForm((atual) => ({ ...atual, condicao: valor }))}
@@ -362,7 +362,7 @@ export default function ItensPage() {
 
             <div className={estilos.acoesModal}>
               <Button variante="primario" tamanho="grande" type="submit" disabled={enviando}>
-                {enviando ? 'Salvandoâ€¦' : editando ? 'Salvar alteraÃ§Ãµes' : 'Concluir cadastro'}
+                {enviando ? 'Salvando…' : editando ? 'Salvar alterações' : 'Concluir cadastro'}
               </Button>
               <Button
                 variante="secundario"
@@ -385,12 +385,12 @@ export default function ItensPage() {
       >
         {excluindo && (
           <div>
-            <p className={estilos.textoModal}>Excluir {excluindo.nome} do inventÃ¡rio?</p>
+            <p className={estilos.textoModal}>Excluir {excluindo.nome} do inventário?</p>
             <p className={estilos.detalheModal}>
-              {modoDemonstracao ? 'O item serÃ¡ excluÃ­do dos dados desta demonstraÃ§Ã£o.' : 'O item serÃ¡ marcado como removido. Seu histÃ³rico serÃ¡ preservado.'}
+              {modoDemonstracao ? 'O item será excluído dos dados desta demonstração.' : 'O item será marcado como removido. Seu histórico será preservado.'}
             </p>
             {erroExclusao && <p className={estilos.erroModal} role="alert">{erroExclusao}</p>}
-            <p role="status">{processandoExclusao ? 'Excluindo itemâ€¦' : ''}</p>
+            <p role="status">{processandoExclusao ? 'Excluindo item…' : ''}</p>
             <div className={estilos.acoesModal}>
               <Button
                 variante="perigo"
@@ -398,7 +398,7 @@ export default function ItensPage() {
                 onClick={aoConfirmarExclusao}
                 disabled={processandoExclusao}
               >
-                {processandoExclusao ? 'Excluindoâ€¦' : 'Excluir item'}
+                {processandoExclusao ? 'Excluindo…' : 'Excluir item'}
               </Button>
               <Button
                 variante="secundario"

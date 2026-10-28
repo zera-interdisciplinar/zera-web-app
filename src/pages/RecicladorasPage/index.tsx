@@ -152,7 +152,7 @@ function RecicladorasDemonstracao() {
               id="recicladora-nome" obrigatorio
               rotulo="Nome"
               valor={form.nome}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, nome: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, nome: valor })); setErros((atual) => ({ ...atual, nome: undefined })) }}
               erro={erros.nome}
               placeholder="Ex: Cooperativa Recicla Vale"
               maxLength={80}
@@ -162,17 +162,17 @@ function RecicladorasDemonstracao() {
               id="recicladora-cnpj" obrigatorio
               rotulo="CNPJ"
               valor={form.cnpj}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, cnpj: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, cnpj: valor })); setErros((atual) => ({ ...atual, cnpj: undefined })) }}
               erro={erros.cnpj}
               placeholder="12.345.678/0001-90"
               maxLength={18}
               desabilitado={enviando}
             />
             {modoDemonstracao ? <FieldCard
-              id="recicladora-cidade"
+              id="recicladora-cidade" obrigatorio
               rotulo="Cidade"
               valor={form.cidade}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, cidade: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, cidade: valor })); setErros((atual) => ({ ...atual, cidade: undefined })) }}
               erro={erros.cidade}
               placeholder="Ex: Lins — SP"
               maxLength={60}
@@ -182,7 +182,7 @@ function RecicladorasDemonstracao() {
               rotulo="E-mail"
               tipo="email"
               valor={form.email ?? ''}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, email: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, email: valor })); setErros((atual) => ({ ...atual, email: undefined })) }}
               erro={erros.email}
               placeholder="contato@recicladora.com.br"
               maxLength={120}

@@ -17,7 +17,11 @@
   box-shadow: var(--sombra-modal);
   padding: var(--sp-12);
   width: 100%;
+  max-height: calc(100dvh - 6rem);
+  overflow-y: auto;
 }
+
+.titulo { margin: 0 3rem 1.5rem 0; font-size: 1.4rem; }
 
 .fechar {
   position: absolute;
@@ -61,5 +65,7 @@
 @media (max-width: 720px) {
   .modal {
     padding: var(--sp-8) var(--sp-6);
+    max-height: calc(100dvh - 2rem);
   }
+  .veu { padding: 1rem; }
 }

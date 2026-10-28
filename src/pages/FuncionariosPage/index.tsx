@@ -159,7 +159,7 @@ export default function FuncionariosPage() {
               id="funcionario-nome" obrigatorio
               rotulo="Nome"
               valor={form.nome}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, nome: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, nome: valor })); setErros((atual) => ({ ...atual, nome: undefined })) }}
               erro={erros.nome}
               placeholder="Nome completo"
               maxLength={80}
@@ -170,7 +170,7 @@ export default function FuncionariosPage() {
               rotulo="E-mail"
               tipo="email"
               valor={form.email}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, email: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, email: valor })); setErros((atual) => ({ ...atual, email: undefined })) }}
               erro={erros.email}
               placeholder="nome@empresa.com"
               maxLength={120}
@@ -181,7 +181,7 @@ export default function FuncionariosPage() {
               rotulo="Perfil"
               tipo="select"
               valor={form.perfil}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, perfil: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, perfil: valor })); setErros((atual) => ({ ...atual, perfil: undefined })) }}
               erro={erros.perfil}
               desabilitado={enviando}
               opcoes={[
@@ -195,7 +195,7 @@ export default function FuncionariosPage() {
               id="funcionario-unidade" obrigatorio
               rotulo="Unidade"
               valor={form.unidade}
-              aoMudar={(valor) => setForm((atual) => ({ ...atual, unidade: valor }))}
+              aoMudar={(valor) => { setForm((atual) => ({ ...atual, unidade: valor })); setErros((atual) => ({ ...atual, unidade: undefined })) }}
               erro={erros.unidade}
               placeholder="Ex: Almoxarifado central"
               maxLength={60}

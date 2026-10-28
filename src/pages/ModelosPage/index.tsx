@@ -39,19 +39,19 @@ export default function ModelosPage() {
     () => [
       { titulo: 'Modelo', render: (modelo) => modelo.nome },
       { titulo: 'Fabricante', render: (modelo) => modelo.fabricante },
-      { titulo: 'Categoria', render: (modelo) => modelo.categoriaNome ?? 'â€”' },
-      { titulo: 'AprovaÃ§Ã£o', render: (modelo) => ({ APPROVED: 'Aprovado', PENDING: 'Pendente', PENDING_APPROVAL: 'Aguardando aprovaÃ§Ã£o', REJECTED: 'Rejeitado', DRAFT: 'Rascunho' }[modelo.aprovacao ?? ''] ?? 'NÃ£o informada') },
+      { titulo: 'Categoria', render: (modelo) => modelo.categoriaNome ?? '—' },
+      { titulo: 'Aprovação', render: (modelo) => ({ APPROVED: 'Aprovado', PENDING: 'Pendente', PENDING_APPROVAL: 'Aguardando aprovação', REJECTED: 'Rejeitado', DRAFT: 'Rascunho' }[modelo.aprovacao ?? ''] ?? 'Não informada') },
       {
-        titulo: 'Vida Ãºtil',
+        titulo: 'Vida útil',
         numerica: true,
-        render: (modelo) => modelo.vidaUtilMeses === null ? 'NÃ£o informada' : `${modelo.vidaUtilMeses} meses`,
+        render: (modelo) => modelo.vidaUtilMeses === null ? 'Não informada' : `${modelo.vidaUtilMeses} meses`,
       },
       {
-        titulo: modoDemonstracao ? 'EspecificaÃ§Ãµes' : 'Materiais',
+        titulo: modoDemonstracao ? 'Especificações' : 'Materiais',
         numerica: true,
         render: (modelo) => modoDemonstracao
           ? `${Object.keys(modelo.especificacoes).length} ${pluralizar(Object.keys(modelo.especificacoes).length, 'campo', 'campos')}`
-          : modelo.materiais?.join(', ') || 'NÃ£o informados',
+          : modelo.materiais?.join(', ') || 'Não informados',
       },
     ],
     [modoDemonstracao],
@@ -61,7 +61,7 @@ export default function ModelosPage() {
     <>
       <PageHeader
         titulo="Modelos"
-        subtitulo="EspecificaÃ§Ãµes tÃ©cnicas que os itens herdam no cadastro."
+        subtitulo="Especificações técnicas que os itens herdam no cadastro."
       />
 
       <div className={estilos.toolbar}>
@@ -92,7 +92,7 @@ export default function ModelosPage() {
             descricao={
               busca
                 ? 'Confira o termo digitado ou limpe a busca.'
-                : 'Cadastre o primeiro modelo para padronizar as especificaÃ§Ãµes dos itens.'
+                : 'Cadastre o primeiro modelo para padronizar as especificações dos itens.'
             }
           />
         )}
@@ -102,7 +102,7 @@ export default function ModelosPage() {
             colunas={colunas}
             dados={visiveis}
             chave={(modelo) => modelo.id}
-            legenda="Modelos cadastrados com fabricante, categoria e vida Ãºtil"
+            legenda="Modelos cadastrados com fabricante, categoria e vida útil"
           />
         )}
       </section>

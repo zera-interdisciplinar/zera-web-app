@@ -58,16 +58,19 @@ export function Modal({ aberto, titulo, aoFechar, children, larguraMaxima = 880 
       fundo.push(...Array.from(ramo.parentElement?.children ?? []).filter((item): item is HTMLElement => item instanceof HTMLElement && item !== ramo))
     }
     const anteriores = fundo.map((item) => item.inert)
+    const rolagemAnterior = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
     fundo.forEach((item) => { item.inert = true })
     const primeiroCampo = dialogo?.querySelector<HTMLElement>('input, select, textarea')
     const primeiroFocavel = dialogo?.querySelector<HTMLElement>(FOCAVEIS)
-    ;(primeiroCampo ?? primeiroFocavel)?.focus()
+    ;(primeiroCampo ?? primeiroFocavel)?.focus({ preventScroll: true })
 
     document.addEventListener('keydown', aoTeclar)
 
     return () => {
       document.removeEventListener('keydown', aoTeclar)
       fundo.forEach((item, indice) => { item.inert = anteriores[indice] })
+      document.body.style.overflow = rolagemAnterior
       origemFocoRef.current?.focus()
     }
   }, [aberto, aoTeclar])
@@ -93,6 +96,7 @@ export function Modal({ aberto, titulo, aoFechar, children, larguraMaxima = 880 
         >
           <X size={24} aria-hidden="true" />
         </button>
+        <h2 className={estilos.titulo}>{titulo}</h2>
         {children}
       </div>
     </div>

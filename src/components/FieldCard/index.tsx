@@ -143,6 +143,7 @@ export function FieldCard({
             }}
             onDrop={(evento) => { if (tipo === 'numero') { evento.preventDefault(); mudarNumero(evento.dataTransfer.getData('text')) } }}
             onWheel={(evento) => { if (tipo === 'numero') evento.currentTarget.blur() }}
+            onBlur={() => { if (tipo === 'numero' && valor !== '' && Number(valor) < faixa.min) aoMudar(String(faixa.min)) }}
             aria-invalid={erro ? true : undefined}
             aria-describedby={descricao}
             maxLength={maxLength}

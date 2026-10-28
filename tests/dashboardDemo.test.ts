@@ -26,7 +26,7 @@ describe('dashboard de demonstração', () => {
     vi.stubEnv('VITE_DASHBOARD_DEMO_MODE', 'true')
     const tela = renderToStaticMarkup(createElement(DashboardPage))
     expect(tela).toContain('data-estado="carregando"')
-    expect(tela).toContain('Aguardando o snapshot')
+    expect(tela).toContain('Consultando inventário')
     expect(tela).not.toContain('DEMONSTRAÇÃO')
     expect(tela).not.toContain('Indicadores gerais')
     expect(tela).not.toContain('Orbit Labs')

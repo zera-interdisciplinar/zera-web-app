@@ -36,6 +36,7 @@ export function AppRoutes() {
     <Suspense fallback={<CarregandoPagina />}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        {import.meta.env.DEV && <Route path="/demonstracao" element={<DashboardPage demonstracao />} />}
         <Route path="/esqueci-senha" element={<RecuperarSenhaPage />} />
         <Route
           element={

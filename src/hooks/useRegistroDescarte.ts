@@ -7,6 +7,7 @@ import type { LocalReciclagem, NovoDescarte } from '../types/descarte'
 import type { EstadoRegistroDescarte, RetornoRegistroDescarte } from '../types/registroDescarte'
 import { useRequisicao } from './useRequisicao'
 import { useAuth } from './useAuth'
+import { itemVisivel } from '../utils/escopoItens'
 
 function dataHoje(): string {
   const data = new Date()
@@ -16,9 +17,9 @@ function dataHoje(): string {
 function novoFormulario(): NovoDescarte { return { destination: 'RECYCLING', itemIds: [], disposedAt: dataHoje(), notes: '' } }
 
 export function useRegistroDescarte(aoConcluir: () => void): RetornoRegistroDescarte {
-  const { temPerfil } = useAuth()
+  const { temPerfil, usuario } = useAuth()
   const permitido = temPerfil(['gestor', 'funcionario'])
-  const buscar = useCallback((sinal: AbortSignal) => listarItensElegiveisDescarte(sinal), [])
+  const buscar = useCallback(async (sinal: AbortSignal) => (await listarItensElegiveisDescarte(sinal)).filter((item) => itemVisivel(item, usuario)), [usuario])
   const itens = useRequisicao(buscar, permitido)
   const [estado, setEstado] = useState<EstadoRegistroDescarte>({ form: novoFormulario(), erros: {}, enviando: false, erro: null, sucesso: '' })
   const montado = useRef(false)

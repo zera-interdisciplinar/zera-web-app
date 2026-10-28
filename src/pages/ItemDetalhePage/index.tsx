@@ -74,7 +74,7 @@ function Detalhe({ produtoId }: { produtoId: number | string }) {
   const navegar = useNavigate()
   const produto = useProduto(produtoId)
   const buscarEventos = useCallback((sinal: AbortSignal) => listarEventos(produtoId, sinal), [produtoId])
-  const eventos = useRequisicao<EventResponse[]>(buscarEventos, !modoDemonstracao)
+  const eventos = useRequisicao<EventResponse[]>(buscarEventos, !modoDemonstracao && produto.dados !== null)
 
   const buscarManutencoes = useCallback(
     (sinal: AbortSignal) => listarManutencoes(produtoId, sinal),

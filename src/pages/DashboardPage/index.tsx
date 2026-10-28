@@ -1,6 +1,14 @@
+import { useContext } from 'react'
+import { AuthContext } from '../../context/auth'
+import { PainelPessoal } from '../../components/PainelPessoal'
+import { DashboardDemo } from '../../components/DashboardDemo'
+import { dashboardDemoEnabled } from '../../config/dashboardMode'
+import { formatarDataRelativa } from '../../utils/formatacao'
 import { useState } from 'react'
 import { OperacionalTab } from '../../components/DashboardTabs/OperacionalTab'
 import { PageHeader } from '../../components/PageHeader'
+import { EstadoErro } from '../../components/EstadoErro'
+import { useCategorias } from '../../hooks/useCategorias'
 import { EvolucaoMovimentacoesTab } from '../../components/DashboardTabs/EvolucaoMovimentacoesTab'
 import { ItensVidaUtilTab } from '../../components/DashboardTabs/ItensVidaUtilTab'
 import { MateriaisSustentabilidadeTab } from '../../components/DashboardTabs/MateriaisSustentabilidadeTab'
@@ -45,16 +53,24 @@ function labelConexao(estado: string): string {
   return labels[estado] ?? estado
 }
 
-export default function DashboardPage() {
+export default function DashboardPage({ demonstracao = false }: { demonstracao?: boolean } = {}) {
+  const auth = useContext(AuthContext)
+  if (import.meta.env.DEV && (demonstracao || dashboardDemoEnabled())) return <DashboardDemo />
+  if (auth?.usuario?.perfil === 'funcionario') return <PainelPessoal />
+  return <PainelGestao />
+}
+
+function PainelGestao() {
   const [aba, setAba] = useState<AbaId>('operational')
   const [filtros, setFiltros] = useState<FiltrosDashboard>({ period: '6m', view: 'todos' })
-  const { snapshot, estado, indisponivel, erro } = useDashboardSse(filtros, aba !== 'operational')
+  const { snapshot, estado, indisponivel, erro, recarregar } = useDashboardSse(filtros, aba !== 'operational')
+  const catalogo = useCategorias()
 
-  const categorias = snapshot?.available_filters.categories ?? []
+  const categorias = [...new Set([...(snapshot?.available_filters.categories ?? []), ...(catalogo.dados?.map((categoria) => categoria.nome) ?? [])])]
   const status = snapshot?.available_filters.statuses ?? []
   const unidades = snapshot?.available_filters.units ?? []
 
-  const opcoesStatus = status.map((value) => ({ value, label: statusLabels[value] ?? value }))
+  const opcoesStatus = status.map((value) => ({ value, label: statusLabels[value] ?? 'Não informado' }))
   const opcoesCategoria = categorias.map((value) => ({ value, label: value }))
   const opcoesUnidade = unidades.map((unidade) => ({ value: unidade.id, label: unidade.name }))
   const opcoesResponsavel = snapshot?.available_filters.responsibles.map(({ id, name }) => ({ value: id, label: name })) ?? []
@@ -88,9 +104,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className={estilos.dashboard} data-estado={aba === 'operational' ? undefined : erro || indisponivel ? 'erro' : snapshot ? 'sucesso' : 'carregando'}>
+    <div className={estilos.dashboard} data-estado={aba === 'operational' ? 'carregando' : erro || indisponivel ? 'erro' : snapshot ? 'sucesso' : 'carregando'}>
       <div className={estilos.tituloLinha}>
-        <PageHeader titulo="Dashs do Zera" subtitulo="Indicadores de inventário, movimentações e sustentabilidade." />
+        <PageHeader titulo="Painel do Zera" subtitulo="Indicadores de inventário, movimentações e sustentabilidade." />
         <span className={`${estilos.estado} ${estilos[`estado_${estado}`]}`} role="status" aria-live="polite">
           {aba === 'operational' ? 'API de inventário' : labelConexao(estado)}
         </span>
@@ -98,7 +114,7 @@ export default function DashboardPage() {
 
       {aba !== 'operational' && snapshot && (
         <p className={estilos.mensagemInfo} role="status">
-          Dados de analytics · {snapshot.organization.name} · Extraído em {snapshot.extracted_at}
+          Atualização: {formatarDataRelativa(snapshot.extracted_at)}
           {estado === 'reconnecting' ? ' · Reconectando: exibindo o último lote recebido.' : ''}
         </p>
       )}
@@ -147,8 +163,8 @@ export default function DashboardPage() {
         ))}
       </section>
 
-      {aba !== 'operational' && erro && <p className={estilos.mensagemErro} role="alert">{formatarErroDashboard(erro.status, erro.detail)}</p>}
-      {aba !== 'operational' && indisponivel && <p className={estilos.mensagemInfo} role="status">Ainda não há lote de analytics para esta unidade. {indisponivel}</p>}
+      {aba !== 'operational' && erro && <EstadoErro mensagem={formatarErroDashboard(erro.status, erro.detail)} aoTentarNovamente={recarregar} />}
+      {aba !== 'operational' && indisponivel && <p className={estilos.mensagemInfo} role="status">Ainda não há dados para exibir aqui.</p>}
 
       <div id={`painel-${aba}`} role="tabpanel" aria-labelledby={`aba-${aba}`} className={estilos.painel}>
         {aba === 'operational' && <OperacionalTab />}

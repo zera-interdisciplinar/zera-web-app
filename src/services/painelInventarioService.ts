@@ -24,22 +24,31 @@ function objeto(valor: unknown): valor is Record<string, unknown> {
 const numero = (valor: unknown) => typeof valor === 'number' && Number.isFinite(valor)
 const percentual = (valor: unknown) => valor === null || numero(valor)
 
-export async function obterResumoOperacional(sinal?: AbortSignal): Promise<ResumoOperacional> {
-  const valor = await requisitarApiReal<unknown>('inventory', '/api/v1/dashboard/home', { sinal, unidade: true })
+function resumoValido(valor: unknown): valor is ResumoOperacional {
   if (!objeto(valor) || !['activeItems', 'pendingApproval', 'inMaintenance', 'awaitingEvaluation', 'disposalsInWindow'].every((chave) => numero(valor[chave]))
     || !percentual(valor.activeItemsChangePercent)) {
-    throw new ApiError('O resumo do inventário não corresponde ao contrato esperado.', 0)
+    return false
   }
-  return valor as unknown as ResumoOperacional
+  return true
 }
 
-export async function obterIndicadoresDescarte(sinal?: AbortSignal): Promise<IndicadoresDescarte> {
-  const valor = await requisitarApiReal<unknown>('inventory', '/api/v1/dashboard/indicators', { sinal, unidade: true })
+function indicadoresValidos(valor: unknown): valor is IndicadoresDescarte {
   if (!objeto(valor) || !numero(valor.totalWeightKg)
     || !['recyclingRatePercent', 'recyclingRateChangePoints', 'totalWeightChangePercent'].every((chave) => percentual(valor[chave]))
     || !Array.isArray(valor.monthlyWeightKg)
     || !valor.monthlyWeightKg.every((ponto) => objeto(ponto) && typeof ponto.month === 'string' && numero(ponto.weightKg))) {
-    throw new ApiError('Os indicadores de descarte não correspondem ao contrato esperado.', 0)
+    return false
   }
-  return valor as unknown as IndicadoresDescarte
+  return true
+}
+
+export async function obterResumoOperacional(sinal?: AbortSignal): Promise<ResumoOperacional> {
+  const valor = await requisitarApiReal<unknown>('inventory', '/api/v1/dashboard/home', { sinal, unidade: true })
+  if (!resumoValido(valor)) throw new ApiError('O resumo do inventário não corresponde ao contrato esperado.', 0)
+  return valor
+}
+export async function obterIndicadoresDescarte(sinal?: AbortSignal): Promise<IndicadoresDescarte> {
+  const valor = await requisitarApiReal<unknown>('inventory', '/api/v1/dashboard/indicators', { sinal, unidade: true })
+  if (!indicadoresValidos(valor)) throw new ApiError('Os indicadores de descarte não correspondem ao contrato esperado.', 0)
+  return valor
 }

@@ -116,7 +116,7 @@ describe('origem dos cards e gráficos', () => {
     expect(telas.join('')).not.toContain('DEMONSTRAÇÃO')
     expect(visaoGeral).not.toContain('Orbit Labs')
     expect(visaoGeral).not.toContain('Fixture MSW')
-    expect(telas.join('')).toContain('fonte confirmada')
+    expect(telas.join('')).toContain('Ainda não há dados para exibir aqui.')
     expect(vidaUtil).not.toContain('na seleção de demonstração')
     expect(evolucao).not.toContain('na seleção de demonstração')
   })

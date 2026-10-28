@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { observarCatalogo } from '../services/catalogoEventos'
 import type { DashboardSnapshot, FiltrosDashboard } from '../types/dashboardAnalytics'
 import { acompanharDashboard } from '../services/dashboardService'
 import type { EstadoConexaoDashboard, FalhaDashboard } from '../services/dashboardSse'
@@ -6,6 +7,9 @@ import type { EstadoConexaoDashboard, FalhaDashboard } from '../services/dashboa
 type EstadoPorFiltro<T> = { chave: string; valor: T }
 
 export function useDashboardSse(filtros: FiltrosDashboard, habilitado = true) {
+  const [tentativa, setTentativa] = useState(0)
+  const recarregar = useCallback(() => setTentativa((atual) => atual + 1), [])
+  useEffect(() => observarCatalogo(recarregar), [recarregar])
   const chaveFiltros = useMemo(() => JSON.stringify(filtros), [filtros])
   const [snapshotAtual, setSnapshotAtual] = useState<EstadoPorFiltro<DashboardSnapshot> | null>(null)
   const [estadoAtual, setEstadoAtual] = useState<EstadoPorFiltro<EstadoConexaoDashboard> | null>(null)
@@ -38,9 +42,10 @@ export function useDashboardSse(filtros: FiltrosDashboard, habilitado = true) {
     })
 
     return () => controlador.abort()
-  }, [chaveFiltros, habilitado])
+  }, [chaveFiltros, habilitado, tentativa])
 
   return {
+    recarregar,
     snapshot: snapshotAtual?.chave === chaveFiltros ? snapshotAtual.valor : null,
     estado: !habilitado ? 'connected' : estadoAtual?.chave === chaveFiltros ? estadoAtual.valor : 'connecting',
     indisponivel: indisponivelAtual?.chave === chaveFiltros ? indisponivelAtual.valor : null,

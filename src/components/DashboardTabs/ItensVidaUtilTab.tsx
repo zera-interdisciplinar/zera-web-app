@@ -1,10 +1,13 @@
+import { SeloDemonstracao } from './SeloDemonstracao'
+import type { FiltrosDashboard } from '../../types/dashboardAnalytics'
 import estilos from '../../../styles/components/DashboardTabs/ItensVidaUtilTab.module.css'
 
-export function ItensVidaUtilTab() {
+export function ItensVidaUtilTab({ demo = false }: { demo?: boolean; filtros?: FiltrosDashboard } = {}) {
   return (
     <section className={estilos.sourceState} aria-labelledby="fonte-vida-util">
-      <h2 id="fonte-vida-util">Aguardando contrato da API</h2>
-      <p>O endpoint de analytics atual não envia dados individuais de idade, peso, vida útil, garantia ou condição. Nenhum dado estimado é exibido.</p>
+      <h2 id="fonte-vida-util">Itens e vida útil</h2>
+      {demo && <SeloDemonstracao />}
+      <p>Ainda não há dados para exibir aqui.</p>
     </section>
   )
 }

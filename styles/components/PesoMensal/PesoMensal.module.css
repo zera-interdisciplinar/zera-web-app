@@ -1,0 +1,7 @@
+.cartao { min-width: 0; padding-block: 1rem; }
+.rolagem { overflow-x: auto; max-width: 100%; margin-block: 1rem; }
+.rolagem svg { display: block; max-width: none; color: #182b43; }
+.rolagem text { fill: currentColor; }
+.cartao summary { cursor: pointer; min-height: 44px; padding: .5rem; }
+.cartao table { border-collapse: collapse; width: 100%; }
+.cartao :is(th, td) { padding: .5rem; text-align: left; border-bottom: 1px solid #c6ced8; }

@@ -1,10 +1,13 @@
+import { SeloDemonstracao } from './SeloDemonstracao'
+import type { FiltrosDashboard } from '../../types/dashboardAnalytics'
 import estilos from '../../../styles/components/DashboardTabs/MateriaisSustentabilidadeTab.module.css'
 
-export function MateriaisSustentabilidadeTab() {
+export function MateriaisSustentabilidadeTab({ demo = false }: { demo?: boolean; filtros?: FiltrosDashboard } = {}) {
   return (
     <section className={estilos.semFonte} aria-labelledby="fonte-materiais">
       <h2 id="fonte-materiais">Materiais e sustentabilidade</h2>
-      <p>O contrato atual do BFF não fornece classificações nem associações de materiais. Nenhum indicador estimado é exibido.</p>
+      {demo && <SeloDemonstracao />}
+      <p>Ainda não há dados para exibir aqui.</p>
     </section>
   )
 }

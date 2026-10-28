@@ -52,6 +52,7 @@ export async function preparar(page: Page, role = 'MANAGER', peso = 0) {
     if (caminho === '/api/v1/dashboard/indicators') return route.fulfill({ json: { totalWeightKg: peso, recyclingRatePercent: null, recyclingRateChangePoints: null, totalWeightChangePercent: null, monthlyWeightKg: [{ month: '2026-09', weightKg: 0 }, { month: '2026-10', weightKg: peso }] } })
     if (caminho === '/api/v1/disposals') return route.fulfill({ json: { content: [], totalPages: 0, totalElements: 0 } })
     if (caminho === '/api/v1/recycling-places') return route.fulfill({ json: [] })
+    if (caminho === '/api/v1/recyclings') return route.fulfill({ json: [] })
     return route.fulfill({ status: 503, json: {} })
   })
   await page.goto(`${base}/login`)

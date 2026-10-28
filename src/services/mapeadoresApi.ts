@@ -39,6 +39,8 @@ export function mapearModelo(dado: ModelResponse): Modelo {
     nome: dado.name,
     especificacoes: {},
     vidaUtilMeses: dado.expectedLifespanMonths,
+    garantiaMeses: dado.warrantyMonths,
+    pesoEstimadoKg: dado.estimatedWeightKg,
     materiais: dado.materials.map((material) => material.name),
     aprovacao: dado.approvalStatus,
   }

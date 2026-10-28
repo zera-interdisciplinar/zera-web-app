@@ -3,7 +3,7 @@ import { sanitizarObjeto } from '../utils/sanitizacao'
 import type { Pagina } from '../types/apiReal'
 
 type Recurso = 'administrative' | 'inventory'
-export const modoDemonstracao = false
+export const modoDemonstracao = import.meta.env.DEV && import.meta.env.VITE_USE_MSW === 'true'
 
 const bases: Record<Recurso, string | undefined> = {
   administrative: import.meta.env.VITE_ADMIN_API_URL ?? '/api/administrative',

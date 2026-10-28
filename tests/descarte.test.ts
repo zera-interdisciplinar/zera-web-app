@@ -18,7 +18,7 @@ afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.resetModules() }
 
 describe('contratos de destinação v1', () => {
   it('consulta a elegibilidade no servidor sem inventar estados de descarte', async () => {
-    busca.mockResolvedValue(Response.json({ content: [], page: 0, totalPages: 1 }))
+    busca.mockResolvedValue(Response.json({ content: [], page: 0, size: 20, totalElements: 0, totalPages: 0 }))
     const { listarItensElegiveisDescarte } = await import('../src/services/descarteService')
     await expect(listarItensElegiveisDescarte()).resolves.toEqual([])
     expect(busca.mock.calls[0][0].searchParams.get('eligibleForDisposal')).toBe('true')

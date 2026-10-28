@@ -1,3 +1,4 @@
+import { modoDemonstracao } from '../services/apiReal'
 export function useAmbiente() {
-  return { modoDemonstracao: false as const }
+  return { modoDemonstracao }
 }

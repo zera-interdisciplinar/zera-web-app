@@ -19,9 +19,9 @@ export interface PermissoesZera {
 
 export type PermissaoZera = keyof PermissoesZera
 
-export function permissoesDoPerfil(perfil: Perfil | null | undefined): PermissoesZera {
-  const autenticado = perfil === 'funcionario' || perfil === 'gestor'
-  const gestor = perfil === 'gestor'
+export function permissoesDoPerfil(perfil: Perfil | null | undefined, demonstracao = false): PermissoesZera {
+  const autenticado = perfil === 'funcionario' || perfil === 'gestor' || (demonstracao && perfil === 'administrador')
+  const gestor = perfil === 'gestor' || (demonstracao && perfil === 'administrador')
   return {
     ler: autenticado,
     cadastrarItem: autenticado,
@@ -31,11 +31,11 @@ export function permissoesDoPerfil(perfil: Perfil | null | undefined): Permissoe
     excluirItem: gestor,
     gerirEstoque: gestor,
     consultarUsuarios: gestor,
-    consultarRelatorios: false,
+    consultarRelatorios: demonstracao && gestor,
     consultarDescartes: autenticado,
-    consultarConfiguracoes: false,
+    consultarConfiguracoes: demonstracao && gestor,
     filtrarResponsavel: gestor,
-    realizarTriagem: false,
-    enviarRelatorio: false,
+    realizarTriagem: demonstracao && autenticado,
+    enviarRelatorio: demonstracao && gestor,
   }
 }

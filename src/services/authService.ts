@@ -1,7 +1,7 @@
 import type { Credenciais, SessaoAutenticada } from '../types/usuario'
 import type { TokenResponse, UserOutput } from '../types/apiReal'
-import { contextualizar } from './http'
-import { definirSessaoApi, obterSessaoApi, requisitarApiReal } from './apiReal'
+import { contextualizar, requisitar } from './http'
+import { definirSessaoApi, modoDemonstracao, obterSessaoApi, requisitarApiReal } from './apiReal'
 import { ApiError } from '../types/api'
 
 let refreshToken: string | null = null
@@ -35,6 +35,7 @@ export async function autenticar(credenciais: Credenciais): Promise<SessaoAutent
   try {
     limparRenovacaoSessao()
     definirSessaoApi(null, null)
+    if (modoDemonstracao) return { ...await requisitar<SessaoAutenticada>('/auth/login', { metodo: 'POST', corpo: credenciais }), demonstracao: true }
     const token = await requisitarApiReal<TokenResponse>('administrative', '/api/v1/auth/login', {
         metodo: 'POST',
         corpo: { email: credenciais.email, password: credenciais.senha },
@@ -72,6 +73,7 @@ export async function autenticar(credenciais: Credenciais): Promise<SessaoAutent
 
 export function mensagemErroLogin(erro: unknown): string {
   if (!(erro instanceof ApiError)) return 'Não foi possível concluir o login.'
+  if (modoDemonstracao && erro.message.includes('Perfil de demonstração inválido.')) return 'Perfil de demonstração inválido.'
   if (erro.status === 401 || erro.status === 403) return 'E-mail ou senha inválidos.'
   if (erro.tipoFalha === 'rede' || erro.status >= 500) return 'Servidor de autenticação indisponível. Tente novamente mais tarde.'
   if (erro.tipoFalha === 'configuracao') return 'Serviço de autenticação não configurado.'

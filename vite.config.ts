@@ -7,7 +7,7 @@ import { configuracaoProxy, origemPermitida, validarBaseProxy } from './server/c
 const root = process.cwd()
 
 export default defineConfig(({ mode }) => {
-  const envDir = mode === 'production' ? resolve(root, 'public') : root
+  const envDir = ['production', 'test'].includes(mode) ? resolve(root, 'public') : root
   const env = loadEnv(mode, envDir, 'VITE_')
   const mswAtivo = mode !== 'production' && (process.env.VITE_USE_MSW ?? env.VITE_USE_MSW) === 'true'
   const privado = configuracaoProxy({ ...loadEnv(mode, root, ''), ...process.env })

@@ -90,7 +90,7 @@ describe('serviços e erros das APIs', () => {
     expect(busca).not.toHaveBeenCalled()
   })
   it('pagina eventos com os cabeçalhos e o sinal exigidos', async () => {
-    busca.mockImplementation(async (url: URL) => new Response(JSON.stringify({ content: [{ id: url.searchParams.get('page') }], totalPages: 2 })))
+    busca.mockImplementation(async (url: URL) => new Response(JSON.stringify({ content: [{ id: url.searchParams.get('page') }], totalPages: 2, totalElements: 2 })))
     const { listarEventos } = await import('../src/services/cicloService')
     const controlador = new AbortController()
     const sinal = controlador.signal

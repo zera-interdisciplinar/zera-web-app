@@ -25,6 +25,11 @@ export function ehLocalApi(valor: unknown): valor is LocalReciclagem {
   try { lerLista(valor.openingHours, ehHorario); return true } catch { return false }
 }
 export function lerDescarteApi(valor: unknown): DisposalResponse {
-  if (!ehDescarteApi(valor)) throw new ApiError('Não conseguimos confirmar os dados do descarte. Tente novamente.', 0)
-  return valor
+  if (!ehObjeto(valor)) throw new ApiError('Não conseguimos confirmar os dados do descarte. Tente novamente.', 0)
+  const normalizado = { ...valor, placeId: valor.placeId ?? null, placeName: valor.placeName ?? null,
+    notes: valor.notes ?? null, createdByName: valor.createdByName ?? null,
+    items: Array.isArray(valor.items) ? valor.items.map(item => ehObjeto(item)
+      ? { ...item, displayCode: item.displayCode ?? null, name: item.name ?? null, weightKg: item.weightKg ?? null } : item) : valor.items }
+  if (!ehDescarteApi(normalizado)) throw new ApiError('Não conseguimos confirmar os dados do descarte. Tente novamente.', 0)
+  return normalizado
 }

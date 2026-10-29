@@ -1,7 +1,8 @@
 import type { ModelResponse } from '../types/apiReal'
 import type { MaterialCatalogo } from '../types/cadastroModelo'
-import { ehCategoriaApi } from './guardaCategoriaApi'
+import { ehCategoriaApi, normalizarCategoriaApi } from './guardaCategoriaApi'
 import { ehObjeto, ehTexto, ehNumeroFinito, lerLista } from './guardasApi'
+import { ApiError } from '../types/api'
 
 export function ehMaterialApi(valor: unknown): valor is MaterialCatalogo {
   return ehObjeto(valor) && ehTexto(valor.id) && valor.id.trim().length > 0
@@ -19,6 +20,30 @@ export function ehModeloApi(valor: unknown): valor is ModelResponse {
     || !(valor.estimatedWeightKg === undefined || valor.estimatedWeightKg === null || (ehNumeroFinito(valor.estimatedWeightKg) && valor.estimatedWeightKg >= 0))
     || !(valor.notes === null || ehTexto(valor.notes)) || !ehCategoriaApi(valor.category) || !ehTexto(valor.approvalStatus)) return false
   try { lerLista(valor.materials, ehMaterialApi); return true } catch { return false }
+}
+
+export function normalizarMaterialApi(valor: unknown): unknown {
+  return ehObjeto(valor) ? { ...valor, disposalGuide: valor.disposalGuide ?? null } : valor
+}
+
+export function lerMaterialApi(valor: unknown): MaterialCatalogo {
+  const normalizado = normalizarMaterialApi(valor)
+  if (!ehMaterialApi(normalizado)) throw new ApiError('Não conseguimos ler o material. Tente novamente.', 0)
+  return normalizado
+}
+
+export function normalizarModeloApi(valor: unknown): unknown {
+  if (!ehObjeto(valor)) return valor
+  return { ...valor, expectedLifespanMonths: valor.expectedLifespanMonths ?? null,
+    warrantyMonths: valor.warrantyMonths ?? null, estimatedWeightKg: valor.estimatedWeightKg ?? null,
+    notes: valor.notes ?? null, category: normalizarCategoriaApi(valor.category),
+    materials: Array.isArray(valor.materials) ? valor.materials.map(normalizarMaterialApi) : valor.materials }
+}
+
+export function lerModeloApi(valor: unknown): ModelResponse {
+  const normalizado = normalizarModeloApi(valor)
+  if (!ehModeloApi(normalizado)) throw new ApiError('Não conseguimos ler o modelo. Tente novamente.', 0)
+  return normalizado
 }
 
 export function ehCodigoMaterial(valor: string): valor is import('../types/cadastroModelo').CodigoMaterial {

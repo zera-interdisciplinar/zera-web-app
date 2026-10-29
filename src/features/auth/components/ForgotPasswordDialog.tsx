@@ -41,11 +41,7 @@ export function ForgotPasswordDialog({ open, onClose }: Props) {
       return
     }
     dispatch({ type: 'send' })
-    try {
-      await requestPasswordReset(parsed.data.email)
-    } catch {
-      // The answer is the same whatever happens, so the form cannot be used to probe accounts (BR-19).
-    }
+    await requestPasswordReset(parsed.data.email)
     dispatch({ type: 'done' })
   }
 

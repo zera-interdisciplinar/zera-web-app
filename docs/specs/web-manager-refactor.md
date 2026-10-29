@@ -705,3 +705,16 @@ Cada PR é mergeável sozinho e mantém a `main` verde.
 | BR-22 | L7 | T-08 | 6 |
 | BR-23 | L1, L2 | T-22 | 2, 6 |
 | BR-24 | L3 | T-23 | 3 |
+
+---
+
+## 16. Status de implementação
+
+| PR | Estado | Observações |
+| --- | --- | --- |
+| 1 a 6 | Entregues | — |
+| 7 | Entregue | Desvios: sem clique na linha inteira (o link do nome abre o detalhe); intensidade de uso é um campo numérico, sem slider; o seletor de modelos mostra os 100 primeiros. As rotas seguem em português (`/itens`, `/modelos`, `/configuracoes`). |
+| 8 | Entregue | Aprovação de modelo é só leitura. Garantia e vida útil, uma vez informadas, só podem ser trocadas (a API não apaga). O código legado (`services/`, `utils/guarda*`, hooks e componentes de cadastro em português) foi removido; ficaram só os arquivos que os requisitos da disciplina leem. |
+| 9 | Pendente | CI com lint de fronteiras, cobertura e destino de publicação (Q-15). |
+
+**Dashboard e o lote do BFF.** O `ms-analytics-bff` serve o último lote do cron (de hora em hora no QA), então os números nunca são ao vivo; a tela mostra de quando é o lote. Em 01/11/2026 o lote do gestor QA veio com `itens_cadastrados = 0` apesar de 25 itens no inventário da unidade: o pipeline do BFF perde os itens ao ligá-los à organização. É um problema do backend, não do front.

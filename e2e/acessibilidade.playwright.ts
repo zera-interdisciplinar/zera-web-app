@@ -71,8 +71,8 @@ test('T-25: a ajuda de voz só lista rotas que existem e não há simulação de
   await abrir(page)
   await page.getByRole('button', { name: 'Ajuda de teclado' }).click()
   const ajuda = await page.locator('[id$="-help"]').innerText()
-  for (const rota of ['dashboard', 'itens', 'modelos']) expect(ajuda).toContain(`ir para ${rota}`)
-  for (const obsoleta of ['recicladoras', 'funcionários', 'relatórios', 'configurações', 'login']) expect(ajuda).not.toContain(obsoleta)
+  for (const rota of ['dashboard', 'itens', 'modelos', 'configurações']) expect(ajuda).toContain(`ir para ${rota}`)
+  for (const obsoleta of ['recicladoras', 'funcionários', 'relatórios', 'login']) expect(ajuda).not.toContain(obsoleta)
   await expect(page.getByText(/daltonismo|protanopia|deuteranopia|tritanopia/i)).toHaveCount(0)
 })
 

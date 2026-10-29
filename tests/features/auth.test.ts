@@ -90,7 +90,8 @@ describe('login page and recovery', () => {
 
   it('shows one confirmation that does not reveal whether the account exists (BR-19)', () => {
     expect(forgotCopy.confirmation).toContain('Se o e-mail tiver conta ativa')
-    const dialog = readFileSync(new URL('../../src/features/auth/components/ForgotPasswordDialog.tsx', import.meta.url), 'utf8')
-    expect(dialog).toMatch(/catch \{\s*\/\/[^\n]*\n\s*\}/)
+    // The service swallows every failure, so the dialog cannot tell the cases apart.
+    const service = readFileSync(new URL('../../src/features/auth/api/passwordReset.ts', import.meta.url), 'utf8')
+    expect(service).toMatch(/catch \{\s*\/\/[^\n]*\n\s*\}/)
   })
 })

@@ -109,7 +109,8 @@ it('Req 4: tipos de domínio existem e a análise estática proíbe any e ts-ign
 it('Req 5: serviços assíncronos exportados declaram Promise e tratam exceções', () => {
   checagemEstatica()
   const falhas: string[] = []
-  for (const caminho of arquivos('src/services').filter(a => a.endsWith('.ts'))) {
+  const camadasDeApi = ['src/shared/api', 'src/shared/auth', ...readdirSync('src/features').map(f => `src/features/${f}/api`).filter(existsSync)]
+  for (const caminho of camadasDeApi.flatMap(arquivos).filter(a => a.endsWith('.ts'))) {
     const fonte = ts.createSourceFile(caminho, ler(caminho), ts.ScriptTarget.Latest, true)
     for (const no of fonte.statements) {
       if (!ts.isFunctionDeclaration(no) || !no.modifiers?.some(x => x.kind === ts.SyntaxKind.ExportKeyword) || !no.modifiers.some(x => x.kind === ts.SyntaxKind.AsyncKeyword)) continue
@@ -189,17 +190,6 @@ it('Req 18: páginas são importadas por lazy e envolvidas em Suspense', () => {
 it('Req 20: análise exige justificativa para useCallback e useMemo', () => { checagemEstatica() })
 
 it('Req 22: formulários validam dados tipados antes de enviar aos serviços', () => {
-  const formularios: Array<[string, string]> = [
-    ['useCadastroCategoria.ts', 'validarCategoria'],
-    ['useCadastroModelo.ts', 'validarCadastroModeloReal'],
-  ]
-  for (const [arquivo, validador] of formularios) {
-    const fonte = ler('src/hooks/' + arquivo)
-    const posicaoValidador = fonte.indexOf(validador + '(')
-    expect(fonte.split(/\r?\n/).some(linha => linha.includes(validador) && linha.includes("from '../utils/")), arquivo).toBe(true)
-    expect(posicaoValidador, arquivo).toBeGreaterThan(-1)
-    expect(fonte.indexOf('await ', posicaoValidador), arquivo).toBeGreaterThan(posicaoValidador)
-  }
   // Formulários das camadas novas: o esquema zod valida antes da chamada à API.
   const login = ler('src/features/auth/hooks/useLoginForm.ts')
   expect(login).toContain("from '../schemas'")

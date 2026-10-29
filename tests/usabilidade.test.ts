@@ -2,10 +2,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { formatarDataRelativa } from '../src/utils/formatacao'
 import { normalizarBusca } from '../src/utils/busca'
 import { LIMITES, limitarNumero } from '../src/utils/limitesNumericos'
-import { rotuloEvento } from '../src/utils/eventos'
-import { ROTULO_STATUS } from '../src/types/produto'
-import { mapearItem } from '../src/services/mapeadoresApi'
-import type { ItemResponse } from '../src/types/apiReal'
 
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.resetModules() })
 
@@ -25,30 +21,8 @@ describe('regressões de usabilidade', () => {
     expect(limitarNumero('', LIMITES.meses)).toBe('')
     expect(limitarNumero('12,5', LIMITES.peso)).toBe('12.5')
   })
-  it.each(['CREATED', 'SUBMITTED', 'APPROVED', 'REJECTED', 'MAINTENANCE_STARTED', 'MAINTENANCE_FINISHED', 'EVALUATED', 'DISPOSED', 'REMOVED', 'RESTORED', 'LOAN_STARTED', 'LOAN_RETURNED', 'DISPOSAL_CANCELLED', 'STATUS_CHANGED'] as const)('traduz o evento %s', (type) => {
-    expect(rotuloEvento({ type, fromStatus: 'DRAFT', toStatus: 'IN_STOCK' })).not.toContain(type)
-  })
-  it('mostra status e eventos de empréstimo e cancelamento em texto humano', () => {
-    expect(ROTULO_STATUS['em-uso']).toBe('Em uso')
-    expect(rotuloEvento({ type: 'LOAN_STARTED', fromStatus: 'IN_STOCK', toStatus: 'IN_USE' })).toBe('Empréstimo iniciado')
-    expect(rotuloEvento({ type: 'LOAN_RETURNED', fromStatus: 'IN_USE', toStatus: 'IN_STOCK' })).toBe('Item devolvido ao estoque')
-    expect(rotuloEvento({ type: 'DISPOSAL_CANCELLED', fromStatus: 'DISPOSED', toStatus: 'IN_STOCK' })).toBe('Descarte cancelado')
-  })
-  it('preserva campos nulos no mapeamento do item', () => {
-    const payload: ItemResponse = { id: 'item', barcode: 'etiqueta', displayCode: null, name: null, status: 'DRAFT', condition: null, unitId: 'unidade', model: null, createdBy: 'pessoa', createdByName: null, createdAt: '2026-10-28T14:12:00Z', updatedAt: '2026-10-28T14:12:00Z' }
-    const item = mapearItem(payload)
-    expect(item.nome).toBe('Item sem nome')
-  })
   it('interpreta o timestamp sem offset como UTC, como o timestamp com Z', () => {
     const referencia = new Date('2026-10-28T15:00:00Z')
     expect(formatarDataRelativa('2026-10-28T14:12:00', referencia)).toBe(formatarDataRelativa('2026-10-28T14:12:00Z', referencia))
-  })
-  it('recusa lista truncada mesmo quando totalPages diz que terminou', async () => {
-    vi.stubEnv('VITE_USE_MSW', 'false')
-    vi.stubEnv('VITE_INVENTORY_API_URL', 'https://inventory.example.invalid')
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({ content: [{ id: 'a' }], page: 0, size: 20, totalElements: 12, totalPages: 1 })))
-    const { definirSessaoApi, listarPaginas } = await import('../src/services/apiReal')
-    definirSessaoApi('teste', 'unidade')
-    await expect(listarPaginas('inventory', '/api/v1/models')).rejects.toThrow()
   })
 })

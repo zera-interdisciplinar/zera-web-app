@@ -1,4 +1,4 @@
-import { Box, LayoutDashboard, Package } from 'lucide-react'
+import { Box, LayoutDashboard, Package, Settings } from 'lucide-react'
 import { navigationItems } from '../../app/navigation'
 import { useAuth } from '../../hooks/useAuth'
 import { usePermissoes } from '../../hooks/usePermissoes'
@@ -7,7 +7,7 @@ import { NavItem } from '../NavItem'
 import { UserCard } from '../UserCard'
 import estilos from '../../../styles/components/Sidebar/Sidebar.module.css'
 
-const ICONES = { '/': LayoutDashboard, '/itens': Package, '/modelos': Box } as const
+const ICONES = { '/': LayoutDashboard, '/itens': Package, '/modelos': Box, '/configuracoes': Settings } as const
 const DESTINOS = navigationItems.map((item) => ({ para: item.path, rotulo: item.label, Icone: ICONES[item.path as keyof typeof ICONES], exato: item.exact }))
 
 export function Sidebar() {

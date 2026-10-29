@@ -7,11 +7,13 @@ const ISO = '2026-10-28T14:12:00'
 export const categories = [
   { id: 'cat-eletronicos', unitId: unit, name: 'Eletrônicos', description: 'Equipamentos usados' },
   { id: 'cat-moveis', unitId: unit, name: 'Móveis', description: 'Mobiliário' },
+  { id: 'cat-vazia', unitId: unit, name: 'Sem uso', description: 'Nenhum modelo usa' },
 ]
 const materials = [{ id: 'm1', code: 'PLASTIC', name: 'Plástico', recyclable: true, hazardous: false }, { id: 'm2', code: 'METAL', name: 'Metal', recyclable: true, hazardous: false }]
 export const models = [
   { id: 'model-1', unitId: unit, name: 'ThinkPad T14', manufacturer: 'Lenovo', materials, category: categories[0], approvalStatus: 'APPROVED' },
   { id: 'model-2', unitId: unit, name: 'Cadeira Ergo', manufacturer: 'Flexform', materials: [materials[0]], category: categories[1], approvalStatus: 'APPROVED' },
+  { id: 'model-3', unitId: unit, name: 'Modelo sem itens', manufacturer: 'Acme', materials: [materials[1]], category: categories[1], approvalStatus: 'PENDING', warrantyMonths: 12 },
 ]
 
 export interface Write { method: string; path: string; body: Record<string, unknown> | undefined }
@@ -19,6 +21,9 @@ type Stored = Record<string, unknown> & { id: string; status: string; name: stri
 
 export interface Inventory {
   items: Stored[]
+  categories: typeof categories
+  models: Array<Record<string, unknown> & { id: string }>
+  settings: { unitId: string; stockCapacity: number | null; configured: boolean; updatedByName?: string; updatedAt?: string }
   writes: Write[]
   /** Query strings of every GET /items, in order. */
   lists: URLSearchParams[]
@@ -46,7 +51,10 @@ export function seed(): Stored[] {
 
 /** A small stateful ms-inventory: enough of the contract for the item screens. Register it after `preparar` (later routes win). */
 export async function controlarInventario(page: Page): Promise<Inventory> {
-  const inventory: Inventory = { items: seed(), writes: [], lists: [], fail: {} }
+  const inventory: Inventory = {
+    items: seed(), categories: structuredClone(categories), models: structuredClone(models) as Inventory['models'], writes: [], lists: [], fail: {},
+    settings: { unitId: unit, stockCapacity: null, configured: false },
+  }
   const json = (body: unknown, status = 200) => ({ status, contentType: 'application/json', body: JSON.stringify(body) })
   const problem = (status: number, extra: Record<string, unknown> = {}) => json({ status, title: 'Erro', detail: 'detalhe interno', ...extra }, status)
 
@@ -58,9 +66,65 @@ export async function controlarInventario(page: Page): Promise<Inventory> {
     const body = request.postData() ? (request.postDataJSON() as Record<string, unknown>) : undefined
     if (method !== 'GET') inventory.writes.push({ method, path, body })
 
-    if (path === '/api/v1/categories') return route.fulfill(json(categories))
+    const failKey = `${method} ${path.replace(/[0-9a-f]{8}-[0-9a-f-]{27}/, ':id')}`
+    const forcedStatus = inventory.fail[failKey]
+    if (forcedStatus && method !== 'GET') { delete inventory.fail[failKey]; return route.fulfill(problem(forcedStatus)) }
+
+    if (path === '/api/v1/unit-settings') {
+      if (method === 'PUT') Object.assign(inventory.settings, { stockCapacity: body?.stockCapacity, configured: true, updatedByName: 'Pessoa local', updatedAt: ISO })
+      return route.fulfill(json(inventory.settings))
+    }
     if (path === '/api/v1/materials') return route.fulfill(json(materials))
-    if (path === '/api/v1/models') return route.fulfill(json({ content: models, page: 0, size: 100, totalElements: models.length, totalPages: 1 }))
+
+    if (path === '/api/v1/categories') {
+      if (method === 'POST') { const created = { id: crypto.randomUUID(), unitId: unit, ...body } as (typeof categories)[number]; inventory.categories.push(created); return route.fulfill(json(created, 201)) }
+      return route.fulfill(json(inventory.categories))
+    }
+    const categoryMatch = path.match(/^\/api\/v1\/categories\/([^/]+)(?:\/(name|description))?$/)
+    if (categoryMatch) {
+      const category = inventory.categories.find((candidate) => candidate.id === categoryMatch[1])
+      if (!category) return route.fulfill(problem(404))
+      if (method === 'DELETE') {
+        if (inventory.models.some((model) => (model.category as { id: string }).id === category.id)) return route.fulfill(problem(409))
+        inventory.categories.splice(inventory.categories.indexOf(category), 1)
+        return route.fulfill({ status: 204 })
+      }
+      Object.assign(category, body)
+      return route.fulfill(json(category))
+    }
+
+    if (path === '/api/v1/models') {
+      if (method === 'POST') {
+        const created = { id: crypto.randomUUID(), unitId: unit, approvalStatus: 'PENDING', ...body, category: inventory.categories.find((c) => c.id === body?.categoryId), materials: materials.filter((m) => (body?.materials as string[]).includes(m.code)) }
+        inventory.models.push(created)
+        return route.fulfill(json(created, 201))
+      }
+      const size = Number(url.searchParams.get('size') ?? 20)
+      const pageNumber = Number(url.searchParams.get('page') ?? 0)
+      const approval = url.searchParams.get('approvalStatus')
+      inventory.lists.push(url.searchParams)
+      const matches = inventory.models.filter((model) => !approval || model.approvalStatus === approval)
+      return route.fulfill(json({ content: matches.slice(pageNumber * size, (pageNumber + 1) * size), page: pageNumber, size, totalElements: matches.length, totalPages: Math.max(1, Math.ceil(matches.length / size)) }))
+    }
+    const modelMatch = path.match(/^\/api\/v1\/models\/([^/]+)(?:\/([a-z-]+))?$/)
+    if (modelMatch) {
+      const model = inventory.models.find((candidate) => candidate.id === modelMatch[1])
+      if (!model) return route.fulfill(problem(404))
+      const [, , sub] = modelMatch
+      if (method === 'GET' && sub === 'items') {
+        const linked = inventory.items.filter((item) => (item.model as { id: string } | null)?.id === model.id).slice(0, 20)
+        return route.fulfill(json({ content: linked, page: 0, size: 20, totalElements: linked.length, totalPages: Math.max(1, Math.ceil(linked.length / 20)) }))
+      }
+      if (method === 'GET') return route.fulfill(json(model))
+      if (method === 'DELETE') {
+        if (inventory.items.some((item) => (item.model as { id: string } | null)?.id === model.id)) return route.fulfill(problem(409))
+        inventory.models.splice(inventory.models.indexOf(model), 1)
+        return route.fulfill({ status: 204 })
+      }
+      if (sub === 'materials') model.materials = materials.filter((m) => (body?.materials as string[]).includes(m.code))
+      else Object.assign(model, body)
+      return route.fulfill(json(model))
+    }
 
     if (path === '/api/v1/items' && method === 'GET') {
       inventory.lists.push(url.searchParams)
@@ -82,7 +146,7 @@ export async function controlarInventario(page: Page): Promise<Inventory> {
       const existing = inventory.items.find((item) => item.id === body?.id)
       if (existing) return route.fulfill(json(existing))
       if (inventory.items.some((item) => item.barcode === body?.barcode)) return route.fulfill(problem(409))
-      const model = body?.modelId ? models.find((candidate) => candidate.id === body.modelId) : { id: 'model-new', ...(body?.model as object), category: categories.find((c) => c.id === (body?.model as { categoryId: string }).categoryId), materials, approvalStatus: 'PENDING' }
+      const model = body?.modelId ? inventory.models.find((candidate) => candidate.id === body.modelId) : { id: 'model-new', ...(body?.model as object), category: inventory.categories.find((c) => c.id === (body?.model as { categoryId: string }).categoryId), materials, approvalStatus: 'PENDING' }
       const created = base({ ...body, id: body?.id, status: 'DRAFT', displayCode: 'ZR-9999', model, missingFields: [] })
       inventory.items.unshift(created)
       return route.fulfill(json(created, 201))

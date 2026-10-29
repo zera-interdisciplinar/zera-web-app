@@ -26,3 +26,8 @@ it.each([null, {}, [null], [{ ...local, lat: 91 }], [{ ...local, distanceMeters:
   vi.mocked(requisitarApiReal).mockResolvedValue(valor)
   await expect(buscarLocaisReciclagem({ lat: 0, lng: 0 })).rejects.toThrow('Tente novamente')
 })
+
+it('preserva destino futuro para apresentação neutra', async () => {
+  vi.mocked(requisitarApiReal).mockResolvedValue({ ...descarte, destination: 'FUTURO' })
+  expect(await registrarDescarte(entrada)).toMatchObject({ destination: 'FUTURO' })
+})

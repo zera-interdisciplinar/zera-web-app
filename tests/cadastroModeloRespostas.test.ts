@@ -12,7 +12,7 @@ it('lê materiais válidos e lista vazia', async () => {
   vi.mocked(requisitarApiReal).mockResolvedValue([])
   expect(await listarMateriais()).toEqual([])
 })
-it.each([null, {}, [null], [{ ...material, id: undefined }], [{ ...material, recyclable: 'sim' }], [{ ...material, code: 'NOVO' }]])('rejeita materiais inválidos %j', async valor => {
+it.each([null, {}, [null], [{ ...material, id: undefined }], [{ ...material, recyclable: 'sim' }]])('rejeita materiais inválidos %j', async valor => {
   vi.mocked(requisitarApiReal).mockResolvedValue(valor)
   await expect(listarMateriais()).rejects.toThrow('Tente novamente')
 })
@@ -25,4 +25,9 @@ it('confirma modelo válido, preserva null e neutraliza aprovação desconhecida
 it.each([null, {}, [], { ...modelo, category: null }, { ...modelo, name: undefined }, { ...modelo, warrantyMonths: '12' }, { ...modelo, estimatedWeightKg: -1 }])('rejeita modelo inválido %j', async valor => {
   vi.mocked(requisitarApiReal).mockResolvedValue(valor)
   await expect(criarModeloReal(entrada)).rejects.toThrow('Tente novamente')
+})
+
+it('preserva material de código futuro sem fingir código conhecido', async () => {
+  vi.mocked(requisitarApiReal).mockResolvedValue([{ ...material, code: 'NOVO' }])
+  expect(await listarMateriais()).toEqual([{ ...material, code: 'NOVO' }])
 })

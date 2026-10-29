@@ -5,7 +5,7 @@ import { ehObjeto, ehTexto, ehNumeroFinito, lerLista } from './guardasApi'
 
 export function ehMaterialApi(valor: unknown): valor is MaterialCatalogo {
   return ehObjeto(valor) && ehTexto(valor.id) && valor.id.trim().length > 0
-    && (valor.code === 'PLASTIC' || valor.code === 'METAL' || valor.code === 'GLASS' || valor.code === 'PAPER' || valor.code === 'BATTERY' || valor.code === 'CIRCUIT_BOARD' || valor.code === 'CABLE' || valor.code === 'SCREEN' || valor.code === 'OTHER')
+    && ehTexto(valor.code)
     && ehTexto(valor.name) && valor.name.trim().length > 0
     && typeof valor.recyclable === 'boolean' && typeof valor.hazardous === 'boolean'
     && (valor.disposalGuide === null || ehTexto(valor.disposalGuide))
@@ -19,4 +19,8 @@ export function ehModeloApi(valor: unknown): valor is ModelResponse {
     || !(valor.estimatedWeightKg === undefined || valor.estimatedWeightKg === null || (ehNumeroFinito(valor.estimatedWeightKg) && valor.estimatedWeightKg >= 0))
     || !(valor.notes === null || ehTexto(valor.notes)) || !ehCategoriaApi(valor.category) || !ehTexto(valor.approvalStatus)) return false
   try { lerLista(valor.materials, ehMaterialApi); return true } catch { return false }
+}
+
+export function ehCodigoMaterial(valor: string): valor is import('../types/cadastroModelo').CodigoMaterial {
+  return valor === 'PLASTIC' || valor === 'METAL' || valor === 'GLASS' || valor === 'PAPER' || valor === 'BATTERY' || valor === 'CIRCUIT_BOARD' || valor === 'CABLE' || valor === 'SCREEN' || valor === 'OTHER'
 }

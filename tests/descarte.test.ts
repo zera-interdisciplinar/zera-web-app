@@ -24,7 +24,7 @@ describe('contratos de destinação v1', () => {
     expect(busca.mock.calls[0][0].searchParams.get('eligibleForDisposal')).toBe('true')
   })
   it('registra descarte realizado com local externo sem parceiro, autoria ou peso no corpo', async () => {
-    busca.mockResolvedValue(Response.json({ id: 'descarte', ...entrada }, { status: 201 }))
+    busca.mockResolvedValue(Response.json({ id: 'descarte', unitId: id, destination: entrada.destination, placeId: entrada.placeId, placeName: entrada.placeName, disposedAt: entrada.disposedAt, notes: null, items: [{ itemId: id, displayCode: null, name: null, weightKg: null }], totalWeightKg: 0, createdByName: null, createdAt: '2026-09-20T12:00:00Z' }, { status: 201 }))
     const { registrarDescarte } = await import('../src/services/descarteService')
     await registrarDescarte(entrada)
     const [url, opcoes] = busca.mock.calls[0]

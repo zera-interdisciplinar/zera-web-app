@@ -11,8 +11,8 @@ export function ehItemApi(valor: unknown): valor is ItemResponse {
     && (valor.createdByName === null || ehTexto(valor.createdByName))
     && (valor.createdBy === undefined || valor.createdBy === null || ehTexto(valor.createdBy))
     && ehDataIso(valor.createdAt) && ehDataIso(valor.updatedAt)
-    && (valor.status === 'DRAFT' || valor.status === 'PENDING_APPROVAL' || valor.status === 'REJECTED' || valor.status === 'IN_STOCK' || valor.status === 'IN_MAINTENANCE' || valor.status === 'AWAITING_EVALUATION' || valor.status === 'DISPOSED' || valor.status === 'REMOVED')
-    && (valor.condition === null || valor.condition === 'NEW' || valor.condition === 'USED' || valor.condition === 'SEMI_DAMAGED' || valor.condition === 'DAMAGED')
+    && ehTexto(valor.status)
+    && (valor.condition === null || ehTexto(valor.condition))
 }
 export function lerItemApi(valor: unknown): ItemResponse {
   if (!ehItemApi(valor)) throw new ApiError('Não conseguimos ler os dados do item. Tente novamente.', 0)

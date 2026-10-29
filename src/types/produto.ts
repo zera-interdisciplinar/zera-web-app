@@ -3,6 +3,7 @@ export type StatusTriagem = 'aguardando' | 'classificado' | 'descartado'
 export type Condicao = 'novo' | 'usado' | 'semidanificado' | 'danificado' | 'nao-informada'
 
 export type StatusItem =
+  | 'nao-informado'
   | 'em-aprovacao'
   | 'em-estoque'
   | 'reutilizavel'
@@ -51,6 +52,7 @@ export interface FiltroItens {
 }
 
 export const ROTULO_STATUS: Record<StatusItem, string> = {
+  'nao-informado': 'Não informado',
   'em-aprovacao': 'Em aprovação',
   'em-estoque': 'Em estoque',
   reutilizavel: 'Reutilizável',

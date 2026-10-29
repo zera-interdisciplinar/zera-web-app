@@ -58,7 +58,7 @@ export function mapearItem(dado: ItemResponse): ProdutoDetalhado {
     categoriaId: dado.model?.category.id ?? '',
     categoriaNome: dado.model?.category.name ?? 'Não informada',
     marca: dado.model?.manufacturer ?? 'Não informada',
-    condicao: dado.condition ? condicoes[dado.condition] : 'nao-informada',
+    condicao: dado.condition ? (condicoes[dado.condition] ?? 'nao-informada') : 'nao-informada',
     codigoBarras: dado.barcode,
     codigoExibicao: dado.displayCode,
     responsavel: dado.createdByName ?? 'Não informado',
@@ -67,7 +67,7 @@ export function mapearItem(dado: ItemResponse): ProdutoDetalhado {
     atualizacao: dado.updatedAt,
     classificacao: null,
     statusTriagem: dado.status === 'DISPOSED' ? 'descartado' : 'aguardando',
-    status: status[dado.status],
+    status: status[dado.status] ?? 'nao-informado',
     diasEmEstoque: dias,
   }
 }

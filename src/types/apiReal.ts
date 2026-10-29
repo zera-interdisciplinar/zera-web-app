@@ -49,8 +49,8 @@ export interface ItemResponse {
   barcode: string
   displayCode: string | null
   name: string | null
-  status: 'DRAFT' | 'PENDING_APPROVAL' | 'REJECTED' | 'IN_STOCK' | 'IN_MAINTENANCE' | 'AWAITING_EVALUATION' | 'DISPOSED' | 'REMOVED'
-  condition: 'NEW' | 'USED' | 'SEMI_DAMAGED' | 'DAMAGED' | null
+  status: string
+  condition: string | null
   unitId: string
   model: ModelResponse | null
   createdByName: string | null

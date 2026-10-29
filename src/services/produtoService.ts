@@ -4,6 +4,7 @@ import { contextualizar, requisitar } from './http'
 import { listarPaginas, modoDemonstracao, requisitarApiReal } from './apiReal'
 import type { UpdateItemRequest } from '../types/apiReal'
 import { mapearItem } from './mapeadoresApi'
+import { ApiError } from '../types/api'
 
 export async function listarProdutos(sinal?: AbortSignal): Promise<ProdutoDetalhado[]> {
   try {
@@ -19,6 +20,9 @@ export async function buscarProduto(id: number | string, sinal?: AbortSignal): P
     if (!modoDemonstracao) return mapearItem(lerItemApi(await requisitarApiReal<unknown>('inventory', `/api/v1/items/${encodeURIComponent(id)}`, { sinal, unidade: true })))
     return await requisitar<ProdutoDetalhado>(`/items/${id}`, { sinal })
   } catch (erro) {
+    if (erro instanceof ApiError && erro.status === 404) {
+      throw new ApiError('Item não encontrado. Volte à lista de itens e tente novamente.', 404)
+    }
     throw contextualizar(erro, 'Não foi possível carregar o item.')
   }
 }

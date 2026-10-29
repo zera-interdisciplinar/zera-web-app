@@ -1,15 +1,15 @@
-import { SeloDemonstracao } from './SeloDemonstracao'
-import type { FiltrosDashboard } from '../../types/dashboardAnalytics'
-import estilos from '../../../styles/components/DashboardTabs/MateriaisSustentabilidadeTab.module.css'
-import { useMateriaisDashboard } from '../../hooks/useDadosInventarioDashboard'
-import { DataTable } from '../DataTable'
-import { EstadoErro } from '../EstadoErro'
-import { formatarNumero } from '../../utils/formatarDashboard'
-import { GraficoDados } from '../GraficoDados'
+import estilos from '../../../../styles/components/DashboardTabs/MateriaisSustentabilidadeTab.module.css'
+import { useMateriaisDashboard } from '../../../hooks/useDadosInventarioDashboard'
+import type { MateriaisSustentabilidadeTabProps } from '../../../types/componentes/MateriaisSustentabilidadeTab'
+import { formatarNumero } from '../../../utils/formatarDashboard'
+import { DataTable } from '../../DataTable'
+import { EstadoErro } from '../../EstadoErro'
+import { GraficoDados } from '../../GraficoDados'
+import { SeloDemonstracao } from '../SeloDemonstracao'
 
 const materiais: Record<string, string> = { PLASTIC: 'Plástico', METAL: 'Metal', GLASS: 'Vidro', PAPER: 'Papel', BATTERY: 'Bateria', CIRCUIT_BOARD: 'Placa de circuito', CABLE: 'Cabo', SCREEN: 'Tela', OTHER: 'Outro' }
 
-export function MateriaisSustentabilidadeTab({ demo = false, ativo = false }: { demo?: boolean; filtros?: FiltrosDashboard; ativo?: boolean } = {}) {
+export function MateriaisSustentabilidadeTab({ demo = false, ativo = false }: MateriaisSustentabilidadeTabProps = {}) {
   const indicadores = useMateriaisDashboard(ativo)
   const pontos = indicadores.dados?.weightByMaterial
   return (

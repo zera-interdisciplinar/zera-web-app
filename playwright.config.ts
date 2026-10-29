@@ -21,17 +21,17 @@ const envTest = {
   VITE_INVENTORY_API_URL: '/api/inventory',
   VITE_USE_MSW: 'true',
   VITE_DASHBOARD_DEMO_MODE: 'true',
+  ZERA_VITE_CACHE_DIR: 'node_modules/.vite-e2e-demo',
 }
 const envReal = {
   ...process.env,
   ...loadEnv('development', root, 'VITE_'),
-  ...(process.env.ZERA_RUN_LIVE_QA === 'true' ? {} : {
-    VITE_API_BASE_URL: '/api/analytics',
-    VITE_ADMIN_API_URL: '/api/administrative',
-    VITE_INVENTORY_API_URL: '/api/inventory',
-  }),
+  VITE_API_BASE_URL: '/api/analytics',
+  VITE_ADMIN_API_URL: '/api/administrative',
+  VITE_INVENTORY_API_URL: '/api/inventory',
   VITE_USE_MSW: 'false',
   VITE_DASHBOARD_DEMO_MODE: 'false',
+  ZERA_VITE_CACHE_DIR: 'node_modules/.vite-e2e-real',
 }
 
 export default defineConfig({

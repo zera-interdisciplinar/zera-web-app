@@ -1,60 +1,42 @@
-import { Formulario } from '../../components/Formulario'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo } from 'react'
+import estilos from '../../../styles/pages/FuncionariosPage/FuncionariosPage.module.css'
 import { Button } from '../../components/Button'
-import { DataTable } from '../../components/DataTable'
 import type { Coluna } from '../../components/DataTable'
+import { DataTable } from '../../components/DataTable'
 import { EmptyState } from '../../components/EmptyState'
 import { EstadoErro } from '../../components/EstadoErro'
 import { FieldCard } from '../../components/FieldCard'
+import { Formulario } from '../../components/Formulario'
 import { Modal } from '../../components/Modal'
 import { PageHeader } from '../../components/PageHeader'
 import { SearchInput } from '../../components/SearchInput'
 import { Skeleton } from '../../components/Skeleton'
 import { Toast } from '../../components/Toast'
-import { useRequisicao } from '../../hooks/useRequisicao'
-import { useToast } from '../../hooks/useToast'
-import { criarUsuario, listarUsuarios } from '../../services/usuarioService'
-import { modoDemonstracao } from '../../services/apiReal'
-import { mensagemDeErro } from '../../types/api'
-import type { NovoUsuario, Perfil, Usuario } from '../../types/usuario'
+import { useAmbiente } from '../../hooks/useAmbiente'
+import { useFuncionarios } from '../../hooks/useFuncionarios'
+import type { Usuario } from '../../types/usuario'
 import { ROTULO_PERFIL } from '../../types/usuario'
-import { validarNovoUsuario } from '../../utils/validacao'
-import type { ErrosDeCampo } from '../../utils/validacao'
-import estilos from '../../../styles/pages/FuncionariosPage/FuncionariosPage.module.css'
-
-interface FormFuncionario {
-  nome: string
-  email: string
-  perfil: string
-  unidade: string
-}
-
-const FORM_INICIAL: FormFuncionario = { nome: '', email: '', perfil: '', unidade: '' }
 
 export default function FuncionariosPage() {
-  const buscar = useCallback((sinal: AbortSignal) => listarUsuarios(sinal), [])
-  const usuarios = useRequisicao<Usuario[]>(buscar)
-  const [toast, mostrarToast] = useToast()
+  const { modoDemonstracao } = useAmbiente()
+  const {
+    usuarios,
+    toast,
+    busca,
+    setBusca,
+    modalAberto,
+    setModalAberto,
+    form,
+    setForm,
+    erros,
+    setErros,
+    enviando,
+    erroEnvio,
+    visiveis,
+    aoSalvar,
+  } = useFuncionarios()
 
-  const [busca, setBusca] = useState('')
-  const [modalAberto, setModalAberto] = useState(false)
-  const [form, setForm] = useState<FormFuncionario>(FORM_INICIAL)
-  const [erros, setErros] = useState<ErrosDeCampo<NovoUsuario>>({})
-  const [enviando, setEnviando] = useState(false)
-  const [erroEnvio, setErroEnvio] = useState<string | null>(null)
-
-  const visiveis = useMemo<Usuario[]>(() => {
-    const dados = usuarios.dados ?? []
-    const termo = busca.trim().toLowerCase()
-    if (termo.length === 0) return dados
-    return dados.filter(
-      (pessoa) =>
-        pessoa.nome.toLowerCase().includes(termo) ||
-        pessoa.email.toLowerCase().includes(termo) ||
-        pessoa.unidade.toLowerCase().includes(termo),
-    )
-  }, [usuarios.dados, busca])
-
+  // Preserva as definições da tabela enquanto o formulário é atualizado.
   const colunas = useMemo<Coluna<Usuario>[]>(
     () => [
       { titulo: 'Nome', render: (pessoa) => pessoa.nome },
@@ -67,35 +49,6 @@ export default function FuncionariosPage() {
     ],
     [],
   )
-
-  async function aoSalvar(evento: React.FormEvent<HTMLFormElement>) {
-    evento.preventDefault()
-    setErroEnvio(null)
-
-    const candidato: NovoUsuario = {
-      nome: form.nome,
-      email: form.email,
-      perfil: form.perfil as Perfil,
-      unidade: form.unidade,
-    }
-
-    const validacao = validarNovoUsuario(candidato)
-    setErros(validacao.erros)
-    if (!validacao.valido) return
-
-    setEnviando(true)
-    try {
-      await criarUsuario(validacao.dados)
-      mostrarToast(`${validacao.dados.nome} cadastrado como ${ROTULO_PERFIL[validacao.dados.perfil].toLowerCase()}.`)
-      setModalAberto(false)
-      setForm(FORM_INICIAL)
-      usuarios.recarregar()
-    } catch (falha) {
-      setErroEnvio(mensagemDeErro(falha))
-    } finally {
-      setEnviando(false)
-    }
-  }
 
   return (
     <>

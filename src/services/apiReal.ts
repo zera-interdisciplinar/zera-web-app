@@ -85,7 +85,6 @@ export async function requisitarApiReal<T>(recurso: Recurso, caminho: string, op
   if (opcoes.autenticada !== false && !accessToken) throw new ApiError('Sessão expirada. Entre novamente.', 401)
   if (opcoes.unidade && !unitId) throw new ApiError('A conta não possui unidade de inventário.', 0)
   const tokenDaRequisicao = accessToken
-
   const headers: Record<string, string> = { Accept: 'application/json' }
   if (opcoes.corpo !== undefined) headers['Content-Type'] = 'application/json'
   if (opcoes.autenticada !== false && accessToken) headers.Authorization = `Bearer ${accessToken}`

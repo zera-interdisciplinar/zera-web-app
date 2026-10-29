@@ -1,6 +1,6 @@
 import { createContext, useEffect, useMemo, useState } from 'react'
-import type { ReactNode } from 'react'
 import type { PreferenciasAcessibilidade } from '../types/acessibilidade'
+import type { AcessibilidadeContextProps, ValorAcessibilidade } from '../types/componentes/AcessibilidadeContext'
 import { carregar, salvar } from '../utils/storage'
 
 const CHAVE_ACESSIBILIDADE = 'zera.acessibilidade.preferencias'
@@ -13,12 +13,6 @@ const preferenciasPadrao: PreferenciasAcessibilidade = {
   fonteLegivel: false,
   guiaLeitura: false,
   simulacaoCores: 'nenhuma',
-}
-
-interface ValorAcessibilidade {
-  preferencias: PreferenciasAcessibilidade
-  alterar: (alteracoes: Partial<PreferenciasAcessibilidade>) => void
-  restaurar: () => void
 }
 
 export const AcessibilidadeContext = createContext<ValorAcessibilidade | null>(null)
@@ -38,11 +32,7 @@ function preferenciaValida(valor: unknown): valor is PreferenciasAcessibilidade 
   )
 }
 
-interface Props {
-  children: ReactNode
-}
-
-export function AcessibilidadeProvider({ children }: Props) {
+export function AcessibilidadeProvider({ children }: AcessibilidadeContextProps) {
   const [preferencias, setPreferencias] = useState<PreferenciasAcessibilidade>(() => {
     const salvas = carregar<PreferenciasAcessibilidade>(CHAVE_ACESSIBILIDADE)
     return preferenciaValida(salvas) ? salvas : preferenciasPadrao
@@ -59,6 +49,7 @@ export function AcessibilidadeProvider({ children }: Props) {
     salvar(CHAVE_ACESSIBILIDADE, preferencias)
   }, [preferencias])
 
+  // Evita renderizações dos consumidores sem alteração no valor do contexto.
   const valor = useMemo<ValorAcessibilidade>(() => ({
     preferencias,
     alterar: (alteracoes) => setPreferencias((atuais) => ({ ...atuais, ...alteracoes })),

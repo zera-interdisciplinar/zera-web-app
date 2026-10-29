@@ -14,6 +14,7 @@ export function useLeituraConteudo(): RetornoLeituraConteudo {
   const falaRef = useRef<SpeechSynthesisUtterance | null>(null)
   const suportado = typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window
 
+  // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const parar = useCallback(() => {
     geracao.current += 1
     if (falaRef.current) {

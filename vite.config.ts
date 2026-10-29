@@ -37,6 +37,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     envDir,
+    cacheDir: process.env.ZERA_VITE_CACHE_DIR ?? 'node_modules/.vite',
     resolve: {
       alias: mode === 'production'
         ? [{ find: './mocks/browser', replacement: resolve(root, 'src/mocks/browser.disabled.ts') }]

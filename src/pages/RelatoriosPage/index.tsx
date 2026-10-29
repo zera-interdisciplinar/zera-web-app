@@ -1,7 +1,8 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo } from 'react'
+import estilos from '../../../styles/pages/RelatoriosPage/RelatoriosPage.module.css'
 import { Button } from '../../components/Button'
-import { DataTable } from '../../components/DataTable'
 import type { Coluna } from '../../components/DataTable'
+import { DataTable } from '../../components/DataTable'
 import { EmptyState } from '../../components/EmptyState'
 import { EstadoErro } from '../../components/EstadoErro'
 import { FieldCard } from '../../components/FieldCard'
@@ -10,59 +11,40 @@ import { Modal } from '../../components/Modal'
 import { PageHeader } from '../../components/PageHeader'
 import { Skeleton } from '../../components/Skeleton'
 import { Toast } from '../../components/Toast'
-import { useRequisicao } from '../../hooks/useRequisicao'
-import { useToast } from '../../hooks/useToast'
-import { useAuth } from '../../hooks/useAuth'
+import { useAmbiente } from '../../hooks/useAmbiente'
+import { useRelatorios } from '../../hooks/useRelatorios'
 import { ROTULO_CONDICAO } from '../../types/produto'
-import {
-  enviarRelatorio,
-  gerarPrevia,
-  listarRecicladoras,
-  listarRelatorios,
-} from '../../services/relatorioService'
-import { mensagemDeErro } from '../../types/api'
-import { modoDemonstracao } from '../../services/apiReal'
-import type { PreviaRelatorio, Recicladora, Relatorio } from '../../types/relatorio'
+import type { Relatorio } from '../../types/relatorio'
 import { formatarData, pluralizar } from '../../utils/formatacao'
-import { validarEnvioRelatorio } from '../../utils/validacao'
-import estilos from '../../../styles/pages/RelatoriosPage/RelatoriosPage.module.css'
-
-type EtapaModal = 'previa' | 'confirmacao'
 
 export default function RelatoriosPage() {
-  const { temPerfil, usuario } = useAuth()
-  const podeEnviar = temPerfil(['administrador'])
-  const buscarRelatorios = useCallback((sinal: AbortSignal) => listarRelatorios(sinal), [])
-  const buscarRecicladoras = useCallback((sinal: AbortSignal) => listarRecicladoras(sinal), [])
-  const buscarPrevia = useCallback((sinal: AbortSignal) => gerarPrevia(sinal), [])
+  const { modoDemonstracao } = useAmbiente()
+  const {
+    usuario,
+    podeEnviar,
+    relatorios,
+    recicladoras,
+    toast,
+    modalAberto,
+    setModalAberto,
+    etapa,
+    setEtapa,
+    recicladoraId,
+    setRecicladoraId,
+    erroRecicladora,
+    setErroRecicladora,
+    enviando,
+    erroEnvio,
+    previa,
+    recicladoraSelecionada,
+    categoriasDaPrevia,
+    dataDaPrevia,
+    abrirPrevia,
+    aoRevisar,
+    aoConfirmarEnvio,
+  } = useRelatorios()
 
-  const relatorios = useRequisicao<Relatorio[]>(buscarRelatorios)
-  const recicladoras = useRequisicao<Recicladora[]>(buscarRecicladoras)
-  const [toast, mostrarToast] = useToast()
-
-  const [modalAberto, setModalAberto] = useState(false)
-  const [etapa, setEtapa] = useState<EtapaModal>('previa')
-  const [recicladoraId, setRecicladoraId] = useState('')
-  const [erroRecicladora, setErroRecicladora] = useState<string | null>(null)
-  const [enviando, setEnviando] = useState(false)
-  const [erroEnvio, setErroEnvio] = useState<string | null>(null)
-
-  const previa = useRequisicao<PreviaRelatorio>(buscarPrevia, modalAberto)
-
-  const recicladoraSelecionada = useMemo(
-    () =>
-      recicladoras.dados?.find((recicladora) => String(recicladora.id) === recicladoraId) ?? null,
-    [recicladoras.dados, recicladoraId],
-  )
-  const categoriasDaPrevia = useMemo(() => {
-    const contagem = new Map<string, number>()
-    for (const item of previa.dados?.itens ?? []) {
-      contagem.set(item.categoriaNome, (contagem.get(item.categoriaNome) ?? 0) + 1)
-    }
-    return [...contagem].map(([nome, quantidade]) => ({ nome, quantidade }))
-  }, [previa.dados])
-  const dataDaPrevia = new Date().toISOString().slice(0, 10)
-
+  // Preserva as definições da tabela enquanto o formulário é atualizado.
   const colunas = useMemo<Coluna<Relatorio>[]>(
     () => [
       { titulo: 'Período', render: (relatorio) => relatorio.periodo },
@@ -84,44 +66,6 @@ export default function RelatoriosPage() {
     ],
     [],
   )
-
-  function abrirPrevia() {
-    setEtapa('previa')
-    setRecicladoraId('')
-    setErroRecicladora(null)
-    setErroEnvio(null)
-    setModalAberto(true)
-  }
-
-  function aoRevisar() {
-    if (!podeEnviar) return
-    const validacao = validarEnvioRelatorio({ recicladoraId: Number(recicladoraId) })
-    setErroRecicladora(validacao.erros.recicladoraId ?? null)
-    if (!validacao.valido) return
-    setEtapa('confirmacao')
-  }
-
-  async function aoConfirmarEnvio() {
-    if (!podeEnviar || !previa.dados) return
-    setEnviando(true)
-    setErroEnvio(null)
-    try {
-      const relatorio = await enviarRelatorio({
-        recicladoraId: Number(recicladoraId),
-        produtoIds: previa.dados.itens.map((item) => item.produtoId),
-      })
-      setModalAberto(false)
-      mostrarToast(
-        `Relatório de ${relatorio.periodo} enviado para ${relatorio.recicladoraNome}: ${relatorio.totalItens} ${pluralizar(relatorio.totalItens, 'item marcado', 'itens marcados')} como descartados.`,
-      )
-      relatorios.recarregar()
-    } catch (falha) {
-      setEtapa('previa')
-      setErroEnvio(mensagemDeErro(falha))
-    } finally {
-      setEnviando(false)
-    }
-  }
 
   return (
     <>

@@ -32,6 +32,8 @@
 .entrada {
   flex: 1;
   min-width: 0;
+  min-height: 44px;
+  box-sizing: border-box;
   border: none;
   background: none;
   font-size: 0.9375rem;

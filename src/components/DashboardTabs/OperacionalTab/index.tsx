@@ -5,13 +5,14 @@ import { EstadoErro } from '../../EstadoErro'
 import { IndicadorInventario } from '../../IndicadorInventario'
 import { PesoMensal } from '../../PesoMensal'
 import { DonutChart } from '../../DonutChart'
+import { Button } from '../../Button'
 
 export function OperacionalTab() {
   const { resumo, descartes } = usePainelInventario()
   return (
     <section className={estilos.conteudo} aria-label="Painel operacional do inventário" data-estado={resumo.carregando || descartes.carregando ? 'carregando' : resumo.erro || descartes.erro ? 'erro' : 'sucesso'}>
       <p>Indicadores do inventário da unidade; os filtros da visão geral não se aplicam a esta seção.</p>
-      <button type="button" disabled={resumo.carregando || descartes.carregando} onClick={() => { resumo.recarregar(); descartes.recarregar() }}>Atualizar dados</button>
+      <Button variante="secundario" disabled={resumo.carregando || descartes.carregando} onClick={() => { resumo.recarregar(); descartes.recarregar() }}>Atualizar dados</Button>
       {(resumo.carregando || descartes.carregando) && <p role="status">Consultando inventário…</p>}
       {resumo.erro && <EstadoErro mensagem={resumo.erro} aoTentarNovamente={resumo.recarregar} />}
       {descartes.erro && <EstadoErro mensagem={descartes.erro} aoTentarNovamente={descartes.recarregar} />}

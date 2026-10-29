@@ -40,6 +40,7 @@
 
 .texto {
   background: none;
+  min-height: 44px;
   padding: var(--sp-1) var(--sp-2);
   border-radius: var(--sp-2);
   font-size: 0.875rem;
@@ -76,6 +77,7 @@
 
 .item {
   width: 100%;
+  min-height: 44px;
   text-align: left;
   background: none;
   border: none;

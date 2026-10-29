@@ -34,6 +34,10 @@
 }
 
 .linkItem {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding-inline: var(--sp-1);
   color: var(--texto);
   font-weight: 500;
   text-decoration: none;

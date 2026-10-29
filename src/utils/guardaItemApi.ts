@@ -15,6 +15,9 @@ export function ehItemApi(valor: unknown): valor is ItemResponse {
     && (valor.condition === null || ehTexto(valor.condition))
 }
 export function lerItemApi(valor: unknown): ItemResponse {
-  if (!ehItemApi(valor)) throw new ApiError('Não conseguimos ler os dados do item. Tente novamente.', 0)
-  return valor
+  if (!ehObjeto(valor)) throw new ApiError('Não conseguimos ler os dados do item. Tente novamente.', 0)
+  const normalizado = { ...valor, displayCode: valor.displayCode ?? null, name: valor.name ?? null,
+    createdByName: valor.createdByName ?? null, createdBy: valor.createdBy ?? null, condition: valor.condition ?? null }
+  if (!ehItemApi(normalizado)) throw new ApiError('Não conseguimos ler os dados do item. Tente novamente.', 0)
+  return normalizado
 }

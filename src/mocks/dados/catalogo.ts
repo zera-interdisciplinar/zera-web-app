@@ -178,7 +178,6 @@ export const usuarios: Usuario[] = [
   },
 ]
 
-
 export const responsaveis: string[] = [
   'Gustavo Amex',
   'Natalia Flores',

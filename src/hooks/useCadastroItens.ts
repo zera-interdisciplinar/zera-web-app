@@ -1,19 +1,20 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
 import type { FormEvent, SetStateAction } from 'react'
-import { useRequisicao } from './useRequisicao'
-import { useToast } from './useToast'
-import { criarProduto, atualizarProduto, excluirProduto } from '../services/produtoService'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { modoDemonstracao } from '../services/apiReal'
+import { observarCatalogo } from '../services/catalogoEventos'
 import { criarItemReal, removerItemReal } from '../services/itemCadastroService'
 import { listarModelos } from '../services/modeloService'
-import { modoDemonstracao } from '../services/apiReal'
+import { atualizarProduto, criarProduto, excluirProduto } from '../services/produtoService'
 import { mensagemDeErro } from '../types/api'
 import type { CadastroItemReal, DanoItemReal } from '../types/cadastroItem'
+import type { EstadoFormularioItem, FormItem, RetornoCadastroItens } from '../types/formularioItem'
+import type { EstadoLocalCadastroItens } from '../types/controles/EstadoLocalCadastroItens'
 import type { Condicao, ProdutoDetalhado } from '../types/produto'
-import type { EstadoExclusaoItem, EstadoFormularioItem, FormItem, RetornoCadastroItens } from '../types/formularioItem'
-import { validarCadastroItemReal } from '../utils/validacaoItemReal'
 import { validarNovoProduto } from '../utils/validacao'
+import { validarCadastroItemReal } from '../utils/validacaoItemReal'
 import { usePermissoes } from './usePermissoes'
-import { observarCatalogo } from '../services/catalogoEventos'
+import { useRequisicao } from './useRequisicao'
+import { useToast } from './useToast'
 
 const FORM_INICIAL: FormItem = {
   nome: '', categoriaId: '', marca: '', condicao: '', modelId: '',
@@ -35,14 +36,33 @@ const ERROS_POR_CAMPO: Record<keyof FormItem, string[]> = {
 
 export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens {
   const { cadastrarItem: podeCadastrar, editarItem: podeEditar, excluirItem: podeExcluir } = usePermissoes()
-  const [criado, setCriado] = useState<ProdutoDetalhado | null>(null)
-  const [estado, setEstado] = useState<EstadoFormularioItem>(ESTADO_INICIAL)
-  const [exclusao, setExclusao] = useState<EstadoExclusaoItem>({ excluindo: null, processandoExclusao: false, erroExclusao: null })
+  const [estadoLocal, setEstadoLocal] = useState<EstadoLocalCadastroItens>(() => ({
+    criado: null,
+    estado: ESTADO_INICIAL,
+    exclusao: { excluindo: null, processandoExclusao: false, erroExclusao: null },
+  }))
+  const { criado, estado, exclusao } = estadoLocal
+  // Mantém os atualizadores estáveis para efeitos e consumidores do controle.
+  const { setCriado, setEstado, setExclusao } = useMemo(() => ({
+    setCriado: (valor: SetStateAction<EstadoLocalCadastroItens['criado']>) => setEstadoLocal(atual => {
+      const proximo = typeof valor === 'function' ? valor(atual.criado) : valor
+      return Object.is(atual.criado, proximo) ? atual : { ...atual, criado: proximo }
+    }),
+    setEstado: (valor: SetStateAction<EstadoLocalCadastroItens['estado']>) => setEstadoLocal(atual => {
+      const proximo = typeof valor === 'function' ? valor(atual.estado) : valor
+      return Object.is(atual.estado, proximo) ? atual : { ...atual, estado: proximo }
+    }),
+    setExclusao: (valor: SetStateAction<EstadoLocalCadastroItens['exclusao']>) => setEstadoLocal(atual => {
+      const proximo = typeof valor === 'function' ? valor(atual.exclusao) : valor
+      return Object.is(atual.exclusao, proximo) ? atual : { ...atual, exclusao: proximo }
+    }),
+  }), [])
   const [toast, mostrarToast] = useToast()
   const montado = useRef(false)
   const salvando = useRef(false)
   const removendo = useRef(false)
   const restaurarFoco = useRef(false)
+  // A referência estável evita reabrir a consulta em useRequisicao.
   const buscarModelos = useCallback((sinal: AbortSignal) => listarModelos(sinal), [])
   const modelos = useRequisicao(buscarModelos, !modoDemonstracao)
   useEffect(() => observarCatalogo(modelos.recarregar), [modelos.recarregar])
@@ -61,7 +81,9 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
     return () => cancelAnimationFrame(quadro)
   }, [exclusao.excluindo])
 
-  const abrirCadastro = useCallback(() => { if (podeCadastrar) setEstado({ ...ESTADO_INICIAL, modalAberto: true }) }, [podeCadastrar])
+  // Mantém a ação estável para os consumidores e efeitos que a recebem.
+  const abrirCadastro = useCallback(() => { if (podeCadastrar) setEstado({ ...ESTADO_INICIAL, modalAberto: true }) }, [podeCadastrar, setEstado])
+  // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const abrirEdicao = useCallback((produto: ProdutoDetalhado) => {
     if (!podeEditar) return
     const form: FormItem = {
@@ -70,7 +92,8 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
       usageIntensity: '', hasDamages: '', damages: '',
     }
     setEstado({ ...ESTADO_INICIAL, modalAberto: true, editando: produto, form, formInicial: form })
-  }, [podeEditar])
+  }, [podeEditar, setEstado])
+  // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const setForm = useCallback((atualizar: SetStateAction<FormItem>) => {
     if (salvando.current) return
     setEstado((atual) => {
@@ -80,17 +103,20 @@ export function useCadastroItens(aoAtualizar: () => void): RetornoCadastroItens 
       const erros = Object.fromEntries(Object.entries(atual.erros).filter(([campo]) => !errosRemovidos.has(campo)))
       return { ...atual, form, erros, erroEnvio: camposAlterados.length > 0 ? null : atual.erroEnvio }
     })
-  }, [])
+  }, [setEstado])
+  // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const setModalAberto = useCallback((aberto: boolean) => {
     if (!salvando.current) setEstado((atual) => ({ ...atual, modalAberto: aberto, confirmandoDescarte: false }))
-  }, [])
+  }, [setEstado])
+  // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const setConfirmandoDescarte = useCallback((confirmando: boolean) => {
     setEstado((atual) => ({ ...atual, confirmandoDescarte: confirmando }))
-  }, [])
+  }, [setEstado])
+  // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const setExcluindo = useCallback((item: ProdutoDetalhado | null) => {
     if (item && !podeExcluir) return
     if (!removendo.current) setExclusao({ excluindo: item, processandoExclusao: false, erroExclusao: null })
-  }, [podeExcluir])
+  }, [podeExcluir, setExclusao])
   const formularioSujo = (Object.keys(estado.form) as (keyof FormItem)[]).some((campo) => estado.form[campo] !== estado.formInicial[campo])
   function tentarFecharModal() {
     if (salvando.current) return

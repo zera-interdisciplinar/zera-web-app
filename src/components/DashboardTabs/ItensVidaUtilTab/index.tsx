@@ -1,14 +1,14 @@
-import { SeloDemonstracao } from './SeloDemonstracao'
-import type { FiltrosDashboard } from '../../types/dashboardAnalytics'
-import estilos from '../../../styles/components/DashboardTabs/ItensVidaUtilTab.module.css'
-import { useModelosDashboard } from '../../hooks/useDadosInventarioDashboard'
-import { DataTable } from '../DataTable'
-import { EstadoErro } from '../EstadoErro'
-import { formatarNumero } from '../../utils/formatarDashboard'
-import { GraficoDados } from '../GraficoDados'
-import { CondicoesDashboard } from '../CondicoesDashboard'
+import estilos from '../../../../styles/components/DashboardTabs/ItensVidaUtilTab.module.css'
+import { useModelosDashboard } from '../../../hooks/useDadosInventarioDashboard'
+import type { ItensVidaUtilTabProps } from '../../../types/componentes/ItensVidaUtilTab'
+import { formatarNumero } from '../../../utils/formatarDashboard'
+import { CondicoesDashboard } from '../../CondicoesDashboard'
+import { DataTable } from '../../DataTable'
+import { EstadoErro } from '../../EstadoErro'
+import { GraficoDados } from '../../GraficoDados'
+import { SeloDemonstracao } from '../SeloDemonstracao'
 
-export function ItensVidaUtilTab({ demo = false, ativo = false }: { demo?: boolean; filtros?: FiltrosDashboard; ativo?: boolean } = {}) {
+export function ItensVidaUtilTab({ demo = false, ativo = false }: ItensVidaUtilTabProps = {}) {
   const modelos = useModelosDashboard(ativo)
   return (
     <section className={estilos.sourceState} aria-labelledby="fonte-vida-util" data-estado={modelos.carregando ? 'carregando' : modelos.erro ? 'erro' : 'sucesso'}>

@@ -1,55 +1,19 @@
-import { Formulario } from '../../components/Formulario'
-import { useCallback, useState } from 'react'
+import estilos from '../../../styles/pages/ConfiguracoesPage/ConfiguracoesPage.module.css'
 import { Button } from '../../components/Button'
 import { EmptyState } from '../../components/EmptyState'
 import { EstadoErro } from '../../components/EstadoErro'
 import { FieldCard } from '../../components/FieldCard'
+import { Formulario } from '../../components/Formulario'
 import { PageHeader } from '../../components/PageHeader'
 import { Skeleton } from '../../components/Skeleton'
 import { Toast } from '../../components/Toast'
-import { useRequisicao } from '../../hooks/useRequisicao'
-import { useToast } from '../../hooks/useToast'
-import { usePermissoes } from '../../hooks/usePermissoes'
-import { obterConfiguracoes, salvarConfiguracoes } from '../../services/configuracaoService'
-import { mensagemDeErro } from '../../types/api'
-import type { Configuracoes } from '../../types/configuracao'
-import { validarConfiguracoes } from '../../utils/validacao'
-import type { ErrosDeCampo } from '../../utils/validacao'
-import estilos from '../../../styles/pages/ConfiguracoesPage/ConfiguracoesPage.module.css'
-
-interface EstadoFormulario {
-  diasLoteCritico: string | null
-  erros: ErrosDeCampo<Configuracoes>
-  salvando: boolean
-  erroEnvio: string | null
-}
+import { useConfiguracoes } from '../../hooks/useConfiguracoes'
 
 export default function ConfiguracoesPage() {
-  const permissoes = usePermissoes()
-  const buscar = useCallback((sinal: AbortSignal) => obterConfiguracoes(sinal), [])
-  const configuracoes = useRequisicao<Configuracoes>(buscar, permissoes.consultarConfiguracoes)
-  const [toast, mostrarToast] = useToast()
-  const [estado, setEstado] = useState<EstadoFormulario>({ diasLoteCritico: null, erros: {}, salvando: false, erroEnvio: null })
-  const diasLoteCritico = estado.diasLoteCritico ?? String(configuracoes.dados?.diasLoteCritico ?? '')
-
-  async function aoSalvar(evento: React.FormEvent<HTMLFormElement>) {
-    evento.preventDefault()
-    if (!permissoes.consultarConfiguracoes || estado.salvando) return
-    const validacao = validarConfiguracoes({ diasLoteCritico: Number(diasLoteCritico) })
-    setEstado((atual) => ({ ...atual, erros: validacao.erros, erroEnvio: null }))
-    if (!validacao.valido) return
-    setEstado((atual) => ({ ...atual, salvando: true }))
-    try {
-      await salvarConfiguracoes(validacao.dados)
-      mostrarToast('Prazo para lote crítico atualizado.')
-    } catch (falha: unknown) {
-      setEstado((atual) => ({ ...atual, erroEnvio: mensagemDeErro(falha) }))
-    } finally {
-      setEstado((atual) => ({ ...atual, salvando: false }))
-    }
-  }
+  const { permissoes, configuracoes, toast, estado, setEstado, diasLoteCritico, aoSalvar } = useConfiguracoes()
 
   if (!permissoes.consultarConfiguracoes) return <EmptyState nivelTitulo="h1" titulo="Configurações indisponíveis" descricao="As configurações desta unidade não estão disponíveis nesta área." />
+
   return <>
     <PageHeader titulo="Configurações" subtitulo="Defina o prazo dos alertas de lote crítico." />
     {configuracoes.carregando && <Skeleton descricao="Carregando os parâmetros do sistema." linhas={3} />}

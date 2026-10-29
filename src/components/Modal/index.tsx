@@ -1,6 +1,6 @@
+import { useCallback, useEffect, useRef } from 'react'
 import type { ModalProps } from '../../types/componentes/Modal'
 export type { ModalProps } from '../../types/componentes/Modal'
-import { useCallback, useEffect, useRef } from 'react'
 
 import { X } from 'lucide-react'
 import estilos from '../../../styles/components/Modal/Modal.module.css'
@@ -14,6 +14,7 @@ export function Modal({ aberto, titulo, aoFechar, children, larguraMaxima = 880 
   const fecharRef = useRef(aoFechar)
   useEffect(() => { fecharRef.current = aoFechar }, [aoFechar])
 
+  // Mantém um único listener de teclado durante cada abertura do diálogo.
   const aoTeclar = useCallback(
     (evento: KeyboardEvent) => {
       const abertos = document.querySelectorAll('[role="dialog"][aria-modal="true"]')

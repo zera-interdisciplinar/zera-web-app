@@ -1,14 +1,12 @@
-import { Formulario } from '../Formulario'
-import { Button } from '../Button'
-import { FieldCard } from '../FieldCard'
-import { Modal } from '../Modal'
-import { EstadoErro } from '../EstadoErro'
-import type { RetornoCadastroModelo } from '../../types/formularioModelo'
-import type { Categoria } from '../../types/categoria'
-import type { EstadoRequisicao } from '../../hooks/useRequisicao'
 import estilos from '../../../styles/pages/ModelosPage/ModelosPage.module.css'
+import type { CadastroModeloProps } from '../../types/componentes/CadastroModelo'
+import { Button } from '../Button'
+import { EstadoErro } from '../EstadoErro'
+import { FieldCard } from '../FieldCard'
+import { Formulario } from '../Formulario'
+import { Modal } from '../Modal'
 
-export function CadastroModelo({ cadastro, categorias }: { cadastro: RetornoCadastroModelo; categorias: EstadoRequisicao<Categoria[]> }) {
+export function CadastroModelo({ cadastro, categorias }: CadastroModeloProps) {
   const { materiais, modoDemonstracao, modalAberto, form, erros, enviando, erroEnvio, fechar, alterar, alternarMaterial, aoSalvar } = cadastro
   return (
       <Modal aberto={modalAberto} titulo="Adicionar modelo" aoFechar={fechar}>

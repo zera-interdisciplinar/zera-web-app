@@ -1,43 +1,25 @@
-import { CadastroModelo } from '../../components/CadastroModelo'
 import { useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import estilos from '../../../styles/pages/ModelosPage/ModelosPage.module.css'
 import { Button } from '../../components/Button'
-import { DataTable } from '../../components/DataTable'
+import { CadastroCategoria } from '../../components/CadastroCategoria'
+import { CadastroModelo } from '../../components/CadastroModelo'
 import type { Coluna } from '../../components/DataTable'
+import { DataTable } from '../../components/DataTable'
 import { EmptyState } from '../../components/EmptyState'
 import { EstadoErro } from '../../components/EstadoErro'
 import { PageHeader } from '../../components/PageHeader'
 import { SearchInput } from '../../components/SearchInput'
 import { Skeleton } from '../../components/Skeleton'
 import { Toast } from '../../components/Toast'
-import { useCategorias } from '../../hooks/useCategorias'
-import { useCadastroModelo } from '../../hooks/useCadastroModelo'
+import { useListaModelos } from '../../hooks/useListaModelos'
 import type { Modelo } from '../../types/modelo'
-import { pluralizar } from '../../utils/formatacao'
-import estilos from '../../../styles/pages/ModelosPage/ModelosPage.module.css'
-import { CadastroCategoria } from '../../components/CadastroCategoria'
 import { normalizarBusca } from '../../utils/busca'
+import { pluralizar } from '../../utils/formatacao'
 
 export default function ModelosPage() {
-  const categorias = useCategorias()
-  const [parametros, setParametros] = useSearchParams()
-  const busca = parametros.get('q') ?? ''
-  function setBusca(valor: string) { setParametros(valor ? { q: valor } : {}, { replace: true }) }
-  const cadastro = useCadastroModelo()
-  const { modelos, permitido, modoDemonstracao, toast, abrir, alterar } = cadastro
+  const { categorias, busca, setBusca, cadastro, modelos, permitido, modoDemonstracao, toast, abrir, alterar, visiveis } = useListaModelos()
 
-  const visiveis = useMemo<Modelo[]>(() => {
-    const dados = modelos.dados ?? []
-    const termo = normalizarBusca(busca)
-    if (termo.length === 0) return dados
-    return dados.filter(
-      (modelo) =>
-        normalizarBusca(modelo.nome).includes(termo) ||
-        normalizarBusca(modelo.fabricante).includes(termo) ||
-        normalizarBusca(modelo.categoriaNome ?? '').includes(termo),
-    )
-  }, [modelos.dados, busca])
-
+  // Preserva as definições da tabela enquanto o formulário é atualizado.
   const colunas = useMemo<Coluna<Modelo>[]>(
     () => [
       { titulo: 'Modelo', render: (modelo) => modelo.nome },

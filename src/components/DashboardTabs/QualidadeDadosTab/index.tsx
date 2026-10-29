@@ -1,13 +1,13 @@
-import { SeloDemonstracao } from './SeloDemonstracao'
-import type { DashboardSnapshot, FiltrosDashboard } from '../../types/dashboardAnalytics'
-import { DataTable } from '../DataTable'
-import { GraficoDados } from '../GraficoDados'
-import { Skeleton } from '../Skeleton'
-import estilos from '../../../styles/components/DashboardTabs/QualidadeDadosTab.module.css'
+import estilos from '../../../../styles/components/DashboardTabs/QualidadeDadosTab.module.css'
+import type { QualidadeDadosTabProps } from '../../../types/componentes/QualidadeDadosTab'
+import { DataTable } from '../../DataTable'
+import { GraficoDados } from '../../GraficoDados'
+import { Skeleton } from '../../Skeleton'
+import { SeloDemonstracao } from '../SeloDemonstracao'
 
 const gravidades: Record<string, string> = { HIGH: 'Alta', MEDIUM: 'Média', LOW: 'Baixa', CRITICAL: 'Crítica', high: 'Alta', medium: 'Média', low: 'Baixa', critical: 'Crítica' }
 
-export function QualidadeDadosTab({ demo = false, snapshot = null, aguardando = false }: { demo?: boolean; filtros?: FiltrosDashboard; snapshot?: DashboardSnapshot | null; aguardando?: boolean } = {}) {
+export function QualidadeDadosTab({ demo = false, snapshot = null, aguardando = false }: QualidadeDadosTabProps = {}) {
   if (!snapshot && aguardando) return <Skeleton descricao="Preparando os dados…" linhas={3} />
   return (
     <section className={estilos.semFonte} aria-labelledby="fonte-qualidade">

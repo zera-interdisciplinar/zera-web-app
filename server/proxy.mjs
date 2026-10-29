@@ -99,6 +99,52 @@ export function criarProxy({ administrative, inventory, analytics, apiKey, origi
           redirect: 'error',
           signal: abort.signal,
         })
+      if (rotaItem && !detalheItem && identidade?.role === 'EMPLOYEE' && response.ok) {
+        let pagina
+        try { pagina = await response.json() }
+        catch { responderErro(res, 502, 'Não foi possível verificar o responsável pelos itens.'); return }
+        if (!pagina || typeof pagina !== 'object' || !Array.isArray(pagina.content)
+          || !Number.isInteger(pagina.totalPages) || pagina.totalPages < 0 || pagina.totalPages > 1000) {
+          responderErro(res, 502, 'Não foi possível verificar o responsável pelos itens.'); return
+        }
+        const itens = [...pagina.content]
+        for (let numeroPagina = 1; numeroPagina < pagina.totalPages; numeroPagina += 1) {
+          const urlPagina = new URL(url)
+          urlPagina.searchParams.set('page', String(numeroPagina))
+          const respostaPagina = await fetch(urlPagina, { method: 'GET', headers, redirect: 'error', signal: abort.signal })
+          if (!respostaPagina.ok) {
+            const tipo = respostaPagina.headers.get('content-type')
+            if (tipo) res.setHeader('Content-Type', tipo)
+            res.writeHead(respostaPagina.status)
+            res.end(await respostaPagina.text())
+            return
+          }
+          let paginaSeguinte
+          try { paginaSeguinte = await respostaPagina.json() }
+          catch { responderErro(res, 502, 'Não foi possível verificar o responsável pelos itens.'); return }
+          if (!paginaSeguinte || typeof paginaSeguinte !== 'object' || !Array.isArray(paginaSeguinte.content)) {
+            responderErro(res, 502, 'Não foi possível verificar o responsável pelos itens.'); return
+          }
+          itens.push(...paginaSeguinte.content)
+        }
+        if (itens.some((item) => !item || typeof item.createdBy !== 'string' || !item.createdBy.trim())) {
+          responderErro(res, 502, 'Não foi possível verificar o responsável pelos itens.'); return
+        }
+        const itensDoFuncionario = itens.filter((item) => item.createdBy === identidade.id)
+        const paginaSegura = {
+          ...pagina,
+          content: itensDoFuncionario,
+          page: 0,
+          size: itensDoFuncionario.length,
+          totalElements: itensDoFuncionario.length,
+          totalPages: itensDoFuncionario.length > 0 ? 1 : 0,
+        }
+        clearTimeout(timeout)
+        res.setHeader('Content-Type', 'application/json')
+        res.writeHead(response.status)
+        res.end(JSON.stringify(paginaSegura))
+        return
+      }
         clearTimeout(timeout)
         if (detalheItem && identidade?.role === 'EMPLOYEE' && response.ok) {
           let item

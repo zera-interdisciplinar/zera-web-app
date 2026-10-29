@@ -1,5 +1,6 @@
 import { ApiError } from '../types/api'
-import type { ModelResponse } from '../types/apiReal'
+import { lerLista } from '../utils/guardasApi'
+import { ehMaterialApi, ehModeloApi } from '../utils/guardaModeloApi'
 import type { CadastroModeloReal, MaterialCatalogo } from '../types/cadastroModelo'
 import type { Modelo } from '../types/modelo'
 import { validarCadastroModeloReal } from '../utils/validacaoCadastroModelo'
@@ -9,7 +10,7 @@ import { mapearModelo } from './mapeadoresApi'
 
 export async function listarMateriais(sinal?: AbortSignal): Promise<MaterialCatalogo[]> {
   try {
-    return await requisitarApiReal<MaterialCatalogo[]>('inventory', '/api/v1/materials', { sinal, unidade: true })
+    return lerLista(await requisitarApiReal<unknown>('inventory', '/api/v1/materials', { sinal, unidade: true }), ehMaterialApi)
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível carregar os materiais.')
   }
@@ -22,9 +23,12 @@ export async function criarModeloReal(entrada: CadastroModeloReal): Promise<Mode
       const campo = Object.keys(validacao.erros)[0] as keyof CadastroModeloReal
       throw new ApiError(validacao.erros[campo] ?? 'Revise os dados do modelo.', 422, campo)
     }
-    return mapearModelo(await requisitarApiReal<ModelResponse>('inventory', '/api/v1/models', {
+    const resposta = await requisitarApiReal<unknown>('inventory', '/api/v1/models', {
       metodo: 'POST', corpo: validacao.dados, unidade: true,
-    }))
+    })
+    if (!ehModeloApi(resposta)) throw new ApiError('Não conseguimos confirmar o modelo recebido. Tente novamente.', 0)
+    const aprovacao = ['APPROVED', 'PENDING_APPROVAL', 'PENDING', 'REJECTED'].includes(resposta.approvalStatus) ? resposta.approvalStatus : 'Não informado'
+    return mapearModelo({ ...resposta, approvalStatus: aprovacao })
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível cadastrar o modelo.')
   }

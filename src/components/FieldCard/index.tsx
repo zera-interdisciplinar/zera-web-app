@@ -31,7 +31,12 @@ export function FieldCard({
 }: FieldCardProps) {
   const faixa = faixaDoCampo(id)
   const numeroDecimal = tipo === 'numero' && faixa.step !== 1
-  const descricao = [erro ? `${id}-erro` : '', tipo === 'numero' ? `${id}-ajuda` : ''].filter(Boolean).join(' ') || undefined
+  const valorNumerico = tipo === 'numero' && valor !== '' ? Number(valor.replace(',', '.')) : null
+  const erroLimite = valorNumerico !== null && Number.isFinite(valorNumerico) && valorNumerico < faixa.min
+    ? `O valor mínimo permitido é ${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 3 }).format(faixa.min)}.`
+    : undefined
+  const erroVisivel = erro ?? erroLimite
+  const descricao = [erroVisivel ? `${id}-erro` : '', tipo === 'numero' ? `${id}-ajuda` : ''].filter(Boolean).join(' ') || undefined
   function mudarNumero(texto: string) {
     const limitado = limitarNumero(texto, faixa)
     if (limitado !== null) aoMudar(limitado)
@@ -39,7 +44,7 @@ export function FieldCard({
   const idErro = `${id}-erro`
   const [senhaVisivel, setSenhaVisivel] = useState(false)
   const entradaRef = useRef<HTMLInputElement>(null)
-  const campoClassName = `${estilos.campo} ${modoLogin ? estilos.campoLogin : ''} ${erro ? estilos.invalido : ''}`
+  const campoClassName = `${estilos.campo} ${modoLogin ? estilos.campoLogin : ''} ${erroVisivel ? estilos.invalido : ''}`
 
   function alternarVisibilidade() {
     setSenhaVisivel((atual) => !atual)
@@ -98,8 +103,8 @@ export function FieldCard({
               type={tipo === 'senha' && senhaVisivel ? 'text' : numeroDecimal ? 'text' : TIPO_HTML[tipo]}
               value={valor}
               onChange={(evento) => aoMudar(evento.target.value)}
-              aria-invalid={erro ? true : undefined}
-              aria-describedby={erro ? idErro : undefined}
+              aria-invalid={erroVisivel ? true : undefined}
+              aria-describedby={erroVisivel ? idErro : undefined}
               maxLength={maxLength}
               placeholder={placeholder}
               autoComplete={autoComplete}
@@ -145,7 +150,7 @@ export function FieldCard({
             onDrop={(evento) => { if (tipo === 'numero') { evento.preventDefault(); mudarNumero(evento.dataTransfer.getData('text')) } }}
             onWheel={(evento) => { if (tipo === 'numero') evento.currentTarget.blur() }}
             onBlur={() => { if (tipo === 'numero' && valor !== '' && Number(valor) < faixa.min) aoMudar(String(faixa.min)) }}
-            aria-invalid={erro ? true : undefined}
+            aria-invalid={erroVisivel ? true : undefined}
             aria-describedby={descricao}
             maxLength={maxLength}
             placeholder={placeholder}
@@ -157,9 +162,9 @@ export function FieldCard({
       )}
 
       {tipo === 'numero' && <p id={`${id}-ajuda`}>{faixa.dica}</p>}
-      {erro && (
+      {erroVisivel && (
         <p className={estilos.erro} id={idErro} role="alert">
-          <span aria-hidden="true">⚠ </span>{erro}
+          <span aria-hidden="true">⚠ </span>{erroVisivel}
         </p>
       )}
     </div>

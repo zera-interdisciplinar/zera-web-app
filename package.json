@@ -10,9 +10,11 @@
     "preview": "node ./node_modules/vite/bin/vite.js preview",
     "lint": "node ./node_modules/eslint/bin/eslint.js .",
     "test": "node ./node_modules/vitest/vitest.mjs run --no-file-parallelism",
+    "test:coverage": "node ./node_modules/vitest/vitest.mjs run --coverage",
     "test:e2e": "node ./node_modules/@playwright/test/cli.js test --workers=1",
     "api:proxy": "node server/proxy.mjs",
-    "check": "node scripts/check-project.mjs"
+    "check": "node scripts/check-project.mjs",
+    "check:bundle": "node scripts/check-bundle.mjs"
   },
   "dependencies": {
     "@fontsource/atkinson-hyperlegible": "5.3.0",
@@ -38,6 +40,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "5.2.0",
+    "@vitest/coverage-v8": "^5.0.3",
     "axe-core": "^4.13.0",
     "eslint": "9.39.5",
     "eslint-plugin-react-hooks": "7.1.1",

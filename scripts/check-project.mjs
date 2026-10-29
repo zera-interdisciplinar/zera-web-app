@@ -1,6 +1,10 @@
 // Verifica estrutura TypeScript, limites de serviços e tokens do projeto.
 import { readdirSync, readFileSync } from 'node:fs'
+import { dirname, join, normalize } from 'node:path'
 import ts from 'typescript'
+
+/** Dependências permitidas entre features (quem importa > quem é importado). Modelos reaproveita o catálogo e os esquemas de itens. */
+const DEPENDENCIAS_ENTRE_FEATURES = new Set(['models>items'])
 
 function listar(pasta) {
   return readdirSync(pasta, { withFileTypes: true }).flatMap((entrada) => entrada.isDirectory() ? listar(`${pasta}/${entrada.name}`) : [`${pasta}/${entrada.name}`])
@@ -20,6 +24,18 @@ for (const arquivo of listar('src')) {
   if (/@ts-ignore\b/.test(texto)) problemas.push(`${arquivo}: supressão @ts-ignore`)
   // Camadas novas (docs/specs/web-manager-refactor.md, 5.2): shared não depende de features nem de app.
   if (arquivo.startsWith('src/shared/') && /from ['"](?:\.\.\/)+(?:features|app)\//.test(texto)) problemas.push(`${arquivo}: shared importa features ou app`)
+  // Fronteiras entre camadas (spec 5.2 / 12.1): features não importam app nem outras features, salvo as dependências declaradas.
+  const dono = /^src\/features\/([^/]+)\//.exec(arquivo)?.[1]
+  if (dono) {
+    for (const declaracao of codigo.statements) {
+      const especificador = (ts.isImportDeclaration(declaracao) || ts.isExportDeclaration(declaracao)) && declaracao.moduleSpecifier && ts.isStringLiteral(declaracao.moduleSpecifier) ? declaracao.moduleSpecifier.text : ''
+      if (!especificador.startsWith('.')) continue
+      const alvo = normalize(join(dirname(arquivo), especificador)).replaceAll('\\', '/')
+      const outra = /^src\/features\/([^/]+)(?:\/|$)/.exec(alvo)?.[1]
+      if (/^src\/(?:app|routes)(?:\/|$)/.test(alvo)) problemas.push(`${arquivo}: feature importa app ou routes (${especificador})`)
+      else if (outra && outra !== dono && !DEPENDENCIAS_ENTRE_FEATURES.has(`${dono}>${outra}`)) problemas.push(`${arquivo}: feature ${dono} importa a feature ${outra} (${especificador})`)
+    }
+  }
   if (arquivo.startsWith('src/') && /from ['"]msw(?:\/|['"])/.test(texto)) problemas.push(`${arquivo}: msw só é permitido em tests/`)
   if (vista && arquivo.endsWith('.tsx') && !arquivo.endsWith('/index.tsx')) problemas.push(`${arquivo}: componente sem pasta própria e index.tsx`)
   function visitar(no) {

@@ -1,4 +1,4 @@
-// Bloqueia arquivos privados e valores secretos no bundle publicado.
+// Bloqueia arquivos privados e valores secretos no bundle gerado por `npm run build`.
 import { readdirSync, readFileSync } from 'node:fs'
 import { loadEnv } from 'vite'
 
@@ -14,5 +14,5 @@ for (const file of files('dist')) {
   const content = readFileSync(file, 'utf8')
   if (secrets.some((secret) => content.includes(secret)) || /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY|gh[pousr]_[A-Za-z0-9]{30,}/.test(content)) issues.push(file)
 }
-if (issues.length) { console.error('Publicação bloqueada: configuração privada encontrada em', [...new Set(issues)].join(', ')); process.exitCode = 1 }
-else console.log('Publicação verificada: nenhum arquivo de ambiente ou valor privado no bundle.')
+if (issues.length) { console.error('Bundle bloqueado: configuração privada encontrada em', [...new Set(issues)].join(', ')); process.exitCode = 1 }
+else console.log('Bundle verificado: nenhum arquivo de ambiente ou valor privado.')

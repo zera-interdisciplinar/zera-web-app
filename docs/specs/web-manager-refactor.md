@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 | --- | --- |
-| Status | **Aprovada**: decisões de 31/10/2026 incorporadas (seção 13); resta a Q-15 (destino de publicação), que só bloqueia o PR 9 |
+| Status | **Aprovada**: decisões de 31/10/2026 incorporadas (seção 13); a Q-15 (publicação) foi respondida em 01/11/2026: o cluster é por conta de outra pessoa do time |
 | Data | 2026-10-31 |
 | Repositório | `zera-interdisciplinar/zera-web-app` (branch base `main` @ `45f7163`) |
 | Público | Quem vai implementar a reformulação (front-end) e quem revisa os PRs |
@@ -568,7 +568,7 @@ As preferências ficam em `localStorage['zera.a11y.v1']`, validadas por zod; pre
 | Código morto | [KpiCard](../../src/components/KpiCard/index.tsx), [ChartCard](../../src/components/DashboardTabs/ChartCard/index.tsx), [DashboardTabs/index.tsx](../../src/components/DashboardTabs/index.tsx), [usePreferenciasInventario.ts](../../src/hooks/usePreferenciasInventario.ts) |
 | Regras de lint que geram boilerplate | Em [check-project.mjs](../../scripts/check-project.mjs): "agrupe o estado relacionado", "useCallback/useMemo sem justificativa", "props precisam de interface em types" |
 | Testes do demo | `tests/dashboardDemo.test.ts`, `tests/demoUsers.test.ts`, `tests/envDemo.ts`, `tests/mocks/demoUsers.ts`, handlers MSW de rotas inexistentes (`/dashboard/summary`, `/alerts/batches`, `/disposal-reports`, `/settings`, `/maintenances`, `/triage`) |
-| GitHub Pages (**suspenso**, depende da Q-15) | Job `deploy`, build com `--base` e `VITE_ROUTER_MODE=hash` em [.github/workflows/pages.yml](../../.github/workflows/pages.yml); `HashRouter` em [App.tsx](../../src/App.tsx); [usePublicacao.ts](../../src/hooks/usePublicacao.ts); link do Pages no [README.md](../../README.md) |
+| GitHub Pages (**removido no PR 9**, D-13) | Job `deploy`, build com `--base` e `VITE_ROUTER_MODE=hash` em [.github/workflows/pages.yml](../../.github/workflows/pages.yml); `HashRouter` em [App.tsx](../../src/App.tsx); [usePublicacao.ts](../../src/hooks/usePublicacao.ts); link do Pages no [README.md](../../README.md) |
 
 A pasta `src/` inteira é migrada para a estrutura da 5.2. Lógica aproveitável é **portada e renomeada**, não copiada:
 
@@ -625,7 +625,7 @@ A pasta `src/` inteira é migrada para a estrutura da 5.2. Lógica aproveitável
 
 ### 12.3 CI
 
-`npm ci` → `check` → `lint` → `typecheck` → `test --coverage` → `build` → Playwright (projeto `mocked` sempre; projeto `live-qa` só com `ZERA_RUN_LIVE_QA=true` e secrets de conta gestor e conta funcionário — a de funcionário prova o BR-01 contra o QA). O deploy depende da Q-15.
+`npm ci` → `check` → `lint` → `typecheck` → `test --coverage` → `build` → Playwright (projeto `mocked` sempre; projeto `live-qa` só com `ZERA_RUN_LIVE_QA=true` e secrets de conta gestor e conta funcionário — a de funcionário prova o BR-01 contra o QA). O repositório não publica: o workflow só valida (D-13).
 
 ---
 
@@ -641,6 +641,7 @@ A pasta `src/` inteira é migrada para a estrutura da 5.2. Lógica aproveitável
 | D-04 | Card inferior do dashboard? | Proposta aceita: por categoria + por situação + alertas por gravidade, tudo do snapshot. |
 | D-05 | Sessão sobrevive a F5? | Sim, com o refresh token em `sessionStorage`; **encerrar sessão sempre via `POST /auth/logout`** (BR-20, BR-21). |
 | D-06 | Descontinuar o GitHub Pages? | **Superada por D-12/Q-15**: a opção era "só Vercel", e a Vercel saiu. O Pages permanece até a Q-15 ser respondida. |
+| D-13 | Publicação (Q-15) | Fora deste repositório: será no cluster, por outra pessoa do time. O PR 9 só removeu o que publicava (workflow do Pages, `HashRouter`, `check-publication`, que virou `check-bundle`) e deixou no README o que o cluster precisa (`dist/`, o proxy e suas variáveis). |
 | D-12 | Deploy na Vercel? | Não: foi um erro do colega. Removidos `api/proxy.ts`, `vercel.json`, o link e as variáveis `VERCEL_*`. |
 | D-07 | Barra de acessibilidade? | Mantida e corrigida (seção 10). |
 | D-08 | Filtros de `GET /items`? | Vale o código do `ms-inventory` (`q`, `status`, `categoryId`, `modelId`, `eligibleForDisposal`). Corrigir o Confluence pág. 3. |
@@ -653,7 +654,7 @@ A pasta `src/` inteira é migrada para a estrutura da 5.2. Lógica aproveitável
 
 | ID | Pergunta | Por que a documentação não resolve | Suposição padrão | Bloqueia |
 | --- | --- | --- | --- | --- |
-| **Q-15** | Onde o front será publicado, e quem injeta a `apiKey` do gateway Kong? Sem a Vercel, o GitHub Pages serve só arquivos estáticos e não pode guardar a chave. | O browser nunca deve conhecer a chave (BR-23); alguém precisa rodar o proxy. | Publicar `dist/` e `server/proxy.mjs` juntos em um host Node do time (ou atrás do Kong, que pode injetar a chave) | PR 9 |
+| **Q-15** (respondida: D-13) | Onde o front será publicado, e quem injeta a `apiKey` do gateway Kong? Sem a Vercel, o GitHub Pages serve só arquivos estáticos e não pode guardar a chave. | O browser nunca deve conhecer a chave (BR-23); alguém precisa rodar o proxy. | Publicar `dist/` e `server/proxy.mjs` juntos em um host Node do time (ou atrás do Kong, que pode injetar a chave) | PR 9 |
 
 Uma dúvida nova durante a implementação entra aqui como `Q-16` em diante, com suposição padrão e o PR que ela bloqueia.
 
@@ -715,6 +716,6 @@ Cada PR é mergeável sozinho e mantém a `main` verde.
 | 1 a 6 | Entregues | — |
 | 7 | Entregue | Desvios: sem clique na linha inteira (o link do nome abre o detalhe); intensidade de uso é um campo numérico, sem slider; o seletor de modelos mostra os 100 primeiros. As rotas seguem em português (`/itens`, `/modelos`, `/configuracoes`). |
 | 8 | Entregue | Aprovação de modelo é só leitura. Garantia e vida útil, uma vez informadas, só podem ser trocadas (a API não apaga). O código legado (`services/`, `utils/guarda*`, hooks e componentes de cadastro em português) foi removido; ficaram só os arquivos que os requisitos da disciplina leem. |
-| 9 | Pendente | CI com lint de fronteiras, cobertura e destino de publicação (Q-15). |
+| 9 | Entregue | CI só de validação (sem publicação), regra de fronteiras entre camadas no `check-project`, cobertura ≥ 80 % de linhas em `shared/` e `features/*/{schemas,model,api}` (componentes e hooks ficam com o Playwright). Sem plugin novo de lint: a regra de dependência vive em `scripts/check-project.mjs` (`models → items` é a única dependência entre features). |
 
 **Dashboard e o lote do BFF.** O `ms-analytics-bff` serve o último lote do cron (de hora em hora no QA), então os números nunca são ao vivo; a tela mostra de quando é o lote. Em 01/11/2026 o lote do gestor QA veio com `itens_cadastrados = 0` apesar de 25 itens no inventário da unidade: o pipeline do BFF perde os itens ao ligá-los à organização. É um problema do backend, não do front.

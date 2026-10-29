@@ -1,15 +1,17 @@
-name: Validate and publish Zera
+name: CI
 
+# Validation only. Publishing is handled outside this repository (cluster).
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: pages-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -26,19 +28,13 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run lint
-      - run: npm test
-      - run: npm run build -- --base=/zera-web-app/
-        env:
-          VITE_ROUTER_MODE: hash
-          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
-          VITE_ADMIN_API_URL: ${{ vars.VITE_ADMIN_API_URL }}
-          VITE_INVENTORY_API_URL: ${{ vars.VITE_INVENTORY_API_URL }}
-      - name: Check publication scope
-        run: node scripts/check-publication.mjs
-      - uses: actions/upload-pages-artifact@v3
-        if: github.ref == 'refs/heads/main'
-        with:
-          path: dist
+      - name: Type check
+        run: node ./node_modules/typescript/bin/tsc -b
+      - name: Unit tests with coverage (>= 80 % of lines in shared/ and features/*/{schemas,model,api})
+        run: npm run test:coverage
+      - run: npm run build
+      - name: No private values in the bundle
+        run: npm run check:bundle
 
   browser:
     needs: validate
@@ -60,19 +56,3 @@ jobs:
         with:
           name: browser-failure
           path: test-results
-
-  deploy:
-    if: github.ref == 'refs/heads/main'
-    needs: [validate, browser]
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/configure-pages@v5
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4

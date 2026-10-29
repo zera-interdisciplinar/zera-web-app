@@ -9,7 +9,7 @@ import { useToast } from '../../../hooks/useToast'
 import { describeApiError } from '../../../shared/api/errors'
 import { formatDateTime } from '../../../shared/format'
 import { TextField } from '../../../shared/ui/fields'
-import styles from '../../models/components/Models.module.css'
+import styles from './SettingsPage.module.css'
 import { useSaveUnitSettings, useUnitSettings } from '../hooks/useUnitSettings'
 import { settingsFormSchema, type SettingsFormInput, type SettingsFormValues, type UnitSettings } from '../schemas/settings'
 
@@ -41,7 +41,7 @@ export default function SettingsPage() {
       <PageHeader titulo="Configurações" subtitulo="Parâmetros da unidade." />
       <section className={`${styles.card} ${styles.setting}`} aria-labelledby="capacity-title">
         <h2 id="capacity-title" className={styles.cardTitle}>Capacidade do estoque</h2>
-        <div style={{ padding: '0 1.5rem 1rem' }}>
+        <div className={styles.body}>
           {settings.isPending && <Skeleton descricao="Carregando configurações…" linhas={2} />}
           {settings.isError && !data && <EstadoErro mensagem={describeApiError(settings.error)} aoTentarNovamente={() => void settings.refetch()} />}
           {data && (

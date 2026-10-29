@@ -1,4 +1,4 @@
-import { BrowserRouter, HashRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { AccessibilityPanel, AccessibilityProvider } from './shared/accessibility'
 import { navigationItems } from './app/navigation'
@@ -10,12 +10,11 @@ import { AppProviders } from './app/providers'
 const voiceRoutes = navigationItems.map((item) => ({ phrase: item.voice, path: item.path }))
 
 export function App() {
-  const Router = import.meta.env.VITE_ROUTER_MODE === 'hash' ? HashRouter : BrowserRouter
   return (
     <AppProviders>
-      <Router>
+      <BrowserRouter>
         <ConteudoApp />
-      </Router>
+      </BrowserRouter>
     </AppProviders>
   )
 }

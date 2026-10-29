@@ -91,7 +91,7 @@ export interface EventResponse {
 export interface DisposalResponse {
   id: string
   unitId: string
-  destination: 'RECYCLING' | 'LANDFILL' | 'DONATION'
+  destination: string
   placeId: string | null
   placeName: string | null
   disposedAt: string

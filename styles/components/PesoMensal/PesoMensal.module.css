@@ -9,3 +9,7 @@
 .listra { stroke: var(--branco); }
 .grade { stroke: var(--borda-controle); }
 .barra { fill: var(--azul); }
+.rolagem g[role="button"] { cursor: pointer; }
+.rolagem g[role="button"]:focus-visible { outline: 3px solid var(--navy); outline-offset: 2px; }
+.tooltipArea { min-height: 3rem; }
+.tooltip { margin: 0; color: var(--texto); background: var(--branco); border: 1px solid var(--borda-controle); border-radius: var(--r-controle); padding: var(--sp-2); }

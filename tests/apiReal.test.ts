@@ -52,6 +52,13 @@ describe('cliente das APIs reais', () => {
     expect(modoDemonstracao).toBe(false)
   })
 
+  it('não ativa mocks no desenvolvimento comum mesmo se a flag estiver ligada', async () => {
+    vi.stubEnv('MODE', 'development')
+    vi.stubEnv('VITE_USE_MSW', 'true')
+    const { modoDemonstracao } = await import('../src/services/apiReal')
+    expect(modoDemonstracao).toBe(false)
+  })
+
   it('recusa transporte HTTP remoto antes de chamar fetch', async () => {
     vi.stubEnv('VITE_ADMIN_API_URL', 'http://example.invalid/qa/administrative/swagger-ui')
     vi.stubGlobal('window', { location: { origin: 'http://localhost:5173' } })

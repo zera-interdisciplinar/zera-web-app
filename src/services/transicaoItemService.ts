@@ -1,5 +1,5 @@
 import { ApiError } from '../types/api'
-import type { ItemResponse } from '../types/apiReal'
+import { lerItemApi } from '../utils/guardaItemApi'
 import type { ProdutoDetalhado } from '../types/produto'
 import type { AcaoItemReal, DadosTransicaoItem } from '../types/transicaoItem'
 import { validarTransicaoItem } from '../utils/validacaoTransicaoItem'
@@ -20,9 +20,9 @@ export async function transicionarItemReal(id: number | string, acao: AcaoItemRe
     const corpo = acao === 'reject' || acao === 'maintenance/start'
       ? { reason: resultado.dados.reason }
       : acao === 'evaluate' ? { condition: resultado.dados.condition } : undefined
-    return mapearItem(await requisitarApiReal<ItemResponse>('inventory', `/api/v1/items/${encodeURIComponent(id)}/${acao}`, {
+    return mapearItem(lerItemApi(await requisitarApiReal<unknown>('inventory', `/api/v1/items/${encodeURIComponent(id)}/${acao}`, {
       metodo: 'POST', corpo, unidade: true, sinal,
-    }))
+    })))
   } catch (erro) {
     throw contextualizar(erro, 'Não foi possível atualizar o estado do item.')
   }

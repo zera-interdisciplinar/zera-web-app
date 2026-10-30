@@ -79,7 +79,7 @@ export interface DisposalIndicatorsResponse {
 export interface EventResponse {
   readonly id: string
   readonly itemId: string
-  readonly type: 'CREATED' | 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'MAINTENANCE_STARTED' | 'MAINTENANCE_FINISHED' | 'EVALUATED' | 'DISPOSED' | 'REMOVED' | 'RESTORED' | 'STATUS_CHANGED'
+  readonly type: string
   readonly fromStatus: ItemResponse['status'] | null
   readonly toStatus: ItemResponse['status'] | null
   readonly reason: string | null
@@ -104,7 +104,7 @@ export interface DisposalResponse {
 
 export interface UnitSettingsResponse {
   unitId: string
-  stockCapacity: number
+  stockCapacity: number | null
   configured: boolean
   updatedByName: string | null
   updatedAt: string | null

@@ -6,6 +6,14 @@ import DashboardPage from '../src/pages/DashboardPage'
 afterEach(() => vi.unstubAllEnvs())
 
 describe('dashboard de demonstração', () => {
+  it('não exibe demonstração no desenvolvimento comum mesmo com as flags ligadas', () => {
+    vi.stubEnv('MODE', 'development')
+    vi.stubEnv('VITE_USE_MSW', 'true')
+    vi.stubEnv('VITE_DASHBOARD_DEMO_MODE', 'true')
+    const tela = renderToStaticMarkup(createElement(DashboardPage, { demonstracao: true }))
+    expect(tela).not.toContain('DEMONSTRAÇÃO')
+    expect(tela).not.toContain('Registros fictícios')
+  })
   it('permite demonstração explícita com login real e MSW desligado', () => {
     vi.stubEnv('VITE_USE_MSW', 'false')
     const tela = renderToStaticMarkup(createElement(DashboardPage, { demonstracao: true }))

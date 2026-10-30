@@ -3,10 +3,16 @@ import type { AddressInfo } from 'node:net'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { criarProxy } from '../server/proxy.mjs'
 import analyticsHandler from '../api/proxy'
-import { configuracaoProxy, restaurarCaminhoProxy } from '../server/config.mjs'
+import { configuracaoProxy, portaProxy, restaurarCaminhoProxy } from '../server/config.mjs'
 import { readFileSync } from 'node:fs'
 
 const servidores: ReturnType<typeof createServer>[] = []
+it('usa a porta padrão quando a configuração está vazia e rejeita portas inválidas', () => {
+  expect(portaProxy('')).toBe(8787)
+  expect(portaProxy(undefined)).toBe(8787)
+  expect(portaProxy('18787')).toBe(18787)
+  for (const valor of ['0', '65536', 'abc', '8080.5']) expect(() => portaProxy(valor)).toThrow('Porta de proxy inválida')
+})
 async function iniciar(handler: Parameters<typeof createServer>[0]): Promise<string> {
   const server = createServer(handler)
   servidores.push(server)

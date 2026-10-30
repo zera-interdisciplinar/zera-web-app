@@ -49,7 +49,7 @@ it('Req 6: reducer atualiza o checklist sem alterar o estado anterior', () => {
 })
 
 it('Req 7: exhaustive-deps está configurado como erro', () => {
-  expect(ler('eslint.config.js')).toMatch(/['"]react-hooks\/exhaustive-deps['"]\s*:\s*['"]error['"]/) 
+  expect(ler('eslint.config.js')).toMatch(/['"]react-hooks\/exhaustive-deps['"]\s*:\s*['"]error['"]/)
 })
 
 it('Req 10: rota curinga renderiza página com botão de retorno', () => {

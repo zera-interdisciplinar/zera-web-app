@@ -44,9 +44,10 @@ describe('regressões de usabilidade', () => {
   })
   it('troca série zerada por estado vazio e oferece tabela quando há peso', () => {
     const vazio = renderToStaticMarkup(createElement(PesoMensal, { pontos: [{ month: '2026-10', weightKg: 0 }] }))
-    expect(vazio).toContain('Nenhum descarte registrado nos últimos 12 meses')
+    expect(vazio).toContain('Nenhum peso positivo registrado nos últimos 12 meses.')
     expect(vazio).not.toContain('<table')
     const preenchido = renderToStaticMarkup(createElement(PesoMensal, { pontos: [{ month: '2026-10', weightKg: 12.5 }] }))
+    expect(preenchido).toContain('<title>out/26: 12,5 kg</title>')
     expect(preenchido).toContain('Ver em tabela')
     expect(preenchido).toContain('12,5')
     expect(preenchido).toContain('scope="col"')

@@ -26,6 +26,11 @@ function prepararResposta(role: string) {
 }
 
 describe('autenticação real com respostas controladas, sem sessão backend comprovada', () => {
+  it.each([null, {}, [], { userId: 'u', accessToken: 'a', refreshToken: 'r', tokenType: 'Bearer', expiresIn: '300' }, { userId: 'u', accessToken: '', refreshToken: 'r', tokenType: 'Bearer', expiresIn: 300 }])('recusa resposta inválida de login %j', async resposta => {
+    fetchControlado.mockResolvedValueOnce(Response.json(resposta))
+    const { autenticar } = await import('../src/services/authService')
+    await expect(autenticar({ email: 'teste@example.invalid', senha: crypto.randomUUID() })).rejects.toThrow('Tente novamente')
+  })
   it('descarta sessão anterior quando uma nova tentativa de login falha', async () => {
     const { definirSessaoApi, requisitarApiReal } = await import('../src/services/apiReal')
     definirSessaoApi(crypto.randomUUID(), crypto.randomUUID())

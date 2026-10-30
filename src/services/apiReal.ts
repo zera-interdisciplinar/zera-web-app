@@ -1,5 +1,6 @@
 import { ApiError } from '../types/api'
 import { sanitizarObjeto } from '../utils/sanitizacao'
+import { ehPagina } from '../utils/guardasApi'
 import type { Pagina } from '../types/apiReal'
 
 type Recurso = 'administrative' | 'inventory'
@@ -146,9 +147,7 @@ export async function listarPaginas<T>(recurso: Recurso, caminho: string, sinal?
   while (pagina < total) {
     const separador = caminho.includes('?') ? '&' : '?'
     const resposta = await requisitarApiReal<Pagina<T>>(recurso, `${caminho}${separador}page=${pagina}&size=20`, { sinal, unidade: recurso === 'inventory' })
-    if (!Array.isArray(resposta.content) || !Number.isInteger(resposta.totalPages) || resposta.totalPages < 0) {
-      throw new ApiError('Paginação inválida recebida da API.', 0)
-    }
+    if (!ehPagina(resposta)) throw new ApiError('Paginação inválida recebida da API. Tente novamente.', 0)
     itens.push(...resposta.content)
     if (!Number.isInteger(resposta.totalElements) || resposta.totalElements < 0
       || (quantidadeEsperada !== undefined && quantidadeEsperada !== resposta.totalElements)

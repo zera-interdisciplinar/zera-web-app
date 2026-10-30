@@ -2,6 +2,8 @@ import type { CategoryResponse, ItemResponse, ModelResponse } from '../types/api
 import type { Categoria } from '../types/categoria'
 import type { Modelo } from '../types/modelo'
 import type { Condicao, ProdutoDetalhado, StatusItem } from '../types/produto'
+import { ApiError } from '../types/api'
+import { interpretarData } from '../utils/formatacao'
 
 const status: Record<ItemResponse['status'], StatusItem> = {
   DRAFT: 'rascunho',
@@ -47,15 +49,16 @@ export function mapearModelo(dado: ModelResponse): Modelo {
 }
 
 export function mapearItem(dado: ItemResponse): ProdutoDetalhado {
-  const criado = Date.parse(dado.createdAt)
-  const dias = Number.isFinite(criado) ? Math.max(0, Math.floor((Date.now() - criado) / 86_400_000)) : 0
+  const criado = interpretarData(dado.createdAt).getTime()
+  if (!Number.isFinite(criado)) throw new ApiError('Não conseguimos ler a data de cadastro do item. Tente novamente.', 0)
+  const dias = Math.max(0, Math.floor((Date.now() - criado) / 86_400_000))
   return {
     id: dado.id,
     nome: dado.name ?? dado.model?.name ?? 'Item sem nome',
     categoriaId: dado.model?.category.id ?? '',
     categoriaNome: dado.model?.category.name ?? 'Não informada',
     marca: dado.model?.manufacturer ?? 'Não informada',
-    condicao: dado.condition ? condicoes[dado.condition] : 'nao-informada',
+    condicao: dado.condition ? (condicoes[dado.condition] ?? 'nao-informada') : 'nao-informada',
     codigoBarras: dado.barcode,
     codigoExibicao: dado.displayCode,
     responsavel: dado.createdByName ?? 'Não informado',
@@ -64,7 +67,7 @@ export function mapearItem(dado: ItemResponse): ProdutoDetalhado {
     atualizacao: dado.updatedAt,
     classificacao: null,
     statusTriagem: dado.status === 'DISPOSED' ? 'descartado' : 'aguardando',
-    status: status[dado.status],
+    status: status[dado.status] ?? 'nao-informado',
     diasEmEstoque: dias,
   }
 }

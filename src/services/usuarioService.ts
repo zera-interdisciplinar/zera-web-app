@@ -4,6 +4,42 @@ import { modoDemonstracao, requisitarApiReal } from './apiReal'
 import { ehUsuarioApi } from '../utils/guardaUsuarioApi'
 import { lerLista } from '../utils/guardasApi'
 
+const cacheNomesUsuarios = new Map<string, Promise<string | null>>()
+
+export function limparCacheNomesUsuarios(): void {
+  cacheNomesUsuarios.clear()
+}
+
+export function buscarNomeUsuario(id: string): Promise<string | null> {
+  const usuarioId = id.trim()
+  if (!usuarioId) return Promise.resolve(null)
+
+  const nomeEmCache = cacheNomesUsuarios.get(usuarioId)
+  if (nomeEmCache) return nomeEmCache
+
+  const consulta = (async (): Promise<string | null> => {
+    try {
+      const pessoa = await requisitarApiReal<unknown>(
+        'administrative',
+        `/api/v1/users/${encodeURIComponent(usuarioId)}`,
+      )
+      if (!ehUsuarioApi(pessoa) || pessoa.userId !== usuarioId) return null
+      return pessoa.name.trim() || null
+    } catch {
+      return null
+    }
+  })()
+
+  cacheNomesUsuarios.set(usuarioId, consulta)
+  return consulta
+}
+
+export async function buscarNomesUsuarios(ids: readonly string[]): Promise<Map<string, string>> {
+  const unicos = [...new Set(ids.map((id) => id.trim()).filter(Boolean))]
+  const resultados = await Promise.all(unicos.map(async (id) => [id, await buscarNomeUsuario(id)] as const))
+  return new Map(resultados.filter((resultado): resultado is readonly [string, string] => resultado[1] !== null))
+}
+
 export async function listarUsuarios(sinal?: AbortSignal): Promise<Usuario[]> {
   try {
     if (!modoDemonstracao) {

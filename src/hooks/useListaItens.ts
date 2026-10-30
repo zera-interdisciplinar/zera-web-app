@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { buscarNomesUsuarios } from '../services/usuarioService'
 import type { FiltroItens, ProdutoDetalhado, StatusItem } from '../types/produto'
 import { ROTULO_STATUS } from '../types/produto'
 import { normalizarBusca } from '../utils/busca'
@@ -38,6 +39,30 @@ export function useListaItens() {
   const responsavelDaUrl = parametros.get('responsavel')
   const periodoDaUrl = parametros.get('periodo')
 
+  const idsCriadores = useMemo(() => [...new Set(
+    (produtos.dados ?? [])
+      .filter((produto) => produto.responsavel === 'Não informado' && produto.criadoPorId)
+      .map((produto) => produto.criadoPorId)
+      .filter((id): id is string => typeof id === 'string' && id.trim().length > 0),
+  )], [produtos.dados])
+  const [nomesResponsaveis, setNomesResponsaveis] = useState<Map<string, string>>(() => new Map())
+
+  useEffect(() => {
+    if (!mostrarResponsavel || idsCriadores.length === 0) return
+
+    let ativo = true
+    void buscarNomesUsuarios(idsCriadores).then((nomes) => {
+      if (ativo) setNomesResponsaveis(nomes)
+    })
+    return () => { ativo = false }
+  }, [mostrarResponsavel, idsCriadores])
+
+  const produtosComResponsaveis = useMemo(() => (produtos.dados ?? []).map((produto) => {
+    if (produto.responsavel !== 'Não informado' || !produto.criadoPorId) return produto
+    const nome = nomesResponsaveis.get(produto.criadoPorId)
+    return nome ? { ...produto, responsavel: nome } : produto
+  }), [produtos.dados, nomesResponsaveis])
+
   // Evita recalcular o valor enquanto suas dependências permanecem iguais.
   const filtro = useMemo<FiltroItens>(() => ({
     busca: parametros.get('q') ?? '',
@@ -59,7 +84,7 @@ export function useListaItens() {
 
   // Filtra novamente apenas quando os dados ou o termo de busca mudam.
   const visiveis = useMemo<ProdutoDetalhado[]>(() => {
-    const dados = produtos.dados ?? []
+    const dados = produtosComResponsaveis
     const termo = normalizarBusca(filtro.busca)
 
     return dados.filter((produto) => {
@@ -79,7 +104,7 @@ export function useListaItens() {
         normalizarBusca(produto.categoriaNome).includes(termo)
       )
     })
-  }, [produtos.dados, filtro, categoriaDaUrl, responsavelDaUrl, periodoDaUrl])
+  }, [produtosComResponsaveis, filtro, categoriaDaUrl, responsavelDaUrl, periodoDaUrl])
   return {
     mostrarResponsavel,
     permissoes,

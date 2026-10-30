@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ValorAuth } from '../context/auth'
 import { definirSessaoApi, observarExpiracaoSessao } from '../services/apiReal'
 import { autenticar, limparRenovacaoSessao, mensagemErroLogin, renovarSessao } from '../services/authService'
+import { limparCacheNomesUsuarios } from '../services/usuarioService'
 import { ApiError } from '../types/api'
 import type { EstadoLocalSessaoAuth } from '../types/controles/EstadoLocalSessaoAuth'
 import type { Credenciais, Perfil } from '../types/usuario'
@@ -37,6 +38,7 @@ export function useSessaoAuth() {
 
   // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const entrar = useCallback(async (credenciais: Credenciais): Promise<'autenticado' | 'credenciais-invalidas' | 'falha'> => {
+    limparCacheNomesUsuarios()
     setEntrando(true)
     setErro(null)
     try {
@@ -55,6 +57,7 @@ export function useSessaoAuth() {
 
   // Mantém a ação estável para os consumidores e efeitos que a recebem.
   const sair = useCallback(() => {
+    limparCacheNomesUsuarios()
     limparRenovacaoSessao()
     definirSessaoApi(null, null)
     setUsuario(null)

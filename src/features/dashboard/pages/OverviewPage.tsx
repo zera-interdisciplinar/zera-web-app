@@ -77,8 +77,8 @@ export default function OverviewPage() {
           <section className={styles.kpis} aria-label="Indicadores gerais">
             <KpiCard title="Itens cadastrados" value={formatCount(snapshot.kpis.itens_cadastrados.value)} icon={<Archive />} iconTone="navy"
               note={change(formatSignedPercent(snapshot.kpis.itens_cadastrados.change_percent), snapshot.kpis.itens_cadastrados.change_percent, 'no período')} />
-            <KpiCard title="Taxa de reciclagem" value={formatPercent(snapshot.kpis.taxa_reciclagem.percent, 0)} icon={<Recycle />} iconTone="green"
-              note={change(formatSignedPoints(snapshot.kpis.taxa_reciclagem.change_points), snapshot.kpis.taxa_reciclagem.change_points, 'no período')} noteTone="green" />
+            <KpiCard title="Taxa de reciclagem" value={formatPercent(snapshot.kpis.taxa_reciclagem.percent, 2, true)} icon={<Recycle />} iconTone="green"
+              note={change(formatSignedPoints(snapshot.kpis.taxa_reciclagem.change_points, 2, true), snapshot.kpis.taxa_reciclagem.change_points, 'no período')} noteTone="green" />
             <KpiCard title="Aguardando aprovação" value={formatCount(snapshot.kpis.aguardando_aprovacao.value)} icon={<TriangleAlert />} iconTone="amber" noteTone="amber"
               note={<Link to="/itens?status=PENDING_APPROVAL">{formatCount(snapshot.kpis.aguardando_aprovacao.prioritarios)} prioritários</Link>} />
             <KpiCard title="Impacto recuperado" value={impact.value} icon={<Leaf />} iconTone="navy" note={`Materiais recuperados · ${impact.detail}`} />

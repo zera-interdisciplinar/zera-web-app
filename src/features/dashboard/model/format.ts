@@ -3,13 +3,14 @@ import { NOT_AVAILABLE } from '../../../shared/format'
 export { formatRelativeTime, NOT_AVAILABLE } from '../../../shared/format'
 
 const integer = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 })
-const decimal = (digits: number) => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: digits })
+/** `fixed` keeps the zeros (68,00), otherwise they are dropped (68). */
+const decimal = (digits: number, fixed = false) => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: fixed ? digits : 0, maximumFractionDigits: digits })
 
 export const formatCount = (value: number): string => integer.format(value)
 
 /** `null` is "no way to compute", not zero (BR-08): it prints a dash. */
-export function formatPercent(value: number | null, digits = 1): string {
-  return value === null ? NOT_AVAILABLE : `${decimal(digits).format(value)}%`
+export function formatPercent(value: number | null, digits = 1, fixed = false): string {
+  return value === null ? NOT_AVAILABLE : `${decimal(digits, fixed).format(value)}%`
 }
 
 export function formatSignedPercent(value: number | null, digits = 1): string {
@@ -17,9 +18,9 @@ export function formatSignedPercent(value: number | null, digits = 1): string {
   return `${value > 0 ? '+' : value < 0 ? '−' : ''}${decimal(digits).format(Math.abs(value))}%`
 }
 
-export function formatSignedPoints(value: number | null, digits = 1): string {
+export function formatSignedPoints(value: number | null, digits = 1, fixed = false): string {
   if (value === null) return NOT_AVAILABLE
-  return `${value > 0 ? '+' : value < 0 ? '−' : ''}${decimal(digits).format(Math.abs(value))} p.p.`
+  return `${value > 0 ? '+' : value < 0 ? '−' : ''}${decimal(digits, fixed).format(Math.abs(value))} p.p.`
 }
 
 /** Tonnes from one tonne up, kilograms below it, so a small impact does not read as zero. */

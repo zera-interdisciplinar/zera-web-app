@@ -100,6 +100,9 @@ describe('formatting (BR-08)', () => {
     expect(formatSignedPercent(null)).toBe('—')
     expect(formatSignedPoints(null)).toBe('—')
     expect(formatPercent(0)).toBe('0%')
+    expect(formatPercent(68, 2, true)).toBe('68,00%')
+    expect(formatPercent(66.666, 2, true)).toBe('66,67%')
+    expect(formatPercent(null, 2, true)).toBe('—')
     expect(formatSignedPercent(0)).toBe('0%')
   })
 
@@ -107,6 +110,8 @@ describe('formatting (BR-08)', () => {
     expect(formatSignedPercent(12.4)).toBe('+12,4%')
     expect(formatSignedPercent(-2.15)).toBe('−2,2%')
     expect(formatSignedPoints(4.5)).toBe('+4,5 p.p.')
+    expect(formatSignedPoints(4.5, 2, true)).toBe('+4,50 p.p.')
+    expect(formatSignedPoints(-0.126, 2, true)).toBe('−0,13 p.p.')
     expect(formatCount(1230)).toBe('1.230')
   })
 

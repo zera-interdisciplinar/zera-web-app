@@ -1,0 +1,5 @@
+title = "Zera: regras padrão"
+[extend]
+useDefault = true
+# Exceções restritas a regra, arquivo, commit e linha estão em .gitleaksignore.
+# .env.example: atribuições vazias. scripts/verificar_fontes.py: nomes de variáveis.

@@ -1,0 +1,9 @@
+# Somente atribuições vazias históricas em .env.example.
+f70b64f0599061909c7c172482c01fa60ff79f17:.env.example:generic-api-key:17
+ed65dc05425adf4dce43e1fe9e12a5a99e12e020:.env.example:generic-api-key:17
+2dfb90659a270f5e64d84ecf11fff11ac5fff158:.env.example:generic-api-key:16
+30097baa509b0ba64ca2f5f12f4c86cea323aaab:.env.example:generic-api-key:18
+# Somente nomes de variáveis no script histórico de verificação.
+f70b64f0599061909c7c172482c01fa60ff79f17:scripts/verificar_fontes.py:generic-api-key:10
+ed65dc05425adf4dce43e1fe9e12a5a99e12e020:scripts/verificar_fontes.py:generic-api-key:10
+2dfb90659a270f5e64d84ecf11fff11ac5fff158:scripts/verificar_fontes.py:generic-api-key:10

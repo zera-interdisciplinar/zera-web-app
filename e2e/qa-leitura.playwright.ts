@@ -89,7 +89,7 @@ for (const site of [
           await page.getByRole('tab', { name: aba, exact: true }).press('Enter')
           await expect(page.getByRole('tabpanel')).toBeVisible()
           await expect(page.getByRole('tabpanel').locator('[data-estado="carregando"]')).toHaveCount(0, { timeout: 200_000 })
-          if (['Visão geral', 'Evolução e movimentações', 'Qualidade dos dados e alertas'].includes(aba)) await expect(page.locator('[data-estado="sucesso"], [data-estado="erro"], [data-estado="indisponivel"]')).toBeVisible({ timeout: 200_000 })
+          if (['Visão geral', 'Evolução e movimentações', 'Qualidade dos dados e alertas'].includes(aba)) await expect(page.locator('div[data-estado="sucesso"], div[data-estado="erro"], div[data-estado="indisponivel"]')).toBeVisible({ timeout: 200_000 })
           await conferir('painel-' + aba.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\W+/g, '-'), largura)
         }
       }

@@ -9,6 +9,8 @@ import { MateriaisSustentabilidadeTab } from '../DashboardTabs/MateriaisSustenta
 import { OperacionalTab } from '../DashboardTabs/OperacionalTab'
 import { QualidadeDadosTab } from '../DashboardTabs/QualidadeDadosTab'
 import { VisaoGeralTab } from '../DashboardTabs/VisaoGeralTab'
+import { DistribuicaoInventario } from '../DistribuicaoInventario'
+import { CadastrosInventario } from '../CadastrosInventario'
 import { EstadoErro } from '../EstadoErro'
 import { PageHeader } from '../PageHeader'
 const abas = [
@@ -99,9 +101,9 @@ export function PainelGestao({ pessoal = false }: PainelGestaoProps) {
 
       <div id={`painel-${aba}`} role="tabpanel" aria-labelledby={`aba-${aba}`} className={estilos.painel}>
         {aba === 'operational' && <OperacionalTab />}
-        {aba === 'overview' && <VisaoGeralTab snapshot={snapshot} aguardando={!erro && !indisponivel} />}
+        {aba === 'overview' && <><OperacionalTab /><DistribuicaoInventario /><VisaoGeralTab snapshot={snapshot} aguardando={!erro && !indisponivel} /></>}
         {aba === 'life' && <ItensVidaUtilTab ativo />}
-        {aba === 'evolution' && <EvolucaoMovimentacoesTab snapshot={snapshot} aguardando={!erro && !indisponivel} />}
+        {aba === 'evolution' && <><CadastrosInventario /><EvolucaoMovimentacoesTab snapshot={snapshot} aguardando={!erro && !indisponivel} /></>}
         {aba === 'quality' && <QualidadeDadosTab snapshot={snapshot} aguardando={!erro && !indisponivel} />}
         {aba === 'materials' && <MateriaisSustentabilidadeTab ativo />}
       </div>

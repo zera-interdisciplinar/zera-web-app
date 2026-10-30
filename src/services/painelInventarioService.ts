@@ -1,5 +1,6 @@
 import { ApiError } from '../types/api'
 import { requisitarApiReal } from './apiReal'
+import { contextualizar } from './http'
 
 export interface ResumoOperacional {
   activeItems: number
@@ -46,12 +47,19 @@ function indicadoresValidos(valor: unknown): valor is IndicadoresDescarte {
 }
 
 export async function obterResumoOperacional(sinal?: AbortSignal): Promise<ResumoOperacional> {
-  const valor = await requisitarApiReal<unknown>('inventory', '/api/v1/dashboard/home', { sinal, unidade: true })
-  if (!resumoValido(valor)) throw new ApiError('O resumo do inventário não corresponde ao contrato esperado.', 0)
-  return valor
+  try {
+    const valor = await requisitarApiReal<unknown>('inventory', '/api/v1/dashboard/home', { sinal, unidade: true })
+    const normalizado = objeto(valor) ? { ...valor, activeItemsChangePercent: valor.activeItemsChangePercent ?? null } : valor
+    if (!resumoValido(normalizado)) throw new ApiError('O resumo do inventário não corresponde ao contrato esperado. Tente novamente.', 0)
+    return normalizado
+  } catch (erro) { throw contextualizar(erro, 'Não foi possível carregar o resumo do inventário.') }
 }
 export async function obterIndicadoresDescarte(sinal?: AbortSignal): Promise<IndicadoresDescarte> {
-  const valor = await requisitarApiReal<unknown>('inventory', '/api/v1/dashboard/indicators', { sinal, unidade: true })
-  if (!indicadoresValidos(valor)) throw new ApiError('Os indicadores de descarte não correspondem ao contrato esperado.', 0)
-  return valor
+  try {
+    const valor = await requisitarApiReal<unknown>('inventory', '/api/v1/dashboard/indicators', { sinal, unidade: true })
+    const normalizado = objeto(valor) ? { ...valor, recyclingRatePercent: valor.recyclingRatePercent ?? null,
+      recyclingRateChangePoints: valor.recyclingRateChangePoints ?? null, totalWeightChangePercent: valor.totalWeightChangePercent ?? null } : valor
+    if (!indicadoresValidos(normalizado)) throw new ApiError('Os indicadores de descarte não correspondem ao contrato esperado. Tente novamente.', 0)
+    return normalizado
+  } catch (erro) { throw contextualizar(erro, 'Não foi possível carregar os indicadores de descarte.') }
 }

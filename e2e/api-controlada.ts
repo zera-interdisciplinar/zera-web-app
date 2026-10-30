@@ -25,8 +25,8 @@ export async function preparar(page: Page, role = 'MANAGER', peso = 0, endereco 
     const corpo = post ? req.postDataJSON() : undefined
     if (post) escritas.push({ caminho, corpo })
     else leituras.push(caminho)
-    if (caminho === '/api/v1/auth/login') return route.fulfill({ json: { userId: pessoa, accessToken: 'sessao-sintetica', refreshToken: 'renovacao-sintetica', expiresIn: 3600 } })
-    if (caminho === `/api/v1/users/${pessoa}`) return route.fulfill({ json: { userId: pessoa, unitId: unidade, name: 'Pessoa local', email: 'pessoa@example.invalid', role } })
+    if (caminho === '/api/v1/auth/login') return route.fulfill({ json: { userId: pessoa, accessToken: 'sessao-sintetica', refreshToken: 'renovacao-sintetica', tokenType: 'Bearer', expiresIn: 3600 } })
+    if (caminho === `/api/v1/users/${pessoa}`) return route.fulfill({ json: { userId: pessoa, unitId: unidade, name: 'Pessoa local', email: 'pessoa@example.invalid', role, status: 'ACTIVE' } })
     if (caminho === '/api/v1/categories') {
       if (post) { const nova = { id: crypto.randomUUID(), unitId: unidade, ...corpo }; categorias.push(nova); return route.fulfill({ status: 201, json: nova }) }
       return route.fulfill({ json: categorias })

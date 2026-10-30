@@ -39,7 +39,7 @@ jobs:
           VITE_INVENTORY_API_URL: ${{ vars.VITE_INVENTORY_API_URL }}
       - name: Check publication scope
         run: node scripts/check-publication.mjs
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         with:
           path: dist

@@ -140,26 +140,31 @@ export async function requisitarApiReal<T>(recurso: Recurso, caminho: string, op
 }
 
 export async function listarPaginas<T>(recurso: Recurso, caminho: string, sinal?: AbortSignal): Promise<T[]> {
-  const itens: T[] = []
-  let pagina = 0
-  let total = 1
-  let quantidadeEsperada: number | undefined
-  while (pagina < total) {
-    const separador = caminho.includes('?') ? '&' : '?'
-    const resposta = await requisitarApiReal<Pagina<T>>(recurso, `${caminho}${separador}page=${pagina}&size=20`, { sinal, unidade: recurso === 'inventory' })
-    if (!ehPagina(resposta)) throw new ApiError('Paginação inválida recebida da API. Tente novamente.', 0)
-    itens.push(...resposta.content)
-    if (!Number.isInteger(resposta.totalElements) || resposta.totalElements < 0
-      || (quantidadeEsperada !== undefined && quantidadeEsperada !== resposta.totalElements)
-      || (pagina > 0 && total !== resposta.totalPages)
-      || (resposta.content.length === 0 && pagina + 1 < resposta.totalPages)) {
-      throw new ApiError('Não conseguimos carregar a lista completa. Tente novamente.', 0)
+  try {
+    const itens: T[] = []
+    let pagina = 0
+    let total = 1
+    let quantidadeEsperada: number | undefined
+    while (pagina < total) {
+      const separador = caminho.includes('?') ? '&' : '?'
+      const resposta = await requisitarApiReal<Pagina<T>>(recurso, `${caminho}${separador}page=${pagina}&size=20`, { sinal, unidade: recurso === 'inventory' })
+      if (!ehPagina(resposta)) throw new ApiError('Paginação inválida recebida da API. Tente novamente.', 0)
+      itens.push(...resposta.content)
+      if (!Number.isInteger(resposta.totalElements) || resposta.totalElements < 0
+        || (quantidadeEsperada !== undefined && quantidadeEsperada !== resposta.totalElements)
+        || (pagina > 0 && total !== resposta.totalPages)
+        || (resposta.content.length === 0 && pagina + 1 < resposta.totalPages)) {
+        throw new ApiError('Não conseguimos carregar a lista completa. Tente novamente.', 0)
+      }
+      quantidadeEsperada = resposta.totalElements
+      total = resposta.totalPages
+      pagina += 1
+      if (pagina > 1000) throw new ApiError('A lista excede o limite seguro de paginação.', 0)
     }
-    quantidadeEsperada = resposta.totalElements
-    total = resposta.totalPages
-    pagina += 1
-    if (pagina > 1000) throw new ApiError('A lista excede o limite seguro de paginação.', 0)
+    if (itens.length !== quantidadeEsperada) throw new ApiError('A lista recebida está incompleta. Tente novamente.', 0)
+    return itens
+  } catch (erro) {
+    if (erro instanceof ApiError || (erro instanceof DOMException && erro.name === 'AbortError')) throw erro
+    throw new ApiError('Não foi possível carregar a lista. Tente novamente.', 0)
   }
-  if (itens.length !== quantidadeEsperada) throw new ApiError('A lista recebida está incompleta. Tente novamente.', 0)
-  return itens
 }

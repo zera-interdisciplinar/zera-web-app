@@ -94,3 +94,18 @@ test('recuperação valida formato e domínio sem afirmar envio', async ({ page 
   const axeRecovery = await new AxeBuilder({ page }).analyze()
   expect(axeRecovery.violations.filter((item) => item.impact === 'critical' || item.impact === 'serious').map((item) => item.id)).toEqual([])
 })
+
+for (const caminho of ['/login', '/esqueci-senha', '/rota-inexistente']) {
+  test(`página pública ${caminho} tem landmarks e navegação por teclado`, async ({ page }) => {
+    await page.goto(`${baseReal}${caminho}`)
+    await expect(page.locator('header')).toBeVisible()
+    await expect(page.getByRole('navigation', { name: 'Navegação de acesso' })).toBeVisible()
+    await expect(page.locator('main')).toBeVisible()
+    await expect(page.locator('footer')).toBeVisible()
+    await page.getByRole('link', { name: 'Recuperar acesso' }).focus()
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/\/esqueci-senha$/)
+    const resultado = await new AxeBuilder({ page }).analyze()
+    expect(resultado.violations.map(item => item.id)).toEqual([])
+  })
+}

@@ -5,7 +5,6 @@ import { Button } from '../../components/Button'
 import { FieldCard } from '../../components/FieldCard'
 import { Formulario } from '../../components/Formulario'
 import { Logo } from '../../components/Logo'
-import { SkipLink } from '../../components/SkipLink'
 import { useRecuperarSenha } from '../../hooks/useRecuperarSenha'
 
 export default function RecuperarSenhaPage() {
@@ -13,7 +12,6 @@ export default function RecuperarSenhaPage() {
 
   return (
     <>
-      <SkipLink />
       <main className={estilos.pagina} id="conteudo" tabIndex={-1}>
         <section className={estilos.cartao} aria-labelledby="titulo-recuperacao">
           <Logo />

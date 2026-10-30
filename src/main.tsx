@@ -18,6 +18,6 @@ function preparar() {
   )
 }
 
-if (import.meta.env.DEV && import.meta.env.VITE_USE_MSW === 'true') {
+if (import.meta.env.DEV && import.meta.env.MODE === 'test' && import.meta.env.VITE_USE_MSW === 'true') {
   void import('./mocks/browser').then(({ worker }) => worker.start({ onUnhandledRequest: 'bypass' })).then(preparar)
 } else preparar()

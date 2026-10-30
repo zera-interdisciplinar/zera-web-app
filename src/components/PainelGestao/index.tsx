@@ -23,7 +23,7 @@ function labelConexao(estado: string): string {
   const labels: Record<string, string> = {
     connecting: 'Preparando os dados…',
     connected: 'Dados atualizados',
-    reconnecting: 'Reconectando ao dashboard',
+    reconnecting: 'Preparando os dados…',
     unavailable: 'Dados indisponíveis',
     error: 'Dados indisponíveis',
   }

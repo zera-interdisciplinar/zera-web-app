@@ -102,6 +102,8 @@ for (const caminho of ['/login', '/esqueci-senha', '/rota-inexistente']) {
     await expect(page.getByRole('navigation', { name: 'Navegação de acesso' })).toBeVisible()
     await expect(page.locator('main')).toBeVisible()
     await expect(page.locator('footer')).toBeVisible()
+    const antes = await new AxeBuilder({ page }).analyze()
+    expect(antes.violations.map(item => item.id)).toEqual([])
     await page.getByRole('link', { name: 'Recuperar acesso' }).focus()
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/\/esqueci-senha$/)

@@ -40,7 +40,7 @@ test('contrato real com respostas controladas: loading, snapshot, filtros e logo
     const snapshot = structuredClone(dashboardSnapshotMock)
     snapshot.batch_id = `teste-controlado-${period}`
     snapshot.organization.name = 'Organização de teste controlado'
-    snapshot.kpis.itens_cadastrados.value = period === '30d' ? 12 : 47
+    snapshot.alertas.abertos = period === '30d' ? 12 : 47
     snapshot.kpis.itens_cadastrados.change_percent = null
     snapshot.kpis.taxa_reciclagem.percent = null
     snapshot.kpis.taxa_reciclagem.change_points = null
@@ -49,18 +49,18 @@ test('contrato real com respostas controladas: loading, snapshot, filtros e logo
   })
   const token = await entrarComApiControlada(page)
   await page.getByRole('tab', { name: 'Visão geral', exact: true }).click()
-  await expect(page.locator('[data-estado="carregando"]')).toBeVisible()
+  await expect(page.locator('div[data-estado="carregando"]')).toBeVisible()
   liberar()
-  await expect(page.locator('[data-estado="sucesso"]')).toBeVisible()
+  await expect(page.locator('div[data-estado="sucesso"]')).toBeVisible()
   await expect(page.getByText(/^Atualização:/)).toBeVisible()
-  const itens = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Itens cadastrados', exact: true }) })
-  await expect(itens).toContainText('47')
+  const alertas = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Alertas registrados', exact: true }) })
+  await expect(alertas).toContainText('47')
   await expect(page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Circularidade (%)', exact: true }) })).toContainText('—')
   await expect(page.getByText('DEMONSTRAÇÃO', { exact: true })).toHaveCount(0)
   await expect(page.locator('label[for="filtro-painel-period"]')).toHaveCount(1)
   await expect(page.getByLabel('Período', { exact: true })).toHaveAttribute('id', 'filtro-painel-period')
   await page.getByLabel('Período', { exact: true }).selectOption('30d')
-  await expect(itens).toContainText('12')
+  await expect(alertas).toContainText('12')
   expect(requests.some((request) => request.period === '30d')).toBe(true)
   expect(requests.every((request) => request.auth === `Bearer ${token}`)).toBe(true)
   await page.getByRole('button', { name: /^Perfil de / }).click()
@@ -78,8 +78,8 @@ for (const status of [401, 403, 503]) {
     if (status === 401) {
       await expect(page).toHaveURL(/\/login$/)
     } else {
-      await expect(page.locator('[data-estado="erro"]')).toBeVisible()
-      await expect(page.getByRole('alert').filter({ hasText: status === 403 ? 'Seu perfil não tem acesso a este painel.' : 'Não conseguimos carregar agora.' })).toBeVisible()
+      await expect(page.locator('div[data-estado="erro"]')).toBeVisible()
+      await expect(page.locator('div[data-estado="erro"] > [role="alert"]').filter({ hasText: status === 403 ? 'Seu perfil não tem acesso a este painel.' : 'Não conseguimos carregar agora.' })).toBeVisible()
     }
     await expect(page.getByText('DEMONSTRAÇÃO', { exact: true })).toHaveCount(0)
   })

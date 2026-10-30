@@ -12,16 +12,16 @@ export function EvolucaoMovimentacoesTab({ demo = false, snapshot = null, aguard
       <h2 id="fonte-evolucao">Evolução e movimentações</h2>
       {demo && <SeloDemonstracao />}
       {snapshot && snapshot.itens_por_mes.length > 0 ? <DataTable
-        legenda="Cadastros e encaminhamentos por mês" dados={snapshot.itens_por_mes} chave={(ponto) => ponto.mes}
+        legenda={demo ? 'Cadastros e encaminhamentos por mês' : 'Encaminhamentos por mês'} dados={snapshot.itens_por_mes} chave={(ponto) => ponto.mes}
         colunas={[
           { titulo: 'Mês', render: (ponto) => ponto.mes },
-          { titulo: 'Cadastrados', numerica: true, render: (ponto) => ponto.cadastrados },
+          ...(demo ? [{ titulo: 'Cadastrados', numerica: true, render: (ponto: typeof snapshot.itens_por_mes[number]) => ponto.cadastrados }] : []),
           { titulo: 'Encaminhados', numerica: true, render: (ponto) => ponto.encaminhados },
         ]}
       /> : <p>Ainda não há dados para exibir aqui.</p>}
-      {snapshot && <GraficoDados demo={demo} titulo="Evolução mensal dos cadastros" eixo="Mês" unidade="itens" vazio="Nenhum cadastro contabilizado neste período." pontos={snapshot.itens_por_mes.map(p => ({ rotulo: p.mes, valor: p.cadastrados }))} />}
+      {demo && snapshot && <GraficoDados demo titulo="Evolução mensal dos cadastros" eixo="Mês" unidade="itens" vazio="Nenhum cadastro contabilizado neste período." pontos={snapshot.itens_por_mes.map(p => ({ rotulo: p.mes, valor: p.cadastrados }))} />}
       {snapshot && <GraficoDados demo={demo} titulo="Encaminhamentos por mês" eixo="Mês" unidade="itens" vazio="Nenhum encaminhamento contabilizado neste período." pontos={snapshot.itens_por_mes.map(p => ({ rotulo: p.mes, valor: p.encaminhados }))} />}
-      <p>O histórico detalhado de eventos e movimentações ainda não está disponível.</p>
+      <p>Encaminhamentos informados pela origem de movimentações. O histórico detalhado de eventos ainda não está disponível.</p>
     </section>
   )
 }

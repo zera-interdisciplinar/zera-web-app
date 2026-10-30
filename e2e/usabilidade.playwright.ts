@@ -99,7 +99,7 @@ test('funcionário: só itens próprios, sem nomes alheios, inclusive no painel 
 
 for (const peso of [0, 12.5]) test(`painel com peso ${peso}, modo foco, navegação e 320 px`, async ({ page }) => {
   await preparar(page, 'MANAGER', peso)
-  if (peso === 0) await expect(page.getByText('Nenhum descarte registrado nos últimos 12 meses')).toBeVisible()
+  if (peso === 0) await expect(page.getByText('Nenhum peso positivo registrado nos últimos 12 meses.')).toBeVisible()
   else { await expect(page.getByRole('img', { name: /Peso mensal/ })).toBeVisible(); await page.getByText('Ver em tabela').click(); await expect(page.getByRole('cell', { name: '12,5', exact: true })).toBeVisible() }
   await page.evaluate(() => document.documentElement.dataset.modoFoco = 'ativo')
   for (const nome of ['Itens', 'Modelos', 'Locais de reciclagem', 'Descartes']) {

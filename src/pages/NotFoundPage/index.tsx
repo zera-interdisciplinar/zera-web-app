@@ -7,7 +7,7 @@ export default function NotFoundPage() {
   const navegar = useNavigate()
 
   return (
-    <><a className="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a><main className={estilos.pagina} id="conteudo" tabIndex={-1}>
+    <><main className={estilos.pagina} id="conteudo" tabIndex={-1}>
       <section className={estilos.cartao} aria-labelledby="titulo-404">
         <Logo variante="marca" />
         <h1 className="titulo-pagina" id="titulo-404">

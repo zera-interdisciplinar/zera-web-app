@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import { AppShell } from '../components/AppShell'
 import { CarregandoPagina } from '../components/CarregandoPagina'
 import { PrivateRoute } from '../components/PrivateRoute'
+import { EstruturaPublica } from '../components/EstruturaPublica'
 
 const LoginPage = lazy(() => import('../pages/LoginPage'))
 const RecuperarSenhaPage = lazy(() => import('../pages/RecuperarSenhaPage'))
@@ -22,9 +23,12 @@ export function AppRoutes() {
   return (
     <Suspense fallback={<CarregandoPagina />}>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        {import.meta.env.DEV && <Route path="/demonstracao" element={<DashboardPage demonstracao />} />}
-        <Route path="/esqueci-senha" element={<RecuperarSenhaPage />} />
+        <Route element={<EstruturaPublica />}>
+          <Route path="/login" element={<LoginPage />} />
+          {import.meta.env.DEV && <Route path="/demonstracao" element={<DashboardPage demonstracao />} />}
+          <Route path="/esqueci-senha" element={<RecuperarSenhaPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
         <Route
           element={
             <PrivateRoute>
@@ -65,7 +69,6 @@ export function AppRoutes() {
           />
         </Route>
 
-        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   )

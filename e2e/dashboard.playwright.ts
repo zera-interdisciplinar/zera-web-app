@@ -57,6 +57,8 @@ test('contrato real com respostas controladas: loading, snapshot, filtros e logo
   await expect(itens).toContainText('47')
   await expect(page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Circularidade (%)', exact: true }) })).toContainText('—')
   await expect(page.getByText('DEMONSTRAÇÃO', { exact: true })).toHaveCount(0)
+  await expect(page.locator('label[for="filtro-painel-period"]')).toHaveCount(1)
+  await expect(page.getByLabel('Período', { exact: true })).toHaveAttribute('id', 'filtro-painel-period')
   await page.getByLabel('Período', { exact: true }).selectOption('30d')
   await expect(itens).toContainText('12')
   expect(requests.some((request) => request.period === '30d')).toBe(true)

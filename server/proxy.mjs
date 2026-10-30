@@ -4,7 +4,7 @@ import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { readFileSync } from 'node:fs'
 import { parseEnv } from 'node:util'
-import { configuracaoProxy, origemPermitida, validarBaseProxy } from './config.mjs'
+import { configuracaoProxy, origemPermitida, portaProxy, validarBaseProxy } from './config.mjs'
 
 /**
  * @param {{ administrative?: string, inventory?: string, analytics?: string, apiKey?: string, origins?: string[] }} options
@@ -97,8 +97,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     catch (error) { if (error.code !== 'ENOENT') throw error }
   }
   env = { ...env, ...process.env }
-  const port = Number(env.ZERA_PROXY_PORT ?? 8787)
-  if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('Porta de proxy inválida')
+  const port = portaProxy(env.ZERA_PROXY_PORT)
   const proxy = criarProxy(configuracaoProxy(env))
   createServer(proxy).listen(port, '127.0.0.1', () => process.stdout.write(`Proxy ZERA disponível em http://127.0.0.1:${port}\n`))
 }

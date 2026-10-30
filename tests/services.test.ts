@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { dashboardSnapshotMock, respostaSse } from '../src/mocks/dashboardSseFixture'
+import { dashboardSnapshotMock, respostaSse } from './fixtures/dashboardSseFixture'
 
 let busca: ReturnType<typeof vi.fn>
 beforeEach(async () => {

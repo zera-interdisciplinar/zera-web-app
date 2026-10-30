@@ -1,4 +1,4 @@
-import type { Perfil } from '../types/usuario'
+import type { Perfil } from '../../src/types/usuario'
 
 interface ConfiguracaoUsuarioDemo {
   chave: string

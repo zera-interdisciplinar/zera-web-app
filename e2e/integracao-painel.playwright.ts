@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { preparar } from './api-controlada'
-import { dashboardSnapshotMock } from '../src/mocks/dashboardSseFixture'
+import { dashboardSnapshotMock } from '../tests/fixtures/dashboardSseFixture'
 
 test('o Funcionário pode consultar os indicadores agregados sem filtro de outras pessoas', async ({ page }) => {
   await preparar(page, 'EMPLOYEE')

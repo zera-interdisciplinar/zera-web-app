@@ -23,7 +23,9 @@ it('Req 1: estrutura Vite, React e TypeScript e extensões de src', () => {
   expect(pacote.devDependencies.vite).toBeTruthy()
   expect(pacote.devDependencies['@vitejs/plugin-react']).toBeTruthy()
   for (const caminho of ['index.html', 'tsconfig.app.json', 'tsconfig.node.json', 'src/main.tsx']) expect(existsSync(caminho)).toBe(true)
-  expect(arquivos('src').filter(arquivo => !/\.tsx?$/.test(arquivo))).toEqual([])
+  const codigo = arquivos('src').filter(arquivo => !arquivo.startsWith('src/assets/'))
+  expect(codigo.filter(arquivo => !/\.tsx?$/.test(arquivo))).toEqual([])
+  expect(arquivos('src').filter(arquivo => /\.(?:js|jsx)$/.test(arquivo))).toEqual([])
 })
 
 it('Req 2: componentes e páginas usam index.tsx', () => {

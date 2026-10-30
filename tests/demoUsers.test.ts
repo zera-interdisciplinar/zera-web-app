@@ -30,7 +30,7 @@ afterEach(() => {
 describe('autenticação demo por ambiente', () => {
   it('aceita os três usuários configurados e converte ADMIN para gestor', async () => {
     const credenciais = credenciaisDemoConfiguradas()
-    const { autenticarUsuarioDemo } = await import('../src/config/demoUsers')
+    const { autenticarUsuarioDemo } = await import('./mocks/demoUsers')
     const resultados = credenciais.map(({ email, senha }) => autenticarUsuarioDemo(email, senha))
 
     expect(resultados.map((resultado) => resultado.tipo)).toEqual([
@@ -54,7 +54,7 @@ describe('autenticação demo por ambiente', () => {
     vi.stubEnv('VITE_DEMO_USER_1_ROLE', 'ADMIN')
     vi.stubEnv('VITE_DEMO_USER_1_NAME', 'Admin de teste')
     vi.resetModules()
-    const { autenticarUsuarioDemo } = await import('../src/config/demoUsers')
+    const { autenticarUsuarioDemo } = await import('./mocks/demoUsers')
 
     expect(autenticarUsuarioDemo(email, senha)).toMatchObject({
       tipo: 'autenticado',
@@ -63,7 +63,7 @@ describe('autenticação demo por ambiente', () => {
   })
 
   it('recusa domínio externo e usuário não cadastrado', async () => {
-    const { autenticarUsuarioDemo } = await import('../src/config/demoUsers')
+    const { autenticarUsuarioDemo } = await import('./mocks/demoUsers')
 
     expect(autenticarUsuarioDemo('fora@exemplo.invalid', '').tipo).toBe('credenciais-invalidas')
     expect(autenticarUsuarioDemo('nao-cadastrado@zera.com', '').tipo).toBe('credenciais-invalidas')
@@ -73,7 +73,7 @@ describe('autenticação demo por ambiente', () => {
     const email = env.VITE_DEMO_USER_1_EMAIL ?? ''
     vi.stubEnv('VITE_DEMO_USER_1_NAME', '')
     vi.resetModules()
-    const { autenticarUsuarioDemo } = await import('../src/config/demoUsers')
+    const { autenticarUsuarioDemo } = await import('./mocks/demoUsers')
 
     expect(autenticarUsuarioDemo(email, '').tipo).toBe('credenciais-invalidas')
   })
@@ -86,7 +86,7 @@ describe('autenticação demo por ambiente', () => {
     vi.stubEnv('VITE_DEMO_USER_1_NAME', 'Usuário de teste')
     vi.stubEnv('VITE_DEMO_USER_1_ROLE', '')
     vi.resetModules()
-    const { autenticarUsuarioDemo } = await import('../src/config/demoUsers')
+    const { autenticarUsuarioDemo } = await import('./mocks/demoUsers')
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     expect(autenticarUsuarioDemo(email, senha).tipo).toBe('perfil-invalido')
@@ -96,7 +96,7 @@ describe('autenticação demo por ambiente', () => {
     vi.stubEnv('VITE_DEMO_USER_1_ROLE', 'UNKNOWN_ROLE')
     vi.resetModules()
     const segundoAviso = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-    const recarregado = await import('../src/config/demoUsers')
+    const recarregado = await import('./mocks/demoUsers')
     expect(recarregado.autenticarUsuarioDemo(email, senha).tipo).toBe('perfil-invalido')
     expect(segundoAviso).toHaveBeenCalledWith('VITE_DEMO_USER_1_ROLE')
     expect(JSON.stringify(segundoAviso.mock.calls)).not.toContain('UNKNOWN_ROLE')
@@ -107,7 +107,7 @@ describe('autenticação demo por ambiente', () => {
     const email = env.VITE_DEMO_USER_1_EMAIL ?? ''
     vi.stubEnv('VITE_DEMO_USER_1_PASSWORD', 'PREENCHER_NO_VSCODE')
     vi.resetModules()
-    const { autenticarUsuarioDemo } = await import('../src/config/demoUsers')
+    const { autenticarUsuarioDemo } = await import('./mocks/demoUsers')
 
     expect(autenticarUsuarioDemo(email, 'PREENCHER_NO_VSCODE').tipo).toBe('credenciais-invalidas')
   })

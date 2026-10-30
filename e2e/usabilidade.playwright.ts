@@ -133,13 +133,12 @@ test.describe('gráfico de peso em tela sensível ao toque', () => {
   })
 })
 
-test('demonstração pública permanece identificada e isolada', async ({ page }) => {
+test('rota de demonstração não apresenta dados fictícios', async ({ page }) => {
   await page.route('https://**/*', (route) => route.abort())
   await page.goto('http://127.0.0.1:5183/demonstracao')
-  await expect(page.getByRole('heading', { name: 'Painel de demonstração' })).toBeVisible()
-  await expect(page.getByText('DEMONSTRAÇÃO', { exact: true }).first()).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Página não encontrada' })).toBeVisible()
+  await expect(page.getByText('DEMONSTRAÇÃO', { exact: true })).toHaveCount(0)
   await axe(page)
-  await page.screenshot({ path: 'test-results/demonstracao.png', fullPage: true })
 })
 
 test('busca de itens fica na URL e não herda filtros invisíveis de outra sessão', async ({ page }) => {

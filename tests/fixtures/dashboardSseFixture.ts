@@ -1,4 +1,4 @@
-import type { DashboardMockVisaoGeral, DashboardSnapshot } from '../types/dashboardAnalytics'
+import type { DashboardMockVisaoGeral, DashboardSnapshot } from '../../src/types/dashboardAnalytics'
 
 // Valores sintéticos, criados para demonstração e sem relação com registros reais ou com as imagens.
 export const dashboardSnapshotMock: DashboardSnapshot = {

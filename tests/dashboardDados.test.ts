@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { expect, it } from 'vitest'
 import { EvolucaoMovimentacoesTab } from '../src/components/DashboardTabs/EvolucaoMovimentacoesTab'
 import { QualidadeDadosTab } from '../src/components/DashboardTabs/QualidadeDadosTab'
-import { dashboardSnapshotMock } from '../src/mocks/dashboardSseFixture'
+import { dashboardSnapshotMock } from './fixtures/dashboardSseFixture'
 import { VisaoGeralTab } from '../src/components/DashboardTabs/VisaoGeralTab'
 import { GraficoDados } from '../src/components/GraficoDados'
 

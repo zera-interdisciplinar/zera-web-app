@@ -1,6 +1,6 @@
-import type { Manutencao } from '../../types/manutencao'
-import type { Classificacao, Condicao, Produto } from '../../types/produto'
-import { montarCodigoBarras } from '../../utils/formatacao'
+import type { Manutencao } from '../../../src/types/manutencao'
+import type { Classificacao, Condicao, Produto } from '../../../src/types/produto'
+import { montarCodigoBarras } from '../../../src/utils/formatacao'
 import { categorias, modelos, responsaveis } from './catalogo'
 
 function gerador(semente: number): () => number {

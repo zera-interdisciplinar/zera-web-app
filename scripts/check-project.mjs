@@ -1,3 +1,4 @@
+// Verifica estrutura TypeScript, limites de serviços e tokens do projeto.
 import { readdirSync, readFileSync } from 'node:fs'
 import ts from 'typescript'
 
@@ -25,7 +26,8 @@ for (const arquivo of listar('src')) {
     if (ts.isPropertyAccessExpression(no) && no.name.text === 'localStorage' && arquivo !== 'src/utils/storage.ts') problemas.push(`${arquivo}: localStorage fora de storage.ts`)
     if (ts.isIdentifier(no) && no.text === 'localStorage' && (!ts.isPropertyAccessExpression(no.parent) || no.parent.name !== no) && arquivo !== 'src/utils/storage.ts') problemas.push(`${arquivo}: localStorage fora de storage.ts`)
     if (ts.isJsxAttribute(no) && no.name.getText(codigo) === 'dangerouslySetInnerHTML') problemas.push(`${arquivo}: HTML externo`)
-    if (ts.isJsxAttribute(no) && no.name.getText(codigo) === 'key' && no.initializer && ts.isJsxExpression(no.initializer) && no.initializer.expression && ts.isIdentifier(no.initializer.expression) && ['index', 'i'].includes(no.initializer.expression.text)) problemas.push(`${arquivo}: key baseada em índice`)
+    if (ts.isJsxAttribute(no) && no.name.getText(codigo) === 'key' && no.initializer && ts.isJsxExpression(no.initializer) && no.initializer.expression && ts.isIdentifier(no.initializer.expression) && ['index', 'i', 'idx'].includes(no.initializer.expression.text)) problemas.push(`${arquivo}: key baseada em índice`)
+    if ((ts.isJsxOpeningElement(no) || ts.isJsxSelfClosingElement(no)) && no.tagName.getText(codigo) === 'div' && no.attributes.properties.some((propriedade) => ts.isJsxAttribute(propriedade) && propriedade.name.getText(codigo) === 'onClick')) problemas.push(`${arquivo}: ação em div; use button`)
     if ((ts.isJsxOpeningElement(no) || ts.isJsxSelfClosingElement(no)) && no.tagName.getText(codigo) === 'img' && !no.attributes.properties.some(p => ts.isJsxAttribute(p) && p.name.getText(codigo) === 'alt')) problemas.push(`${arquivo}: imagem sem alt`)
     if (ts.isImportDeclaration(no) && vista && ts.isStringLiteral(no.moduleSpecifier) && no.moduleSpecifier.text.includes('/services/')) problemas.push(`${arquivo}: vista acessa serviço`)
     if (ts.isCallExpression(no) && ts.isIdentifier(no.expression) && no.expression.text === 'useEffect' && (no.arguments.length !== 2 || !ts.isArrayLiteralExpression(no.arguments[1]))) problemas.push(`${arquivo}: efeito sem dependências explícitas`)

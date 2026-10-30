@@ -1,3 +1,4 @@
+# Fingerprints históricos permitidos, restritos à regra e arquivo indicados.
 # Somente atribuições vazias históricas em .env.example.
 f70b64f0599061909c7c172482c01fa60ff79f17:.env.example:generic-api-key:17
 ed65dc05425adf4dce43e1fe9e12a5a99e12e020:.env.example:generic-api-key:17

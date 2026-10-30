@@ -34,10 +34,11 @@ it('Req 2: componentes e páginas usam index.tsx', () => {
   }
 })
 
-it('Req 3: seis componentes não acessam serviços nem fetch', () => {
-  for (const nome of ['Button', 'DataTable', 'Modal', 'Skeleton', 'BarChart', 'PesoMensal']) {
+it('Req 3: seis componentes de apresentação não acessam serviços nem lógica assíncrona', () => {
+  for (const nome of ['Button', 'DataTable', 'EmptyState', 'EstadoErro', 'PageHeader', 'Skeleton']) {
     const texto = ler(`src/components/${nome}/index.tsx`)
     expect(texto).not.toMatch(/\bfetch\s*\(|from\s+['"][^'"]*\/services\//)
+    expect(texto).not.toMatch(/\buse(?:State|Effect|Reducer)\s*\(/)
   }
 })
 
@@ -48,6 +49,10 @@ it('Req 6: reducer atualiza o checklist sem alterar o estado anterior', () => {
   expect(inicial.checklist).toEqual({})
   expect(resultado.checklist).toEqual({ teste: true })
   expect(resultado).not.toBe(inicial)
+  const fontesDeEstado = [...arquivos('src/hooks'), ...arquivos('src/reducers')].filter(arquivo => /\.tsx?$/.test(arquivo))
+  const mutacoes = fontesDeEstado.filter(arquivo => /\.(?:push|splice|sort)\s*\(/.test(ler(arquivo)))
+  expect(mutacoes).toEqual([])
+  expect(ler('src/reducers/triagemReducer.ts')).not.toMatch(/\bestado\.[\w$]+\s*=(?!=)/)
 })
 
 it('Req 7: exhaustive-deps está configurado como erro', () => {
@@ -55,7 +60,11 @@ it('Req 7: exhaustive-deps está configurado como erro', () => {
 })
 
 it('Req 10: rota curinga renderiza página com botão de retorno', () => {
-  expect(ler('src/routes/AppRoutes.tsx')).toMatch(/path="\*"\s+element=\{<NotFoundPage\s*\/>\}/)
+  const rotas = ler('src/routes/AppRoutes.tsx')
+  expect((rotas.match(/<Route\b/g) ?? []).length).toBeGreaterThanOrEqual(3)
+  expect(rotas).toMatch(/path="\*"\s+element=\{<NotFoundPage\s*\/>\}/)
+  expect(arquivos('src').some(arquivo => /\.tsx?$/.test(arquivo) && /\b(?:Link|useNavigate)\b/.test(ler(arquivo)))).toBe(true)
+  expect(ler('scripts/check-project.mjs')).toContain('window.location')
   const html = renderToStaticMarkup(createElement(MemoryRouter, {}, createElement(NotFoundPage)))
   expect(html).toContain('Página não encontrada')
   expect(html).toMatch(/<button[^>]*>Voltar ao início<\/button>/)
@@ -110,6 +119,9 @@ it('Req 5: serviços assíncronos exportados declaram Promise e tratam exceçõe
   }
   expect(falhas).toEqual([])
   expect(spawnSync('git', ['ls-files', '.env', '.env.local'], { encoding: 'utf8' }).stdout.trim()).toBe('')
+  const arquivosRastreados = spawnSync('git', ['ls-files'], { encoding: 'utf8' }).stdout.split(/\r?\n/)
+  expect(arquivosRastreados.filter(arquivo => /^\.env(?:\.|$)/.test(arquivo) && arquivo !== '.env.example')).toEqual([])
+  expect(ler('.env.example')).not.toMatch(/^VITE_[A-Z0-9_]*(?:PASSWORD|TOKEN|SECRET|PRIVATE|APP_API_KEY)\s*=/im)
 })
 
 it('Req 8: análise estática rejeita key baseada em índice', () => { checagemEstatica() })
@@ -118,6 +130,9 @@ it('Req 9: análise estática procura guardas dos parâmetros de rota', () => { 
 it('Req 11: imagens têm alt e há foco visível nas folhas de estilo', () => {
   checagemEstatica()
   expect(arquivos('styles').filter(a => a.endsWith('.css')).some(a => ler(a).includes(':focus-visible'))).toBe(true)
+  expect(ler('scripts/check-project.mjs')).toContain('ação em div; use button')
+  expect(ler('e2e/login.playwright.ts')).toContain("page.keyboard.press('Tab')")
+  expect(ler('e2e/rotas.playwright.ts')).toContain('AxeBuilder')
 })
 
 it('Req 12: estados da requisição distinguem carregamento, dados e erro', () => {
@@ -166,11 +181,36 @@ it('Req 18: páginas são importadas por lazy e envolvidas em Suspense', () => {
     expect(rotas).toContain(`lazy(() => import('../pages/${nome}'))`)
   }
   expect(rotas).toContain('<Suspense ')
+  expect(ler('e2e/chunks.playwright.ts')).toContain('novos.length')
 })
 
 it('Req 20: análise exige justificativa para useCallback e useMemo', () => { checagemEstatica() })
 
-it('Req 22: cadastro de item valida antes de chamar a API', () => {
+it('Req 22: formulários validam dados tipados antes de enviar aos serviços', () => {
+  const formularios: Array<[string, string]> = [
+    ['useLogin.ts', 'validarCredenciais'],
+    ['useRecuperarSenha.ts', 'validarEmailRecuperacao'],
+    ['useCadastroCategoria.ts', 'validarCategoria'],
+    ['useCadastroModelo.ts', 'validarCadastroModeloReal'],
+    ['useCadastroItens.ts', 'validarCadastroItemReal'],
+    ['useEdicaoItem.ts', 'validarEdicaoItem'],
+    ['useRegistroDescarte.ts', 'validarNovoDescarte'],
+    ['useCadastroRecicladoras.ts', 'validarNovaRecicladora'],
+    ['useFuncionarios.ts', 'validarNovoUsuario'],
+    ['useConfiguracoes.ts', 'validarConfiguracoes'],
+    ['useTransicaoItem.ts', 'validarTransicaoItem'],
+  ]
+  for (const [arquivo, validador] of formularios) {
+    const fonte = ler('src/hooks/' + arquivo)
+    const posicaoValidador = fonte.indexOf(validador + '(')
+    expect(fonte.split(/\r?\n/).some(linha => linha.includes(validador) && linha.includes("from '../utils/")), arquivo).toBe(true)
+    expect(posicaoValidador, arquivo).toBeGreaterThan(-1)
+    if (arquivo !== 'useRecuperarSenha.ts') {
+      expect(fonte.indexOf('await ', posicaoValidador), arquivo).toBeGreaterThan(posicaoValidador)
+    } else {
+      expect(fonte).not.toContain("from '../services/")
+    }
+  }
   const servico = ler('src/services/itemCadastroService.ts')
   expect(servico.indexOf('validarCadastroItemReal(entrada)')).toBeGreaterThan(0)
   expect(servico.indexOf('validarCadastroItemReal(entrada)')).toBeLessThan(servico.indexOf("requisitarApiReal<unknown>('inventory'"))
@@ -190,4 +230,9 @@ it('Req 24: abas e menus expõem seus estados ARIA', () => {
   const menu = ler('src/components/FilterChip/index.tsx')
   expect(menu).toContain('aria-haspopup="menu"')
   expect(menu).toContain('aria-expanded=')
+  const leitor = ler('e2e/leitor-virtual.playwright.ts')
+  expect(leitor).toContain('@guidepup/virtual-screen-reader')
+  expect(leitor).toContain('toMatchAriaSnapshot')
+  expect(leitor).toContain('await expect(abrir).toBeFocused()')
+  expect(ler('e2e/rotas.playwright.ts')).toContain("getByRole('main')")
 })

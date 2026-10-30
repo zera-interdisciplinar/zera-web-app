@@ -10,10 +10,12 @@ const contas = [
   { perfil: 'gestor', email: env.ZERA_QA_GESTOR_EMAIL || env.QA_GESTOR_EMAIL, senha: env.ZERA_QA_GESTOR_PASSWORD || env.QA_GESTOR_PASSWORD },
   { perfil: 'funcionario', email: env.ZERA_QA_FUNCIONARIO_EMAIL || env.QA_OPERADOR_EMAIL || env.QA_OPERARIO_EMAIL, senha: env.ZERA_QA_FUNCIONARIO_PASSWORD || env.QA_OPERADOR_PASSWORD || env.QA_OPERARIO_PASSWORD },
 ]
-for (const site of [
+const sites = [
   { nome: 'vercel', url: 'https://zera-web-app-kappa.vercel.app', hash: false },
   { nome: 'pages', url: 'https://zera-interdisciplinar.github.io/zera-web-app/', hash: true },
-]) for (const conta of contas) {
+  ...(process.env.ZERA_QA_LOCAL_URL ? [{ nome: 'clone-limpo', url: process.env.ZERA_QA_LOCAL_URL, hash: false }] : []),
+]
+for (const site of sites) for (const conta of contas) {
   test(`publicação em leitura: ${site.nome}, ${conta.perfil}`, async ({ page }) => {
     test.skip(!habilitado, 'Ative explicitamente ZERA_RUN_LIVE_QA=true para consultar o QA.')
     test.skip(!conta.email || !conta.senha, 'Conta local ausente; não há credencial embutida no teste.')

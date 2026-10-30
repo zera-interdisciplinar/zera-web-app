@@ -24,6 +24,10 @@ for (const perfil of ['MANAGER', 'EMPLOYEE']) {
     for (const [rota, titulo] of rotas) {
       await page.evaluate((url) => { history.pushState(null, '', url); dispatchEvent(new PopStateEvent('popstate')) }, rota)
       await expect(page.getByRole('heading', { level: 1, name: titulo, exact: true })).toBeVisible()
+      await expect(page.getByRole('banner')).toHaveCount(1)
+      await expect(page.getByRole('main')).toHaveCount(1)
+      await expect(page.getByRole('navigation').first()).toBeVisible()
+      await expect(page.getByRole('contentinfo')).toHaveCount(1)
       const resultado = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()
       expect(resultado.violations.map((violacao) => ({ id: violacao.id, alvos: violacao.nodes.map((no) => no.target) })), `${rota} ${perfil} ${largura}`).toEqual([])
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), rota).toBe(true)

@@ -1,3 +1,4 @@
+// Bloqueia arquivos privados e valores secretos no bundle publicado.
 import { readdirSync, readFileSync } from 'node:fs'
 import { loadEnv } from 'vite'
 

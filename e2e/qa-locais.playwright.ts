@@ -6,13 +6,14 @@ const ativo = process.env.ZERA_RUN_LIVE_QA === 'true'
 const env = ativo ? loadEnv('development', process.cwd(), '') : {}
 const email = env.ZERA_QA_GESTOR_EMAIL || env.QA_GESTOR_EMAIL || ''
 const senha = env.ZERA_QA_GESTOR_PASSWORD || env.QA_GESTOR_PASSWORD || ''
+const origem = process.env.ZERA_QA_LOCAL_URL || 'http://127.0.0.1:5184'
 
 test('QA real: interface reproduz nomes e endereços retornados para São Paulo', async ({ page }) => {
   test.skip(!ativo, 'Leitura real exige ZERA_RUN_LIVE_QA=true.')
   test.setTimeout(120_000)
   expect(Boolean(email && senha)).toBe(true)
   try {
-    await page.goto('http://127.0.0.1:5184/login')
+    await page.goto(origem + '/login')
     await page.locator('#email').fill(email.trim())
     await page.locator('#senha').fill(senha)
     await page.getByRole('button', { name: 'Entrar', exact: true }).click()

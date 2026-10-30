@@ -9,8 +9,17 @@ import { Skeleton } from '../../Skeleton'
 import { SeloDemonstracao } from '../SeloDemonstracao'
 export function VisaoGeralTab({ snapshot, demo = false, aguardando = true }: VisaoGeralTabProps) {
   if (!snapshot) return aguardando ? <Skeleton descricao="Preparando os dados…" linhas={4} /> : null
+  const semDados = snapshot.kpis.itens_cadastrados.value === 0
+    && snapshot.kpis.itens_cadastrados.change_percent === null
+    && snapshot.kpis.aguardando_aprovacao.value === 0 && snapshot.kpis.aguardando_aprovacao.prioritarios === 0
+    && snapshot.kpis.impacto_recuperado.kg === 0 && snapshot.kpis.impacto_recuperado.tonnes === 0
+    && snapshot.kpis.taxa_reciclagem.percent === null && snapshot.kpis.taxa_reciclagem.change_points === null
+    && snapshot.circularidade.percent === null && snapshot.alertas.abertos === 0
+    && snapshot.alertas.por_gravidade.every(p => p.quantidade === 0)
+    && snapshot.por_categoria.length === 0 && snapshot.por_status.length === 0
+    && snapshot.itens_por_mes.every(p => p.cadastrados === 0 && p.encaminhados === 0)
   return <div className={estilos.conteudo}>
-    {snapshot.kpis.itens_cadastrados.value === 0 && snapshot.por_categoria.length === 0 && snapshot.por_status.length === 0 && <p role="status">Ainda não há dados para exibir.</p>}
+    {semDados && <p role="status">Ainda não há dados para exibir.</p>}
     <section className={estilos.gradeKpis} aria-label="Indicadores gerais">
       <KpiDashboard demo={demo} titulo="Itens cadastrados" valor={formatarNumero(snapshot.kpis.itens_cadastrados.value)} nota={formatarVariacao(snapshot.kpis.itens_cadastrados.change_percent)} />
       <KpiDashboard demo={demo} titulo="Alertas registrados" valor={formatarNumero(snapshot.alertas.abertos)} />

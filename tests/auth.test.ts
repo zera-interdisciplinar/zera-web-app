@@ -20,8 +20,8 @@ function prepararResposta(role: string) {
   const userId = crypto.randomUUID()
   const unitId = crypto.randomUUID()
   fetchControlado
-    .mockResolvedValueOnce(Response.json({ accessToken: crypto.randomUUID(), userId, expiresIn: 300 }))
-    .mockResolvedValueOnce(Response.json({ userId, unitId, name: 'Conta de teste', email: 'teste@example.invalid', role }))
+    .mockResolvedValueOnce(Response.json({ accessToken: crypto.randomUUID(), refreshToken: crypto.randomUUID(), tokenType: 'Bearer', userId, expiresIn: 300 }))
+    .mockResolvedValueOnce(Response.json({ userId, unitId, name: 'Conta de teste', email: 'teste@example.invalid', role, status: 'ACTIVE' }))
   return unitId
 }
 
@@ -36,8 +36,8 @@ describe('autenticação real com respostas controladas, sem sessão backend com
     expect(fetchControlado).toHaveBeenCalledOnce()
   })
   it('recusa identidade de outro usuário mesmo com papel documentado', async () => {
-    fetchControlado.mockResolvedValueOnce(Response.json({ accessToken: crypto.randomUUID(), userId: crypto.randomUUID(), expiresIn: 300 }))
-    fetchControlado.mockResolvedValueOnce(Response.json({ userId: crypto.randomUUID(), unitId: crypto.randomUUID(), name: 'Teste', email: 'teste@example.invalid', role: 'MANAGER' }))
+    fetchControlado.mockResolvedValueOnce(Response.json({ accessToken: crypto.randomUUID(), refreshToken: crypto.randomUUID(), tokenType: 'Bearer', userId: crypto.randomUUID(), expiresIn: 300 }))
+    fetchControlado.mockResolvedValueOnce(Response.json({ userId: crypto.randomUUID(), unitId: crypto.randomUUID(), name: 'Teste', email: 'teste@example.invalid', role: 'MANAGER', status: 'ACTIVE' }))
     const { autenticar } = await import('../src/services/authService')
     await expect(autenticar({ email: 'teste@example.invalid', senha: crypto.randomUUID() })).rejects.toThrow('Identidade incompleta')
     const { requisitarApiReal } = await import('../src/services/apiReal')
@@ -68,7 +68,7 @@ describe('autenticação real com respostas controladas, sem sessão backend com
   })
 
   it.each([401, 403])('limpa a sessão se a identidade retorna HTTP %s', async (status) => {
-    fetchControlado.mockResolvedValueOnce(Response.json({ accessToken: crypto.randomUUID(), userId: crypto.randomUUID(), expiresIn: 300 }))
+    fetchControlado.mockResolvedValueOnce(Response.json({ accessToken: crypto.randomUUID(), refreshToken: crypto.randomUUID(), tokenType: 'Bearer', userId: crypto.randomUUID(), expiresIn: 300 }))
     fetchControlado.mockResolvedValueOnce(new Response('{}', { status }))
     const { autenticar } = await import('../src/services/authService')
     await expect(autenticar({ email: 'teste@example.invalid', senha: crypto.randomUUID() })).rejects.toMatchObject({ status })

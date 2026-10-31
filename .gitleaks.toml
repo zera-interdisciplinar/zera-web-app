@@ -1,0 +1,10 @@
+title = "Falsos positivos do modelo de ambiente e do verificador"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Atribuições vazias no exemplo e nomes de variáveis no verificador"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''(?i)^\.env\.example$''', '''(?i)^scripts/verificar_fontes\.py$''']

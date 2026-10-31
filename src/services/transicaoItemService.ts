@@ -7,7 +7,7 @@ import { requisitarApiReal } from './apiReal'
 import { contextualizar } from './http'
 import { mapearItem } from './mapeadoresApi'
 
-const ACOES: AcaoItemReal[] = ['submit', 'approve', 'reject', 'maintenance/start', 'maintenance/finish', 'evaluate']
+const ACOES: AcaoItemReal[] = ['submit', 'approve', 'reject', 'lend', 'return', 'maintenance/start', 'maintenance/finish', 'evaluate']
 
 export async function transicionarItemReal(id: number | string, acao: AcaoItemReal, entrada: DadosTransicaoItem, sinal?: AbortSignal): Promise<ProdutoDetalhado> {
   try {

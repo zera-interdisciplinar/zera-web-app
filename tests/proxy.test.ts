@@ -7,6 +7,10 @@ import { configuracaoProxy, portaProxy, restaurarCaminhoProxy } from '../server/
 import { readFileSync } from 'node:fs'
 
 const servidores: ReturnType<typeof createServer>[] = []
+function jwt(userId: string, role: 'EMPLOYEE' | 'MANAGER'): string {
+  const payload = Buffer.from(JSON.stringify({ sub: userId, role })).toString('base64url')
+  return `e30.${payload}.assinatura-de-teste`
+}
 it('usa a porta padrão quando a configuração está vazia e rejeita portas inválidas', () => {
   expect(portaProxy('')).toBe(8787)
   expect(portaProxy(undefined)).toBe(8787)
@@ -107,7 +111,7 @@ describe('proxy de aplicação', () => {
 
   it('injeta a chave somente no servidor e preserva JWT e unidade', async () => {
     const key = crypto.randomUUID()
-    const token = crypto.randomUUID()
+    const token = jwt('gestor-teste', 'MANAGER')
     const upstream = await iniciar((req, res) => {
       expect(req.url).toBe('/qa/inventory/api/v1/items?page=0')
       expect(req.headers.apikey).toBe(key)
@@ -119,6 +123,53 @@ describe('proxy de aplicação', () => {
     const response = await fetch(`${proxy}/inventory/api/v1/items?page=0`, { headers: { Authorization: `Bearer ${token}`, 'X-Unit-Id': 'unidade-teste' } })
     expect(response.status).toBe(200)
     expect(await response.text()).not.toContain(key)
+  })
+  it('filtra a lista do Operário e oculta por id e código de barras itens de outra pessoa', async () => {
+    const idOperario = 'operario-teste'
+    const token = jwt(idOperario, 'EMPLOYEE')
+    const consultas: string[] = []
+    const upstream = await iniciar((req, res) => {
+      const caminho = req.url ?? ''
+      consultas.push(caminho)
+      if (caminho.startsWith('/api/v1/items?')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end('{"content":[],"page":0,"size":20,"totalElements":0,"totalPages":0}')
+        return
+      }
+      if (caminho.endsWith('/item-de-outra-pessoa') || caminho.endsWith('/by-barcode/codigo-alheio')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end('{"id":"item-teste","createdBy":"outro-operario"}')
+        return
+      }
+      if (caminho.endsWith('/item-do-operario')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(`{"id":"item-teste","createdBy":"${idOperario}"}`)
+        return
+      }
+      res.writeHead(404); res.end()
+    })
+    const proxy = await iniciar(criarProxy({ inventory: upstream, apiKey: crypto.randomUUID() }))
+    const headers = { Authorization: `Bearer ${token}`, 'X-Unit-Id': 'unidade-teste' }
+    const lista = await fetch(`${proxy}/inventory/api/v1/items?page=0&size=20`, { headers })
+    expect(lista.status).toBe(200)
+    expect(new URL(`http://localhost${consultas[0]}`).searchParams.get('createdBy')).toBe(idOperario)
+    expect((await fetch(`${proxy}/inventory/api/v1/items/item-de-outra-pessoa`, { headers })).status).toBe(404)
+    expect((await fetch(`${proxy}/inventory/api/v1/items/by-barcode/codigo-alheio`, { headers })).status).toBe(404)
+    const proprio = await fetch(`${proxy}/inventory/api/v1/items/item-do-operario`, { headers })
+    expect(proprio.status).toBe(200)
+    expect((await proprio.json()).createdBy).toBe(idOperario)
+  })
+  it('mantém sem filtro as consultas do Gestor', async () => {
+    const original = '/api/v1/items?page=2&size=20'
+    const upstream = await iniciar((req, res) => {
+      expect(req.url).toBe(original)
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end('{"content":[],"page":2,"size":20,"totalElements":0,"totalPages":0}')
+    })
+    const proxy = await iniciar(criarProxy({ inventory: upstream, apiKey: crypto.randomUUID() }))
+    const token = jwt('gestor-teste', 'MANAGER')
+    const response = await fetch(`${proxy}/inventory${original}`, { headers: { Authorization: `Bearer ${token}` } })
+    expect(response.status).toBe(200)
   })
   it('recusa origem não autorizada e destinos arbitrários', async () => {
     const proxy = await iniciar(criarProxy({ apiKey: crypto.randomUUID() }))

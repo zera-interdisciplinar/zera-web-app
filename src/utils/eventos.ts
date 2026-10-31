@@ -6,6 +6,7 @@ const STATUS: Record<string, string> = {
 }
 const EVENTOS: Record<string, string> = {
   CREATED: 'Item cadastrado', SUBMITTED: 'Enviado para aprovação', APPROVED: 'Aprovado', REJECTED: 'Rejeitado',
+  LOAN_STARTED: 'Empréstimo iniciado', LOAN_RETURNED: 'Item devolvido ao estoque', DISPOSAL_CANCELLED: 'Descarte cancelado',
   MAINTENANCE_STARTED: 'Entrou em manutenção', MAINTENANCE_FINISHED: 'Manutenção concluída', EVALUATED: 'Avaliado',
   DISPOSED: 'Descartado', REMOVED: 'Removido do estoque', RESTORED: 'Restaurado',
 }

@@ -3,6 +3,8 @@ import { formatarDataRelativa } from '../src/utils/formatacao'
 import { normalizarBusca } from '../src/utils/busca'
 import { LIMITES, limitarNumero } from '../src/utils/limitesNumericos'
 import { rotuloEvento } from '../src/utils/eventos'
+import { ROTULO_STATUS } from '../src/types/produto'
+import { ROTULO_TRANSICAO } from '../src/types/transicaoItem'
 import { itemVisivel } from '../src/utils/escopoItens'
 import { mapearItem } from '../src/services/mapeadoresApi'
 import type { ItemResponse } from '../src/types/apiReal'
@@ -29,8 +31,16 @@ describe('regressões de usabilidade', () => {
     expect(limitarNumero('', LIMITES.meses)).toBe('')
     expect(limitarNumero('12,5', LIMITES.peso)).toBe('12.5')
   })
-  it.each(['CREATED', 'SUBMITTED', 'APPROVED', 'REJECTED', 'MAINTENANCE_STARTED', 'MAINTENANCE_FINISHED', 'EVALUATED', 'DISPOSED', 'REMOVED', 'RESTORED', 'STATUS_CHANGED'] as const)('traduz o evento %s', (type) => {
+  it.each(['CREATED', 'SUBMITTED', 'APPROVED', 'REJECTED', 'MAINTENANCE_STARTED', 'MAINTENANCE_FINISHED', 'EVALUATED', 'DISPOSED', 'REMOVED', 'RESTORED', 'LOAN_STARTED', 'LOAN_RETURNED', 'DISPOSAL_CANCELLED', 'STATUS_CHANGED'] as const)('traduz o evento %s', (type) => {
     expect(rotuloEvento({ type, fromStatus: 'DRAFT', toStatus: 'IN_STOCK' })).not.toContain(type)
+  })
+  it('mostra status e eventos de empréstimo e cancelamento em texto humano', () => {
+    expect(ROTULO_STATUS['em-uso']).toBe('Em uso')
+    expect(ROTULO_TRANSICAO.lend).toBe('Registrar empréstimo')
+    expect(ROTULO_TRANSICAO.return).toBe('Registrar devolução')
+    expect(rotuloEvento({ type: 'LOAN_STARTED', fromStatus: 'IN_STOCK', toStatus: 'IN_USE' })).toBe('Empréstimo iniciado')
+    expect(rotuloEvento({ type: 'LOAN_RETURNED', fromStatus: 'IN_USE', toStatus: 'IN_STOCK' })).toBe('Item devolvido ao estoque')
+    expect(rotuloEvento({ type: 'DISPOSAL_CANCELLED', fromStatus: 'DISPOSED', toStatus: 'IN_STOCK' })).toBe('Descarte cancelado')
   })
   it('preserva campos nulos e filtra pelo UUID do criador, nunca pelo nome', () => {
     const payload: ItemResponse = { id: 'item', barcode: 'etiqueta', displayCode: null, name: null, status: 'DRAFT', condition: null, unitId: 'unidade', model: null, createdBy: 'pessoa', createdByName: null, createdAt: '2026-10-28T14:12:00Z', updatedAt: '2026-10-28T14:12:00Z' }

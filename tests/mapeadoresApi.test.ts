@@ -50,6 +50,7 @@ describe('mapeamento do OpenAPI de inventário', () => {
     ['PENDING_APPROVAL', 'em-aprovacao'],
     ['REJECTED', 'rejeitado'],
     ['IN_STOCK', 'em-estoque'],
+    ['IN_USE', 'em-uso'],
     ['IN_MAINTENANCE', 'em-manutencao'],
     ['AWAITING_EVALUATION', 'aguardando-avaliacao'],
     ['DISPOSED', 'descartado'],

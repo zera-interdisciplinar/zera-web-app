@@ -9,7 +9,7 @@
     "build": "node ./node_modules/typescript/bin/tsc -b && node ./node_modules/vite/bin/vite.js build",
     "preview": "node ./node_modules/vite/bin/vite.js preview",
     "lint": "node ./node_modules/eslint/bin/eslint.js .",
-    "test": "node ./node_modules/vitest/vitest.mjs run",
+    "test": "node ./node_modules/vitest/vitest.mjs run --no-file-parallelism",
     "test:e2e": "node ./node_modules/@playwright/test/cli.js test",
     "api:proxy": "node server/proxy.mjs",
     "check": "node scripts/check-project.mjs"

@@ -30,6 +30,7 @@ export function FieldCard({
   obrigatorio = false,
 }: FieldCardProps) {
   const faixa = faixaDoCampo(id)
+  const numeroDecimal = tipo === 'numero' && faixa.step !== 1
   const descricao = [erro ? `${id}-erro` : '', tipo === 'numero' ? `${id}-ajuda` : ''].filter(Boolean).join(' ') || undefined
   function mudarNumero(texto: string) {
     const limitado = limitarNumero(texto, faixa)
@@ -94,7 +95,7 @@ export function FieldCard({
               name={id}
               required={obrigatorio}
               className={estilos.controle}
-              type={tipo === 'senha' && senhaVisivel ? 'text' : TIPO_HTML[tipo]}
+              type={tipo === 'senha' && senhaVisivel ? 'text' : numeroDecimal ? 'text' : TIPO_HTML[tipo]}
               value={valor}
               onChange={(evento) => aoMudar(evento.target.value)}
               aria-invalid={erro ? true : undefined}
@@ -126,13 +127,13 @@ export function FieldCard({
             name={id}
             required={obrigatorio}
             className={estilos.controle}
-            type={TIPO_HTML[tipo]}
+            type={numeroDecimal ? 'text' : TIPO_HTML[tipo]}
             value={valor}
             onChange={(evento) => tipo === 'numero' ? mudarNumero(evento.target.value) : aoMudar(evento.target.value)}
             inputMode={tipo === 'numero' ? faixa.step === 1 ? 'numeric' : 'decimal' : undefined}
-            min={tipo === 'numero' ? faixa.min : undefined}
-            max={tipo === 'numero' ? faixa.max : undefined}
-            step={tipo === 'numero' ? faixa.step : undefined}
+            min={tipo === 'numero' && !numeroDecimal ? faixa.min : undefined}
+            max={tipo === 'numero' && !numeroDecimal ? faixa.max : undefined}
+            step={tipo === 'numero' && !numeroDecimal ? faixa.step : undefined}
             onKeyDown={(evento) => {
               if (tipo === 'numero' && (['-', '+', 'e', 'E'].includes(evento.key) || (faixa.step === 1 && ['.', ','].includes(evento.key)))) evento.preventDefault()
             }}

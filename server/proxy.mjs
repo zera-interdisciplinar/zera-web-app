@@ -7,6 +7,23 @@ import { readFileSync } from 'node:fs'
 import { parseEnv } from 'node:util'
 import { configuracaoProxy, origemPermitida, portaProxy, validarBaseProxy } from './config.mjs'
 
+function identidadeToken(authorization) {
+  if (typeof authorization !== 'string') return null
+  const correspondencia = authorization.match(/^Bearer\s+[^.]+\.([^.]+)\.[^.]+$/)
+  if (!correspondencia) return null
+  try {
+    const claims = JSON.parse(Buffer.from(correspondencia[1], 'base64url').toString('utf8'))
+    if (typeof claims.sub !== 'string' || !claims.sub.trim() || typeof claims.role !== 'string' || !claims.role.trim()) return null
+    return { id: claims.sub, role: claims.role }
+  } catch { return null }
+}
+
+function responderErro(res, status, mensagem) {
+  const titulo = status === 401 ? 'Unauthorized' : status === 404 ? 'Not Found' : 'Bad Gateway'
+  res.writeHead(status, { 'Content-Type': 'application/problem+json' })
+  res.end(JSON.stringify({ type: 'about:blank', title: titulo, status, detail: mensagem }))
+}
+
 /**
  * @param {{ administrative?: string, inventory?: string, analytics?: string, apiKey?: string, origins?: string[] }} options
  * @returns {import('node:http').RequestListener}
@@ -43,8 +60,20 @@ export function criarProxy({ administrative, inventory, analytics, apiKey, origi
       res.writeHead(503, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({ mensagem: 'O serviço ainda não foi configurado.' })); return
     }
+    const rotaItem = match[1] === 'inventory' && req.method === 'GET'
+      && (match[2] === '/api/v1/items' || /^\/api\/v1\/items\/(?:by-barcode\/[^/]+|[^/]+)$/.test(match[2]))
+    const detalheItem = rotaItem && match[2] !== '/api/v1/items'
+    let identidade = null
+    if (rotaItem && req.headers.authorization !== undefined) {
+      identidade = identidadeToken(req.headers.authorization)
+      if (!identidade) { responderErro(res, 401, 'Entre novamente para consultar este item.'); return }
+    }
     try {
       const url = new URL(`${validarBaseProxy(base)}${match[2]}${route.search}`)
+      if (rotaItem && !detalheItem && identidade?.role === 'EMPLOYEE') {
+        // O ms-inventory aplica este filtro no servidor e recalcula a paginação.
+        url.searchParams.set('createdBy', identidade.id)
+      }
       const chunks = []
       let size = 0
       for await (const chunk of req) {
@@ -71,6 +100,15 @@ export function criarProxy({ administrative, inventory, analytics, apiKey, origi
           signal: abort.signal,
         })
         clearTimeout(timeout)
+        if (detalheItem && identidade?.role === 'EMPLOYEE' && response.ok) {
+          let item
+          try { item = await response.clone().json() }
+          catch { responderErro(res, 502, 'Não foi possível verificar o responsável pelo item.'); return }
+          if (typeof item?.createdBy !== 'string' || !item.createdBy.trim()) {
+            responderErro(res, 502, 'Não foi possível verificar o responsável pelo item.'); return
+          }
+          if (item.createdBy !== identidade.id) { responderErro(res, 404, 'Recurso não encontrado.'); return }
+        }
         const contentType = response.headers.get('content-type')
         if (contentType) res.setHeader('Content-Type', contentType)
         if (contentType?.includes('text/event-stream')) {

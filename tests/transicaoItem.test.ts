@@ -30,6 +30,14 @@ describe('etapas do ciclo do item', () => {
     expect(opcoes.body).toBeUndefined()
     expect(opcoes.headers).toMatchObject({ Authorization: 'Bearer token-de-teste', 'X-Unit-Id': unidade })
   })
+  it.each<AcaoItemReal>(['lend', 'return'])('%s usa o endpoint dedicado sem corpo', async (acao) => {
+    const { transicionarItemReal } = await import('../src/services/transicaoItemService')
+    await transicionarItemReal('item/1', acao, { reason: '', condition: 'USED' })
+    const [url, opcoes] = busca.mock.calls[0]
+    expect(url.pathname).toBe(`/api/v1/items/item%2F1/${acao}`)
+    expect(opcoes.method).toBe('POST')
+    expect(opcoes.body).toBeUndefined()
+  })
   it('sanitiza e envia apenas o motivo na reprovação e início de manutenção', async () => {
     const { transicionarItemReal } = await import('../src/services/transicaoItemService')
     for (const acao of ['reject', 'maintenance/start'] as const) await transicionarItemReal('item-1', acao, { reason: ' <b>Tela quebrada</b> ', condition: 'USED' })
@@ -56,7 +64,9 @@ describe('etapas do ciclo do item', () => {
     expect(acoesDisponiveisItem('em-aprovacao', 'gestor')).toEqual(['approve', 'reject'])
     expect(acoesDisponiveisItem('rascunho', 'funcionario')).toEqual(['submit'])
     expect(acoesDisponiveisItem('rejeitado', 'gestor')).toEqual(['submit'])
-    expect(acoesDisponiveisItem('em-estoque', 'funcionario')).toEqual(['maintenance/start'])
+    expect(acoesDisponiveisItem('em-estoque', 'funcionario')).toEqual(['lend', 'maintenance/start'])
+    expect(acoesDisponiveisItem('em-uso', 'gestor')).toEqual(['return'])
+    expect(acoesDisponiveisItem('em-uso', 'funcionario')).toEqual(['return'])
     expect(acoesDisponiveisItem('em-manutencao', 'gestor')).toEqual(['maintenance/finish'])
     expect(acoesDisponiveisItem('aguardando-avaliacao', 'funcionario')).toEqual(['evaluate'])
     expect(acoesDisponiveisItem('descartado', 'gestor')).toEqual([])

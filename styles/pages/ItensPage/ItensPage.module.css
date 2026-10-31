@@ -50,6 +50,23 @@
   gap: var(--sp-1);
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .acoes > button {
+    opacity: 0;
+    transition: opacity var(--transicao);
+  }
+
+  .acoes > button:focus-visible,
+  :global(tr:hover) .acoes > button,
+  :global(tr:focus-within) .acoes > button {
+    opacity: 1;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .acoes > button { opacity: 1; }
+}
+
 .divisor {
   width: 1px;
   height: 24px;

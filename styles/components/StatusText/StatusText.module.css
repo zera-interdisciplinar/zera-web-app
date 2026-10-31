@@ -1,7 +1,23 @@
 .status {
-  font-size: 0.9375rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 100%;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, currentColor 5%, var(--branco));
+  font-size: 0.875rem;
   font-weight: 700;
   white-space: normal;
+}
+
+.status::before {
+  content: '';
+  flex: 0 0 0.5rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 .em-aprovacao {

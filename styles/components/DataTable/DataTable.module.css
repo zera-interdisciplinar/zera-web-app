@@ -15,6 +15,13 @@
   white-space: nowrap;
 }
 
+.tabela thead th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--branco);
+}
+
 .tabela td {
   padding: 20px var(--sp-6);
   vertical-align: middle;
@@ -30,8 +37,16 @@
 }
 
 .tabela tbody td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--branco);
   font-weight: 600;
   min-width: 8rem;
+}
+
+.tabela tbody tr:is(:hover, :focus-within) td:first-child {
+  background: var(--hover-linha);
 }
 
 .tabela .numerica {

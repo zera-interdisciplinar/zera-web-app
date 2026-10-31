@@ -32,7 +32,12 @@ for (const largura of [320, 1280]) {
         await expect(tabela.getByRole('cell', { name: '—', exact: true }).first()).toBeVisible()
         await expect(page.getByRole('img', { name: 'Itens por condição', exact: true })).toBeVisible()
       }
-      if (aba === 'Evolução e movimentações') await expect(page.getByRole('img', { name: 'Evolução mensal dos cadastros', exact: true })).toBeVisible()
+      if (aba === 'Evolução e movimentações') {
+        await expect(page.getByRole('img', { name: 'Evolução mensal dos cadastros', exact: true })).toBeVisible()
+        const mes = tabela.getByRole('columnheader', { name: 'Mês', exact: true })
+        await expect(mes).toHaveCSS('text-align', 'right')
+        await expect(mes).toHaveCSS('font-variant-numeric', 'tabular-nums')
+      }
       if (aba === 'Qualidade dos dados e alertas') await expect(page.getByRole('img', { name: 'Alertas por gravidade', exact: true })).toBeVisible()
       if (aba === 'Materiais e sustentabilidade') await expect(tabela).toContainText('Metal')
       if (aba === 'Materiais e sustentabilidade') await expect(page.getByRole('img', { name: 'Peso descartado por material', exact: true })).toBeVisible()

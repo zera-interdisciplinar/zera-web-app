@@ -22,7 +22,7 @@ export default function DescartesPage() {
       {descartes.dados && <p role="status">{descartes.dados.length} registros encontrados.</p>}
       {descartes.dados && descartes.dados.length === 0 && <EmptyState titulo="Nenhum descarte registrado" descricao="A unidade não retornou registros de descarte." />}
       {descartes.dados && descartes.dados.length > 0 && <DataTable dados={descartes.dados} chave={(item) => item.id} legenda="Descartes, destinos, quantidades e pesos" colunas={[
-        { titulo: 'Data', render: (item) => formatarData(item.disposedAt) },
+        { titulo: 'Data', numerica: true, render: (item) => formatarData(item.disposedAt) },
         { titulo: 'Destino', render: (item) => destinos[item.destination] ?? 'Não informado' },
         { titulo: 'Local', render: (item) => item.placeName ?? 'Não informado' },
         { titulo: 'Itens', render: (item) => item.items.length, numerica: true },

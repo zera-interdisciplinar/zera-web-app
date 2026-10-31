@@ -1,22 +1,24 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createAuthApi } from '../../src/shared/auth/authApi'
-import { refreshTokenStorage } from '../../src/shared/auth/refreshTokenStorage'
-import { createSessionStore } from '../../src/shared/auth/sessionStore'
-import { describeApiError, ApiError, isAbortError } from '../../src/shared/api/errors'
-import { formatDate, formatDateTime, formatRelativeTime, NOT_AVAILABLE } from '../../src/shared/format'
+import { refreshTokenStorage } from '../../src/services/refreshTokenStorage'
+import { createSessionStore } from '../../src/services/sessionStore'
+import { describeApiError, ApiError, isAbortError } from '../../src/utils/apiError'
+import { formatDate, formatDateTime, formatRelativeTime, NOT_AVAILABLE } from '../../src/utils/format'
 
 afterEach(() => vi.unstubAllGlobals())
+
+const request = vi.hoisted(() => vi.fn())
+vi.mock('../../src/services/http', () => ({ http: { request } }))
+const { fetchUser, login, logout, refresh } = await import('../../src/services/auth')
 
 describe('identity API calls', () => {
   const tokens = { userId: 'u', accessToken: 'a', refreshToken: 'r', tokenType: 'Bearer', expiresIn: 900 }
 
   it('sends each call to its allowlisted route without a bearer token, except the user lookup', async () => {
-    const request = vi.fn().mockResolvedValue(tokens)
-    const api = createAuthApi({ request })
-    await api.login('a@b.c', 'pw')
-    await api.refresh('r1')
-    await api.logout('r2')
-    await api.fetchUser('user/1', 'tok')
+    request.mockReset().mockResolvedValue(tokens)
+    await login('a@b.c', 'pw')
+    await refresh('r1')
+    await logout('r2')
+    await fetchUser('user/1', 'tok')
     expect(request.mock.calls.map(([service, path, options]) => [service, path, options.method ?? 'GET', options.auth, options.body])).toEqual([
       ['administrative', '/api/v1/auth/login', 'POST', false, { email: 'a@b.c', password: 'pw' }],
       ['administrative', '/api/v1/auth/refresh', 'POST', false, { refreshToken: 'r1' }],
@@ -27,9 +29,20 @@ describe('identity API calls', () => {
   })
 
   it('gives the logout a short timeout, so closing the session never hangs', async () => {
-    const request = vi.fn().mockResolvedValue(undefined)
-    await createAuthApi({ request }).logout('r')
+    request.mockReset().mockResolvedValue(undefined)
+    await logout('r')
     expect(request.mock.calls[0][2].timeoutMs).toBeLessThanOrEqual(5_000)
+  })
+
+  it('always throws an ApiError, wrapping anything else, and lets an abort through untouched', async () => {
+    request.mockReset().mockRejectedValueOnce(new TypeError('boom'))
+    await expect(login('a@b.c', 'pw')).rejects.toBeInstanceOf(ApiError)
+    const abort = new DOMException('stopped', 'AbortError')
+    request.mockRejectedValueOnce(abort)
+    await expect(refresh('r')).rejects.toBe(abort)
+    const failure = new ApiError('x', { kind: 'http', status: 401 })
+    request.mockRejectedValueOnce(failure)
+    await expect(fetchUser('u', 't')).rejects.toBe(failure)
   })
 })
 

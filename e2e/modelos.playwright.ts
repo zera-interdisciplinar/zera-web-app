@@ -129,7 +129,8 @@ test('T-16: categoria exige nome e descrição, renomeia, edita a descrição e 
   await dialog(page).getByLabel('Descrição').fill('Tudo de energia')
   await dialog(page).getByRole('button', { name: 'Salvar alterações' }).click()
   await expect(rowOf(page, 'Cabos e fontes')).toBeVisible()
-  expect(inventory.writes.slice(1).map((write) => `${write.method} ${write.path.split('/').slice(-1)[0]}`)).toEqual(['PATCH name', 'PATCH description'])
+  // The two PATCHes go one after the other, so the second may still be on its way when the new name shows up.
+  await expect.poll(() => inventory.writes.slice(1).map((write) => `${write.method} ${write.path.split('/').slice(-1)[0]}`)).toEqual(['PATCH name', 'PATCH description'])
 
   await page.getByRole('button', { name: 'Excluir categoria Eletrônicos' }).click()
   await dialog(page).getByRole('button', { name: 'Excluir', exact: true }).click()

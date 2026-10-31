@@ -150,51 +150,38 @@ Cada regra traz a fonte, a camada que a garante (seção 6) e o teste que a prov
 | Ícones | lucide-react (já instalado) | Os ícones customizados do Figma entram como SVG em `src/shared/assets/icons`. |
 | Testes | Vitest + Testing Library + MSW (**somente em `tests/`**) + Playwright + axe | MSW nunca é importado de `src/`. |
 
-### 5.2 Estrutura de pastas (feature-sliced)
+### 5.2 Estrutura de pastas (layout da disciplina DAD)
+
+> **Mudança de 01/11/2026.** A primeira versão desta spec propunha pastas por feature (`app/ shared/ features/`).
+> O enunciado de Desenvolvimento de Aplicações Dinâmicas exige um layout por tipo de arquivo (componentes, páginas,
+> services, types e utils em `src/`), aplicado em todo o projeto. O PR 10 passou o código para esse layout; a
+> separação por domínio continua no **nome** dos arquivos (`items`, `models`, `settings`, `dashboard`, `auth`).
 
 ```
 src/
-  app/                 # bootstrap: providers, router, layout shell, error boundary
-    providers.tsx
-    router.tsx
-    layout/            # AppShell, Sidebar, Topbar
-  shared/
-    api/               # httpClient, sseClient, ApiError, problemDetail
-    auth/              # session store, role gate, token refresh (single-flight), logout
-    config/            # env parsing (zod) — VITE_* lidos UMA vez
-    ui/                # Button, Card, DataTable, Modal, ConfirmDialog, TextField, Select, Checkbox, KpiCard, EmptyState, ErrorState, Skeleton, Pagination
-    lib/               # format (number, date, percent), pagination helpers
-    accessibility/     # AccessibilityProvider, AccessibilityPanel, read-aloud (seção 10)
-    assets/
-  features/
-    auth/              # LoginPage, ForgotPasswordDialog
-    dashboard/         # OverviewPage, useOverviewStream
-    items/             # ItemsPage, ItemDetailPage, ItemFormDialog, decision dialogs
-    models/            # ModelsPage, ModelFormDialog, CategoriesPanel
-    settings/          # SettingsPage (seções genéricas), StockCapacityForm
-  main.tsx
+  main.tsx, App.tsx
+  components/<Nome>/index.tsx   # um componente por pasta; props em types/componentes/<Nome>.ts
+  pages/<Nome>Page/index.tsx    # uma página por pasta, carregada com React.lazy
+  hooks/                        # useItemQueries, useItemMutations, useRequest (AbortController), useLoginForm...
+  context/                      # AuthContext, AccessibilityContext, AppProviders
+  reducers/                     # overviewReducer, requestReducer (useReducer com uniões discriminadas)
+  services/                     # ÚNICO lugar com fetch: httpClient, sseClient, auth, items, models, categories,
+                                # materials, settings, dashboard (um arquivo por recurso; async + Promise<Tipo> + try/catch)
+  types/                        # item, model, auth, dashboard, settings, http, request, accessibility, app
+    componentes/                # props de cada componente
+  utils/                        # *Validation (zod + validate/resolverFor), *Schemas (contrato da API), labels, filtros,
+                                # formatadores, storage (localStorage versionado), sanitização, env
+  routes/AppRoutes.tsx
+styles/                         # CSS Modules e tokens (fora de src/: dentro de src/ só há .ts e .tsx)
+assets/                         # imagens
 ```
 
-Cada feature segue a mesma forma:
+**Regras de dependência** (verificadas por `scripts/check-project.mjs`):
 
-```
-features/<name>/
-  api/        # uma função por endpoint; chama httpClient; nenhuma lógica de UI
-  schemas/    # zod: DTOs da API e formulários
-  model/      # tipos de domínio + mappers DTO → domain + rótulos pt-BR dos enums
-  hooks/      # useXQuery / useXMutation (TanStack Query)
-  components/
-  pages/
-  copy.ts     # textos pt-BR da feature
-  index.ts    # API pública da feature
-```
-
-**Regras de dependência** (verificadas por lint, seção 11):
-
-- `features/*` importa de `shared/*`, nunca de outra feature. Exceção explícita: `items` pode importar `models/index.ts` (o select de modelo e o sub-formulário de novo modelo são reutilizados).
-- `pages`/`components` não importam `api/` direto; passam por `hooks/`.
-- `shared/` não importa de `features/` nem de `app/`.
-- `fetch` só existe em `shared/api/`; `sessionStorage`/`localStorage` só em `shared/auth` e `shared/accessibility`.
+- `components` e `pages` falam com `hooks`/`context`/`utils`/`types`; **nunca** importam `services`.
+- `hooks` e `context` usam `services`; `services` e `utils` não conhecem a interface (não importam `hooks`, `context`, `components`, `pages`).
+- `fetch` só existe em `src/services/`; `localStorage` só em `utils/storage.ts` (preferências de acessibilidade passam por ele, com `_versao`).
+- Todo formulário valida por `utils/validation.ts` (`validate` / `resolverFor`) antes de chamar um service.
 
 ### 5.3 Convenções de código
 
@@ -717,5 +704,6 @@ Cada PR é mergeável sozinho e mantém a `main` verde.
 | 7 | Entregue | Desvios: sem clique na linha inteira (o link do nome abre o detalhe); intensidade de uso é um campo numérico, sem slider; o seletor de modelos mostra os 100 primeiros. As rotas seguem em português (`/itens`, `/modelos`, `/configuracoes`). |
 | 8 | Entregue | Aprovação de modelo é só leitura. Garantia e vida útil, uma vez informadas, só podem ser trocadas (a API não apaga). O código legado (`services/`, `utils/guarda*`, hooks e componentes de cadastro em português) foi removido; ficaram só os arquivos que os requisitos da disciplina leem. |
 | 9 | Entregue | CI só de validação (sem publicação), regra de fronteiras entre camadas no `check-project`, cobertura ≥ 80 % de linhas em `shared/` e `features/*/{schemas,model,api}` (componentes e hooks ficam com o Playwright). Sem plugin novo de lint: a regra de dependência vive em `scripts/check-project.mjs` (`models → items` é a única dependência entre features). |
+| 10 | Entregue | Layout da disciplina DAD (seção 5.2): `features/`, `shared/` e `app/` deixaram de existir. Services por recurso com `try/catch`, props e entidades em `src/types`, validação em `src/utils`, CSS e imagens fora de `src/`, confirmação de descarte dentro da página (sem `window.confirm`), `<label htmlFor>` em todos os campos, preferências de acessibilidade em `localStorage` versionado, `useRequest` com `AbortController` em uso real, `tests/requisitos.test.ts` reescrito item a item da folha. |
 
 **Dashboard e o lote do BFF.** O `ms-analytics-bff` serve o último lote do cron (de hora em hora no QA), então os números nunca são ao vivo; a tela mostra de quando é o lote. Em 01/11/2026 o lote do gestor QA veio com `itens_cadastrados = 0` apesar de 25 itens no inventário da unidade: o pipeline do BFF perde os itens ao ligá-los à organização. É um problema do backend, não do front.

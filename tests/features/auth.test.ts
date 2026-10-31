@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { ApiError } from '../../src/shared/api/errors'
-import { AuthRejectedError } from '../../src/shared/auth/gate'
-import { describeLoginError, safeRedirect } from '../../src/features/auth/loginErrors'
-import { fieldErrors, forgotPasswordSchema, loginSchema } from '../../src/features/auth/schemas'
-import { forgotCopy } from '../../src/features/auth/copy'
+import { ApiError } from '../../src/utils/apiError'
+import { AuthRejectedError } from '../../src/utils/managerGate'
+import { describeLoginError, safeRedirect } from '../../src/utils/loginErrors'
+import { fieldErrors, forgotPasswordSchema, loginSchema } from '../../src/utils/loginValidation'
+import { forgotCopy } from '../../src/utils/loginCopy'
 
 describe('loginSchema', () => {
   it('normalizes the e-mail and keeps the password exactly as typed', () => {
@@ -74,7 +74,7 @@ describe('safeRedirect', () => {
 })
 
 describe('login page and recovery', () => {
-  const page = readFileSync(new URL('../../src/features/auth/pages/LoginPage.tsx', import.meta.url), 'utf8')
+  const page = readFileSync(new URL('../../src/pages/LoginPage/index.tsx', import.meta.url), 'utf8')
 
   it('has no demo shortcuts and keeps the contact links', () => {
     for (const text of ['Não tenho cadastro', 'Pré-visualização local', 'Abrir como gestor', 'Abrir como funcionário', 'Voltar']) expect(page).not.toContain(text)
@@ -91,7 +91,7 @@ describe('login page and recovery', () => {
   it('shows one confirmation that does not reveal whether the account exists (BR-19)', () => {
     expect(forgotCopy.confirmation).toContain('Se o e-mail tiver conta ativa')
     // The service swallows every failure, so the dialog cannot tell the cases apart.
-    const service = readFileSync(new URL('../../src/features/auth/api/passwordReset.ts', import.meta.url), 'utf8')
+    const service = readFileSync(new URL('../../src/services/auth.ts', import.meta.url), 'utf8')
     expect(service).toMatch(/catch \{\s*\/\/[^\n]*\n\s*\}/)
   })
 })

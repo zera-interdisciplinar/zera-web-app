@@ -1,11 +1,12 @@
 import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
-import { AccessibilityPanel, AccessibilityProvider } from './shared/accessibility'
-import { navigationItems } from './app/navigation'
+import { AccessibilityPanel } from './components/AccessibilityPanel'
+import { AccessibilityProvider } from './context/AccessibilityContext'
+import { navigationItems } from './utils/navigation'
 import { AppRoutes } from './routes/AppRoutes'
 import { AvisoNavegacao } from './components/AvisoNavegacao'
 import { LimiteErro } from './components/LimiteErro'
-import { AppProviders } from './app/providers'
+import { AppProviders } from './context/AppProviders'
 
 const voiceRoutes = navigationItems.map((item) => ({ phrase: item.voice, path: item.path }))
 

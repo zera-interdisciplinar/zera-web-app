@@ -2,28 +2,34 @@ import { readFileSync } from 'node:fs'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { createHttpClient } from '../../src/shared/api/httpClient'
-import { ApiError } from '../../src/shared/api/errors'
-import type { CreateItemInput } from '../../src/features/items/schemas/forms'
-import { createItemSchema, editItemSchema, rejectSchema } from '../../src/features/items/schemas/forms'
-import { eventSchema, itemPageSchema, itemSchema, ITEM_STATUSES, ITEM_CONDITIONS, DAMAGE_TYPES, MATERIAL_CODES, EVENT_TYPES, type ItemResponse, type ItemStatus } from '../../src/features/items/schemas/item'
-import { toCreateRequest, toUpdateRequest } from '../../src/features/items/model/requests'
-import { toEditInput, toEditValues } from '../../src/features/items/model/editValues'
-import { ACTION_LABEL, availableActions } from '../../src/features/items/model/actions'
-import { DEFAULT_PAGE_SIZE, parseItemFilters, toItemSearchParams } from '../../src/features/items/model/filters'
-import { toFormFailure } from '../../src/features/items/model/formErrors'
-import { EVENT_LABEL, fieldLabel, STATUS_LABEL, STATUS_TONE } from '../../src/features/items/model/labels'
-import { StatusPill } from '../../src/features/items/components/StatusPill'
-import { ItemActionButtons } from '../../src/features/items/components/ItemActionButtons'
-import { Pagination } from '../../src/shared/ui/Pagination'
-import { TextField, ChoiceGroup } from '../../src/shared/ui/fields'
+import { createHttpClient } from '../../src/services/httpClient'
+import { ApiError } from '../../src/utils/apiError'
+
+import { createItemSchema, editItemSchema, rejectSchema } from '../../src/utils/itemValidation'
+import { eventSchema, itemPageSchema, itemSchema, ITEM_STATUSES, ITEM_CONDITIONS, DAMAGE_TYPES, MATERIAL_CODES, EVENT_TYPES } from '../../src/utils/itemSchemas'
+import { toCreateRequest, toUpdateRequest } from '../../src/utils/itemRequests'
+import { toEditInput, toEditValues } from '../../src/utils/itemEditValues'
+import { ACTION_LABEL, availableActions } from '../../src/utils/itemActions'
+import { DEFAULT_PAGE_SIZE, parseItemFilters, toItemSearchParams } from '../../src/utils/itemFilters'
+import { toFormFailure } from '../../src/utils/itemFormErrors'
+import { EVENT_LABEL, fieldLabel, STATUS_LABEL, STATUS_TONE } from '../../src/utils/itemLabels'
+import { StatusPill } from '../../src/components/StatusPill'
+import { ItemActionButtons } from '../../src/components/ItemActionButtons'
+import { Pagination } from '../../src/components/Pagination'
+import { TextField } from '../../src/components/TextField'
+import { ChoiceGroup } from '../../src/components/ChoiceGroup'
+import { ChoiceOption } from '../../src/components/ChoiceOption'
+import { FilterSelect } from '../../src/components/FilterSelect'
+import type { CreateItemInput, ItemResponse, ItemStatus } from '../../src/types/item'
 
 // The application client is replaced by one backed by a fetch double, so the real API module runs end to end.
 const holder = vi.hoisted(() => ({ client: undefined as unknown }))
-vi.mock('../../src/shared/api/http', () => ({ http: { request: (...args: unknown[]) => (holder.client as { request: (...a: unknown[]) => unknown }).request(...args) } }))
+vi.mock('../../src/services/http', () => ({ http: { request: (...args: unknown[]) => (holder.client as { request: (...a: unknown[]) => unknown }).request(...args) } }))
 
-const { itemsApi, catalogApi } = await import('../../src/features/items/api/itemsApi')
-const { createAndSubmit } = await import('../../src/features/items/hooks/mutations')
+const { approveItem, getItem, listItemEvents, listItems, rejectItem, removeItem, restoreItem, updateItem } = await import('../../src/services/items')
+const { listCategories } = await import('../../src/services/categories')
+const { listMaterials } = await import('../../src/services/materials')
+const { createAndSubmit } = await import('../../src/hooks/useItemMutations')
 
 const contract = JSON.parse(readFileSync(new URL('../fixtures/openapi/inventory.json', import.meta.url), 'utf8').replace(/^\uFEFF/, '')) as {
   components: { schemas: Record<string, { required?: string[]; properties: Record<string, { enum?: string[]; items?: { enum?: string[] } }> }> }
@@ -300,7 +306,7 @@ describe('items API against a fetch double (BR-09, BR-10, BR-15)', () => {
 
   it('lists with server-side pagination and filters, skipping empty ones', async () => {
     fetchMock.mockResolvedValue(json({ content: [item()], page: 1, size: 50, totalElements: 51, totalPages: 2 }))
-    const page = await itemsApi.list({ page: 1, size: 50, q: 'note', status: 'IN_STOCK', categoryId: undefined })
+    const page = await listItems({ page: 1, size: 50, q: 'note', status: 'IN_STOCK', categoryId: undefined })
     expect(page.totalElements).toBe(51)
     expect(call(0).url).toBe('/api/inventory/api/v1/items?page=1&size=50&q=note&status=IN_STOCK')
     expect((call(0).init.headers as Record<string, string>)['X-Unit-Id']).toBe('unit-1')
@@ -308,12 +314,12 @@ describe('items API against a fetch double (BR-09, BR-10, BR-15)', () => {
 
   it('fails with a contract error when the list does not match the schema', async () => {
     fetchMock.mockResolvedValue(json({ content: [{ id: 'x' }], page: 0, size: 20, totalElements: 1, totalPages: 1 }))
-    await expect(itemsApi.list({ page: 0, size: 20 })).rejects.toMatchObject({ kind: 'contract' })
+    await expect(listItems({ page: 0, size: 20 })).rejects.toMatchObject({ kind: 'contract' })
   })
 
   it('encodes the id in the path', async () => {
     fetchMock.mockResolvedValue(json(item()))
-    await itemsApi.get('a/b c')
+    await getItem('a/b c')
     expect(call(0).url).toBe('/api/inventory/api/v1/items/a%2Fb%20c')
   })
 
@@ -347,11 +353,11 @@ describe('items API against a fetch double (BR-09, BR-10, BR-15)', () => {
   })
 
   it.each([
-    ['update', () => itemsApi.update('i', { name: 'N' }), 'PATCH', '/api/inventory/api/v1/items/i', { name: 'N' }],
-    ['remove', () => itemsApi.remove('i'), 'DELETE', '/api/inventory/api/v1/items/i', undefined],
-    ['restore', () => itemsApi.restore('i'), 'POST', '/api/inventory/api/v1/items/i/restore', undefined],
-    ['approve', () => itemsApi.approve('i'), 'POST', '/api/inventory/api/v1/items/i/approve', undefined],
-    ['reject', () => itemsApi.reject('i', 'Sem foto'), 'POST', '/api/inventory/api/v1/items/i/reject', { reason: 'Sem foto' }],
+    ['update', () => updateItem('i', { name: 'N' }), 'PATCH', '/api/inventory/api/v1/items/i', { name: 'N' }],
+    ['remove', () => removeItem('i'), 'DELETE', '/api/inventory/api/v1/items/i', undefined],
+    ['restore', () => restoreItem('i'), 'POST', '/api/inventory/api/v1/items/i/restore', undefined],
+    ['approve', () => approveItem('i'), 'POST', '/api/inventory/api/v1/items/i/approve', undefined],
+    ['reject', () => rejectItem('i', 'Sem foto'), 'POST', '/api/inventory/api/v1/items/i/reject', { reason: 'Sem foto' }],
   ])('%s calls the right endpoint', async (_, run, method, url, body) => {
     fetchMock.mockImplementation(async () => (method === 'DELETE' ? new Response(null, { status: 204 }) : json(item())))
     await run()
@@ -363,9 +369,9 @@ describe('items API against a fetch double (BR-09, BR-10, BR-15)', () => {
     fetchMock.mockResolvedValueOnce(json({ content: [], page: 0, size: 20, totalElements: 0, totalPages: 0 }))
       .mockResolvedValueOnce(json([category]))
       .mockResolvedValueOnce(json([model.materials[0]]))
-    await itemsApi.events('i', 0, 20)
-    await catalogApi.categories()
-    await catalogApi.materials()
+    await listItemEvents('i', 0, 20)
+    await listCategories()
+    await listMaterials()
     expect(call(0).url).toBe('/api/inventory/api/v1/items/i/events?page=0&size=20')
     expect((call(1).init.headers as Record<string, string>)['X-Unit-Id']).toBe('unit-1')
     expect((call(2).init.headers as Record<string, string>)['X-Unit-Id']).toBeUndefined()
@@ -403,6 +409,15 @@ describe('presentation', () => {
     expect(html).toContain('aria-describedby="name-error"')
     expect(html).toContain('id="name-error" role="alert"')
     expect(renderToStaticMarkup(createElement(TextField, { label: 'Nome', id: 'ok' }))).not.toContain('aria-invalid')
+  })
+
+  it('ties every option and filter to its label with htmlFor', () => {
+    const option = renderToStaticMarkup(createElement(ChoiceOption, { type: 'radio', value: 'yes', label: 'Sim', id: 'damages-yes' }))
+    expect(option).toMatch(/<input[^>]*id="damages-yes"/)
+    expect(option).toContain('<label for="damages-yes">Sim</label>')
+    const filter = renderToStaticMarkup(createElement(FilterSelect, { label: 'Status', id: 'status' }, createElement('option', { value: '' }, 'Todos')))
+    expect(filter).toContain('<label for="status">Status</label>')
+    expect(filter).toContain('<select id="status">')
   })
 
   it('groups choices under a legend with one error', () => {

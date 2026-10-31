@@ -2,21 +2,24 @@ import { readFileSync } from 'node:fs'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { createHttpClient } from '../../src/shared/api/httpClient'
-import { ApiError } from '../../src/shared/api/errors'
-import { categoryFormSchema, modelFormSchema, type ModelFormInput } from '../../src/features/models/schemas/forms'
-import { settingsFormSchema, unitSettingsSchema } from '../../src/features/settings/schemas/settings'
-import { toCreateModelRequest, toModelPatches } from '../../src/features/models/model/requests'
-import { APPROVAL_LABEL } from '../../src/features/models/model/labels'
-import { modelSchema, APPROVAL_STATUSES, type Model } from '../../src/features/items/schemas/item'
-import { ConfirmDeleteDialog } from '../../src/features/models/components/ConfirmDeleteDialog'
+import { createHttpClient } from '../../src/services/httpClient'
+import { ApiError } from '../../src/utils/apiError'
+import { categoryFormSchema, modelFormSchema } from '../../src/utils/modelValidation'
+import { settingsFormSchema, unitSettingsSchema } from '../../src/utils/settingsValidation'
+import { toCreateModelRequest, toModelPatches } from '../../src/utils/modelRequests'
+import { APPROVAL_LABEL } from '../../src/utils/modelLabels'
+import { modelSchema, APPROVAL_STATUSES } from '../../src/utils/itemSchemas'
+import { ConfirmDeleteDialog } from '../../src/components/ConfirmDeleteDialog'
+import type { ModelFormInput } from '../../src/types/model'
+import type { Model } from '../../src/types/item'
 
 const holder = vi.hoisted(() => ({ client: undefined as unknown }))
-vi.mock('../../src/shared/api/http', () => ({ http: { request: (...args: unknown[]) => (holder.client as { request: (...a: unknown[]) => unknown }).request(...args) } }))
+vi.mock('../../src/services/http', () => ({ http: { request: (...args: unknown[]) => (holder.client as { request: (...a: unknown[]) => unknown }).request(...args) } }))
 
-const { modelsApi, categoriesApi } = await import('../../src/features/models/api/modelsApi')
-const { settingsApi } = await import('../../src/features/settings/api/settingsApi')
-const { deleteFailureMessage } = await import('../../src/features/models/hooks/mutations')
+const { createModel, listModelItems, listModels, removeModel, renameModel, setModelLifespan, setModelManufacturer, setModelMaterials, setModelWarranty } = await import('../../src/services/models')
+const { createCategory, removeCategory, renameCategory, setCategoryDescription } = await import('../../src/services/categories')
+const { getUnitSettings, saveUnitSettings } = await import('../../src/services/settings')
+const { deleteFailureMessage } = await import('../../src/hooks/useModelMutations')
 
 const contract = JSON.parse(readFileSync(new URL('../fixtures/openapi/inventory.json', import.meta.url), 'utf8').replace(/^\uFEFF/, '')) as {
   components: { schemas: Record<string, { required?: string[]; properties: Record<string, { enum?: string[]; minimum?: number; maxLength?: number }> }> }
@@ -135,22 +138,22 @@ describe('models and categories API against a fetch double', () => {
 
   it('lists models with server-side pagination and the approval filter', async () => {
     fetchMock.mockResolvedValue(json({ content: [model], page: 1, size: 20, totalElements: 21, totalPages: 2 }))
-    const page = await modelsApi.list({ page: 1, size: 20, approvalStatus: 'PENDING' })
+    const page = await listModels({ page: 1, size: 20, approvalStatus: 'PENDING' })
     expect(page.totalElements).toBe(21)
     expect(call(0).url).toBe('/api/inventory/api/v1/models?page=1&size=20&approvalStatus=PENDING')
   })
 
   it('refuses a model with an approval status outside the contract', async () => {
     fetchMock.mockResolvedValue(json({ content: [{ ...model, approvalStatus: 'PENDING_APPROVAL' }], page: 0, size: 20, totalElements: 1, totalPages: 1 }))
-    await expect(modelsApi.list({ page: 0, size: 20 })).rejects.toMatchObject({ kind: 'contract' })
+    await expect(listModels({ page: 0, size: 20 })).rejects.toMatchObject({ kind: 'contract' })
   })
 
   it.each([
-    ['rename', () => modelsApi.rename('m', 'N'), '/models/m/name', { name: 'N' }],
-    ['manufacturer', () => modelsApi.setManufacturer('m', 'F'), '/models/m/manufacturer', { manufacturer: 'F' }],
-    ['warranty', () => modelsApi.setWarranty('m', 12), '/models/m/warranty-months', { warrantyMonths: 12 }],
-    ['lifespan', () => modelsApi.setLifespan('m', 60), '/models/m/expected-lifespan-months', { expectedLifespanMonths: 60 }],
-    ['materials', () => modelsApi.setMaterials('m', ['GLASS']), '/models/m/materials', { materials: ['GLASS'] }],
+    ['rename', () => renameModel('m', 'N'), '/models/m/name', { name: 'N' }],
+    ['manufacturer', () => setModelManufacturer('m', 'F'), '/models/m/manufacturer', { manufacturer: 'F' }],
+    ['warranty', () => setModelWarranty('m', 12), '/models/m/warranty-months', { warrantyMonths: 12 }],
+    ['lifespan', () => setModelLifespan('m', 60), '/models/m/expected-lifespan-months', { expectedLifespanMonths: 60 }],
+    ['materials', () => setModelMaterials('m', ['GLASS']), '/models/m/materials', { materials: ['GLASS'] }],
   ])('%s has its own PATCH', async (_, run, suffix, expected) => {
     fetchMock.mockResolvedValue(json(model))
     await run()
@@ -161,7 +164,7 @@ describe('models and categories API against a fetch double', () => {
 
   it('creates a model and never puts the unit in the body', async () => {
     fetchMock.mockResolvedValue(json(model, 201))
-    await modelsApi.create(toCreateModelRequest(modelFormSchema.parse(validModel())))
+    await createModel(toCreateModelRequest(modelFormSchema.parse(validModel())))
     expect(call(0)).toMatchObject({ url: '/api/inventory/api/v1/models', init: { method: 'POST' } })
     expect(body(0)).not.toHaveProperty('unitId')
     expect((call(0).init.headers as Record<string, string>)['X-Unit-Id']).toBe('unit-1')
@@ -169,23 +172,23 @@ describe('models and categories API against a fetch double', () => {
 
   it('lists the items of a model page by page', async () => {
     fetchMock.mockResolvedValue(json({ content: [], page: 0, size: 20, totalElements: 0, totalPages: 0 }))
-    await modelsApi.items('m/1', 0, 20)
+    await listModelItems('m/1', 0, 20)
     expect(call(0).url).toBe('/api/inventory/api/v1/models/m%2F1/items?page=0&size=20')
   })
 
   it('deletes models and categories, and keeps the 409 for the caller', async () => {
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 })).mockResolvedValueOnce(json({ status: 409, title: 'Conflict' }, 409))
-    await modelsApi.remove('m')
+    await removeModel('m')
     expect(call(0)).toMatchObject({ url: '/api/inventory/api/v1/models/m', init: { method: 'DELETE' } })
-    await expect(categoriesApi.remove('c')).rejects.toMatchObject({ status: 409 })
+    await expect(removeCategory('c')).rejects.toMatchObject({ status: 409 })
     expect(call(1)).toMatchObject({ url: '/api/inventory/api/v1/categories/c', init: { method: 'DELETE' } })
   })
 
   it('creates and edits categories through their own endpoints', async () => {
     fetchMock.mockImplementation(async () => json(category))
-    await categoriesApi.create({ name: 'N', description: 'D' })
-    await categoriesApi.rename('c', 'N2')
-    await categoriesApi.setDescription('c', 'D2')
+    await createCategory({ name: 'N', description: 'D' })
+    await renameCategory('c', 'N2')
+    await setCategoryDescription('c', 'D2')
     expect([call(0), call(1), call(2)].map((entry) => `${entry.init.method} ${entry.url}`)).toEqual([
       'POST /api/inventory/api/v1/categories', 'PATCH /api/inventory/api/v1/categories/c/name', 'PATCH /api/inventory/api/v1/categories/c/description',
     ])
@@ -195,8 +198,8 @@ describe('models and categories API against a fetch double', () => {
   it('reads and saves the stock capacity with PUT', async () => {
     fetchMock.mockResolvedValueOnce(json({ unitId: 'u', stockCapacity: null, configured: false }))
       .mockResolvedValueOnce(json({ unitId: 'u', stockCapacity: 300, configured: true, updatedByName: 'Ana', updatedAt: '2026-10-28T14:12:00Z' }))
-    expect((await settingsApi.get()).stockCapacity).toBeNull()
-    const saved = await settingsApi.save(300)
+    expect((await getUnitSettings()).stockCapacity).toBeNull()
+    const saved = await saveUnitSettings(300)
     expect(saved.stockCapacity).toBe(300)
     expect(call(1)).toMatchObject({ url: '/api/inventory/api/v1/unit-settings', init: { method: 'PUT' } })
     expect(body(1)).toEqual({ stockCapacity: 300 })

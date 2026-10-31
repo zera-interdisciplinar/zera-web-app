@@ -30,7 +30,7 @@ jobs:
       - run: npm run lint
       - name: Type check
         run: node ./node_modules/typescript/bin/tsc -b
-      - name: Unit tests with coverage (>= 80 % of lines in shared/ and features/*/{schemas,model,api})
+      - name: Unit tests with coverage (>= 80 % of lines in src/services, src/utils and src/reducers)
         run: npm run test:coverage
       - run: npm run build
       - name: No private values in the bundle

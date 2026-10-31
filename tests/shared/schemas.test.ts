@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
-import { isoDate, isoDateTime, pageSchema } from '../../src/shared/api/schemas'
-import { createQueryClient } from '../../src/shared/api/queryClient'
+import { isoDate, isoDateTime, pageSchema } from '../../src/utils/commonSchemas'
+import { createQueryClient } from '../../src/utils/queryClient'
 
 const page = pageSchema(z.object({ id: z.string() }))
 

@@ -5,12 +5,12 @@ import { CarregandoPagina } from '../components/CarregandoPagina'
 import { PrivateRoute } from '../components/PrivateRoute'
 import { EstruturaPublica } from '../components/EstruturaPublica'
 
-const LoginPage = lazy(() => import('../features/auth/pages/LoginPage'))
-const DashboardPage = lazy(() => import('../features/dashboard/pages/OverviewPage'))
-const ItemsPage = lazy(() => import('../features/items/pages/ItemsPage'))
-const ItemDetailPage = lazy(() => import('../features/items/pages/ItemDetailPage'))
-const ModelsPage = lazy(() => import('../features/models/pages/ModelsPage'))
-const SettingsPage = lazy(() => import('../features/settings/pages/SettingsPage'))
+const LoginPage = lazy(() => import('../pages/LoginPage'))
+const DashboardPage = lazy(() => import('../pages/OverviewPage'))
+const ItemsPage = lazy(() => import('../pages/ItemsPage'))
+const ItemDetailPage = lazy(() => import('../pages/ItemDetailPage'))
+const ModelsPage = lazy(() => import('../pages/ModelsPage'))
+const SettingsPage = lazy(() => import('../pages/SettingsPage'))
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'))
 
 export function AppRoutes() {

@@ -1,14 +1,17 @@
 import { readFileSync } from 'node:fs'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { navigationItems } from '../../src/app/navigation'
-import { applyPreferences, defaultPreferences, loadPreferences, preferencesSchema, savePreferences, TEXT_SCALES } from '../../src/shared/accessibility/preferences'
+import { navigationItems } from '../../src/utils/navigation'
+import { applyPreferences, defaultPreferences, loadPreferences, PREFERENCES_VERSION, preferencesSchema, savePreferences, TEXT_SCALES } from '../../src/utils/accessibilityPreferences'
 
 const css = readFileSync(new URL('../../styles/global.css', import.meta.url), 'utf8')
 
+const KEY = 'zera.a11y'
+
 function fakeStorage(initial?: string) {
-  const data = new Map<string, string>(initial === undefined ? [] : [['zera.a11y.v1', initial]])
-  return { getItem: (key: string) => data.get(key) ?? null, setItem: (key: string, value: string) => { data.set(key, value) }, data }
+  const data = new Map<string, string>(initial === undefined ? [] : [[KEY, initial]])
+  return { getItem: (key: string) => data.get(key) ?? null, setItem: (key: string, value: string) => { data.set(key, value) }, removeItem: (key: string) => { data.delete(key) }, data }
 }
+const envelope = (data: unknown, version = PREFERENCES_VERSION) => JSON.stringify({ _versao: version, data })
 
 afterEach(() => vi.unstubAllGlobals())
 
@@ -28,9 +31,13 @@ describe('preferences', () => {
 
   it('falls back to the defaults for corrupted or foreign stored values', () => {
     const fallback = defaultPreferences()
-    for (const stored of ['not json', '{"textScale":300}', '[]', 'null', '{"highContrast":"sim"}']) {
-      vi.stubGlobal('window', { localStorage: fakeStorage(stored) })
-      expect(loadPreferences(fallback)).toEqual(fallback)
+    const unversioned = JSON.stringify({ ...defaultPreferences(), textScale: 150 })
+    for (const stored of ['not json', unversioned, '[]', 'null', envelope({ textScale: 300 }), envelope({ ...defaultPreferences(), highContrast: 'sim' }), envelope(defaultPreferences(), PREFERENCES_VERSION + 1)]) {
+      const storage = fakeStorage(stored)
+      vi.stubGlobal('window', { localStorage: storage })
+      expect(loadPreferences(fallback), stored).toEqual(fallback)
+      // What cannot be used is removed, so it is not read again on every start.
+      expect(storage.data.has(KEY), stored).toBe(false)
     }
   })
 
@@ -39,8 +46,9 @@ describe('preferences', () => {
     vi.stubGlobal('window', { localStorage: storage })
     const chosen = { ...defaultPreferences(), textScale: 150, readableFont: true }
     savePreferences(chosen)
+    expect(JSON.parse(storage.data.get(KEY) ?? '{}')._versao).toBe(PREFERENCES_VERSION)
     expect(loadPreferences(defaultPreferences())).toEqual(chosen)
-    vi.stubGlobal('window', { localStorage: { getItem() { throw new Error('blocked') }, setItem() { throw new Error('blocked') } } })
+    vi.stubGlobal('window', { localStorage: { getItem() { throw new Error('blocked') }, setItem() { throw new Error('blocked') }, removeItem() { throw new Error('blocked') } } })
     expect(() => savePreferences(chosen)).not.toThrow()
     expect(loadPreferences(defaultPreferences())).toEqual(defaultPreferences())
   })
@@ -84,7 +92,7 @@ describe('global stylesheet', () => {
 describe('voice commands (A-8)', () => {
   it('come from the navigation items the sidebar shows, with no stale routes', () => {
     expect(navigationItems.map((item) => item.path)).toEqual(['/', '/itens', '/modelos', '/configuracoes'])
-    const panel = readFileSync(new URL('../../src/shared/accessibility/AccessibilityPanel.tsx', import.meta.url), 'utf8')
+    const panel = readFileSync(new URL('../../src/components/AccessibilityPanel/index.tsx', import.meta.url), 'utf8')
     for (const stale of ['recicladoras', 'funcionários', 'relatórios', 'login']) expect(panel).not.toContain(stale)
   })
 })

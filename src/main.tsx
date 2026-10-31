@@ -10,7 +10,7 @@ import '@fontsource/instrument-sans/latin-600.css'
 import '@fontsource/instrument-sans/latin-700.css'
 import '../styles/global.css'
 import { App } from './App'
-import { sessionManager } from './shared/auth'
+import { sessionManager } from './services/session'
 
 const raiz = document.getElementById('root')
 if (!raiz) throw new Error('Elemento #root não encontrado.')

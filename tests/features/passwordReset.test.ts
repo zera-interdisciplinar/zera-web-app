@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
 const request = vi.hoisted(() => vi.fn())
-vi.mock('../../src/shared/api/http', () => ({ http: { request } }))
+vi.mock('../../src/services/http', () => ({ http: { request } }))
 
-const { requestPasswordReset } = await import('../../src/features/auth/api/passwordReset')
+const { requestPasswordReset } = await import('../../src/services/auth')
 
 describe('password reset request (BR-19)', () => {
   it('calls the public endpoint without a token', async () => {

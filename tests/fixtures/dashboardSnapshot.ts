@@ -1,4 +1,5 @@
-import type { DashboardSnapshot } from '../../src/features/dashboard/schemas/snapshot'
+import type { DashboardSnapshot } from '../../src/types/dashboard'
+
 
 /** Synthetic snapshot in the shape of the ms-analytics-bff contract (Confluence page 7). */
 export const dashboardSnapshotMock: DashboardSnapshot = {

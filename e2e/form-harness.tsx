@@ -1,8 +1,8 @@
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { AuthContext } from '../src/context/auth'
-import { AccessibilityProvider } from '../src/shared/accessibility'
-import LoginPage from '../src/features/auth/pages/LoginPage'
+import { AccessibilityProvider } from '../src/context/AccessibilityContext'
+import LoginPage from '../src/pages/LoginPage'
 import '../styles/global.css'
 
 // Apenas entrada de testes do Vite: não é importada pelo aplicativo nem pelo build.

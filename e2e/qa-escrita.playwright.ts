@@ -79,9 +79,9 @@ test('QA real autorizado: categoria, modelo Outro e item criados na interface; c
     await expect(page).toHaveURL(new RegExp(`/itens/${itemId}`))
     await page.getByRole('button', { name: `Editar ${item}` }).click()
     await dialog.getByLabel('Nome do item').fill(`${prefixo}-alteracao-cancelada`)
-    page.once('dialog', native => void native.accept())
     await dialog.getByRole('button', { name: 'Cancelar' }).click()
-    await expect(dialog).toBeHidden()
+    await page.getByRole('dialog', { name: 'Descartar alterações?' }).getByRole('button', { name: 'Descartar', exact: true }).click()
+    await expect(dialog).toHaveCount(0)
     await expect(page.getByRole('heading', { name: item, exact: true, level: 1 })).toBeVisible()
     etapa = 'listagem da categoria'
     await page.getByRole('link', { name: 'Modelos', exact: true }).click()

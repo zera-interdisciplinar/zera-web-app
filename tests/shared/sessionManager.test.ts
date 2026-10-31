@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ApiError } from '../../src/shared/api/errors'
-import type { AuthApi } from '../../src/shared/auth/authApi'
-import { AuthRejectedError } from '../../src/shared/auth/gate'
-import type { TokenResponse, UserOutput } from '../../src/shared/auth/schemas'
-import { createSessionManager, type RefreshTokenStorage } from '../../src/shared/auth/sessionManager'
-import { createSessionStore } from '../../src/shared/auth/sessionStore'
+import { ApiError } from '../../src/utils/apiError'
+
+import { AuthRejectedError } from '../../src/utils/managerGate'
+
+import { createSessionManager } from '../../src/services/sessionManager'
+import { createSessionStore } from '../../src/services/sessionStore'
+import type { AuthApi, TokenResponse, UserOutput, RefreshTokenStorage } from '../../src/types/auth'
 
 const manager: UserOutput = { userId: 'user-1', name: 'Natalia Flores', email: 'natalia@example.invalid', role: 'MANAGER', status: 'ACTIVE', unitId: 'unit-1' }
 const tokens = (n: number, userId = 'user-1'): TokenResponse => ({ userId, accessToken: `access-${n}`, refreshToken: `refresh-${n}`, tokenType: 'Bearer', expiresIn: 3600 })

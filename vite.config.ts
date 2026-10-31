@@ -30,10 +30,10 @@ export default defineConfig(({ mode }) => {
     test: {
       coverage: {
         provider: 'v8',
-        // The layers where the contract and the business rules live (spec 12.1). Components and hooks need a
-        // browser and are exercised by the Playwright suite, so they are left out of the unit coverage.
-        include: ['src/shared/**/*.ts', 'src/features/*/{schemas,model,api}/**/*.ts'],
-        exclude: ['**/*.d.ts', '**/index.ts', 'src/shared/**/use*.ts', 'src/shared/api/http.ts'],
+        // The layers where the contract and the business rules live: services, utils and reducers. Components and
+        // hooks need a browser and are exercised by the Playwright suite, so they stay out of the unit coverage.
+        include: ['src/services/**/*.ts', 'src/utils/**/*.ts', 'src/reducers/**/*.ts'],
+        exclude: ['**/*.d.ts', 'src/services/http.ts', 'src/services/session.ts'],
         reporter: ['text-summary', 'text'],
         thresholds: { lines: 80 },
       },

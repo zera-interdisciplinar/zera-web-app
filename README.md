@@ -18,9 +18,13 @@ A reformulação para um painel exclusivo do gestor está especificada em [docs/
 
 As contas de teste são informadas na entrega, não ficam no repositório.
 
+## Estrutura
+
+`src/components/<Nome>/index.tsx` e `src/pages/<Nome>/index.tsx` (um por pasta), `hooks/`, `context/`, `reducers/`, `services/` (única camada com `fetch`, um arquivo por recurso), `types/` (entidades e props), `utils/` (validação, schemas da API, formatação, `localStorage` versionado). Estilos em `styles/` e imagens em `assets/`: dentro de `src/` só há `.ts` e `.tsx`. As regras de dependência entre as pastas são checadas por `npm run check`.
+
 ## Verificações
 
-`npm run check` (estrutura e fronteiras entre camadas), `npm run lint`, `npm run test:coverage` (mínimo de 80 % das linhas em `shared/` e `features/*/{schemas,model,api}`), `npm run build` e `npm run test:e2e`. O workflow [ci.yml](.github/workflows/ci.yml) roda todas elas; ele só valida, não publica.
+`npm run check` (estrutura e fronteiras entre camadas), `npm run lint`, `npm run test:coverage` (mínimo de 80 % das linhas em `src/services`, `src/utils` e `src/reducers`), `npm run build` e `npm run test:e2e`. O workflow [ci.yml](.github/workflows/ci.yml) roda todas elas; ele só valida, não publica.
 
 ## Publicação (cluster)
 

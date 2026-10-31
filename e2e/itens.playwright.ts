@@ -169,18 +169,20 @@ test('T-12: editar envia só o que mudou e o "Limpar" apaga com string vazia (BR
   await expect(rowOf(page, 'Item 01 revisado')).toBeVisible()
 })
 
-test('editar com alterações pendentes pede confirmação ao fechar', async ({ page }) => {
+test('editar com alterações pendentes pede confirmação ao fechar, dentro da página', async ({ page }) => {
   await abrir(page)
   await page.getByRole('button', { name: 'Editar Item 01' }).click()
   await dialog(page).getByLabel('Nome do item').fill('Outro nome')
-  const prompts: string[] = []
-  page.once('dialog', async (native) => { prompts.push(native.message()); await native.dismiss() })
   await page.keyboard.press('Escape')
-  await expect(dialog(page)).toBeVisible()
-  page.once('dialog', (native) => { prompts.push(native.message()); void native.accept() })
+  const pergunta = page.getByRole('dialog', { name: 'Descartar alterações?' })
+  await expect(pergunta).toBeVisible()
+  await pergunta.getByRole('button', { name: 'Continuar editando' }).click()
+  await expect(pergunta).toBeHidden()
+  await expect(page.getByRole('dialog', { name: /Editar item/ })).toBeVisible()
+  await expect(page.getByLabel('Nome do item')).toHaveValue('Outro nome')
   await page.keyboard.press('Escape')
-  await expect(dialog(page)).toBeHidden()
-  expect(prompts).toEqual(['Descartar as alterações?', 'Descartar as alterações?'])
+  await pergunta.getByRole('button', { name: 'Descartar', exact: true }).click()
+  await expect(dialog(page)).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Editar Item 01' })).toBeFocused()
 })
 

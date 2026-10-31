@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { pickLocalVoice, splitForSpeech } from '../../src/shared/accessibility/readAloud'
+import { pickLocalVoice, splitForSpeech } from '../../src/utils/readAloud'
 
 function voz(lang: string, localService: boolean): SpeechSynthesisVoice {
   return { lang, localService, default: false, name: lang, voiceURI: lang }

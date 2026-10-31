@@ -1,5 +1,5 @@
 import { Box, LayoutDashboard, Package, Settings } from 'lucide-react'
-import { navigationItems } from '../../app/navigation'
+import { navigationItems } from '../../utils/navigation'
 import { useAuth } from '../../hooks/useAuth'
 import { usePermissoes } from '../../hooks/usePermissoes'
 import { iniciais, ROTULO_PERFIL } from '../../types/usuario'

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseEnv } from '../../src/shared/config/env'
+import { parseEnv } from '../../src/utils/env'
 
 describe('parseEnv', () => {
   it('falls back to the same-origin proxy paths', () => {

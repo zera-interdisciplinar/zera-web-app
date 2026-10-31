@@ -3,8 +3,19 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, normalize } from 'node:path'
 import ts from 'typescript'
 
-/** Dependências permitidas entre features (quem importa > quem é importado). Modelos reaproveita o catálogo e os esquemas de itens. */
-const DEPENDENCIAS_ENTRE_FEATURES = new Set(['models>items'])
+/**
+ * Camadas de `src/` e o que cada uma NÃO pode importar (a direção das dependências):
+ * telas e componentes falam com hooks; hooks falam com services; services e utils não conhecem a interface.
+ */
+const PROIBIDO_IMPORTAR = {
+  utils: ['services', 'hooks', 'context', 'components', 'pages', 'reducers', 'routes'],
+  reducers: ['services', 'hooks', 'context', 'components', 'pages', 'routes'],
+  services: ['hooks', 'context', 'components', 'pages', 'reducers', 'routes'],
+  hooks: ['components', 'pages', 'routes'],
+  context: ['components', 'pages', 'routes'],
+  components: ['services', 'pages', 'routes'],
+  pages: ['services', 'routes'],
+}
 
 function listar(pasta) {
   return readdirSync(pasta, { withFileTypes: true }).flatMap((entrada) => entrada.isDirectory() ? listar(`${pasta}/${entrada.name}`) : [`${pasta}/${entrada.name}`])
@@ -12,9 +23,7 @@ function listar(pasta) {
 const problemas = []
 for (const arquivo of listar('src')) {
   if (!/\.tsx?$/.test(arquivo)) {
-    if (/^src\/assets\/.+\.(?:png|svg|jpe?g|webp|woff2?)$/i.test(arquivo)) continue
-    // Estilos das camadas novas ficam ao lado do componente (CSS Modules).
-    if (/^src\/(?:features|shared|app)\/.+\.module\.css$/.test(arquivo)) continue
+    // Dentro de src/ só há .ts e .tsx: estilos ficam em styles/ e imagens em assets/.
     problemas.push(`${arquivo}: extensão fora do padrão`)
     continue
   }
@@ -22,30 +31,27 @@ for (const arquivo of listar('src')) {
   const codigo = ts.createSourceFile(arquivo, texto, ts.ScriptTarget.Latest, true)
   const vista = /src\/(components|pages)\//.test(arquivo)
   if (/@ts-ignore\b/.test(texto)) problemas.push(`${arquivo}: supressão @ts-ignore`)
-  // Camadas novas (docs/specs/web-manager-refactor.md, 5.2): shared não depende de features nem de app.
-  if (arquivo.startsWith('src/shared/') && /from ['"](?:\.\.\/)+(?:features|app)\//.test(texto)) problemas.push(`${arquivo}: shared importa features ou app`)
-  // Fronteiras entre camadas (spec 5.2 / 12.1): features não importam app nem outras features, salvo as dependências declaradas.
-  const dono = /^src\/features\/([^/]+)\//.exec(arquivo)?.[1]
-  if (dono) {
+  // Direção das dependências entre as camadas de src/.
+  const camada = /^src\/([^/]+)\//.exec(arquivo)?.[1]
+  if (camada && PROIBIDO_IMPORTAR[camada]) {
     for (const declaracao of codigo.statements) {
       const especificador = (ts.isImportDeclaration(declaracao) || ts.isExportDeclaration(declaracao)) && declaracao.moduleSpecifier && ts.isStringLiteral(declaracao.moduleSpecifier) ? declaracao.moduleSpecifier.text : ''
       if (!especificador.startsWith('.')) continue
       const alvo = normalize(join(dirname(arquivo), especificador)).replaceAll('\\', '/')
-      const outra = /^src\/features\/([^/]+)(?:\/|$)/.exec(alvo)?.[1]
-      if (/^src\/(?:app|routes)(?:\/|$)/.test(alvo)) problemas.push(`${arquivo}: feature importa app ou routes (${especificador})`)
-      else if (outra && outra !== dono && !DEPENDENCIAS_ENTRE_FEATURES.has(`${dono}>${outra}`)) problemas.push(`${arquivo}: feature ${dono} importa a feature ${outra} (${especificador})`)
+      const destino = /^src\/([^/]+)(?:\/|$)/.exec(alvo)?.[1]
+      if (destino && PROIBIDO_IMPORTAR[camada].includes(destino)) problemas.push(`${arquivo}: ${camada} não pode importar ${destino} (${especificador})`)
     }
   }
   if (arquivo.startsWith('src/') && /from ['"]msw(?:\/|['"])/.test(texto)) problemas.push(`${arquivo}: msw só é permitido em tests/`)
   if (vista && arquivo.endsWith('.tsx') && !arquivo.endsWith('/index.tsx')) problemas.push(`${arquivo}: componente sem pasta própria e index.tsx`)
   function visitar(no) {
     if (no.kind === ts.SyntaxKind.AnyKeyword) problemas.push(`${arquivo}: tipo any`)
-    if (ts.isCallExpression(no) && ts.isIdentifier(no.expression) && no.expression.text === 'fetch' && !arquivo.startsWith('src/services/') && !arquivo.startsWith('src/shared/api/')) problemas.push(`${arquivo}: fetch fora de services`)
-    if (ts.isCallExpression(no) && ts.isPropertyAccessExpression(no.expression) && ['window', 'globalThis'].includes(no.expression.expression.getText(codigo)) && no.expression.name.text === 'fetch' && !arquivo.startsWith('src/services/') && !arquivo.startsWith('src/shared/api/')) problemas.push(`${arquivo}: fetch fora de services`)
+    if (ts.isCallExpression(no) && ts.isIdentifier(no.expression) && no.expression.text === 'fetch' && !arquivo.startsWith('src/services/')) problemas.push(`${arquivo}: fetch fora de services`)
+    if (ts.isCallExpression(no) && ts.isPropertyAccessExpression(no.expression) && ['window', 'globalThis'].includes(no.expression.expression.getText(codigo)) && no.expression.name.text === 'fetch' && !arquivo.startsWith('src/services/')) problemas.push(`${arquivo}: fetch fora de services`)
     if (ts.isCallExpression(no) && ts.isIdentifier(no.expression) && no.expression.text === 'alert') problemas.push(`${arquivo}: alert fora do DOM`)
     if (ts.isPropertyAccessExpression(no) && no.expression.getText(codigo) === 'window' && no.name.text === 'location') problemas.push(`${arquivo}: window.location`)
-    if (ts.isPropertyAccessExpression(no) && no.name.text === 'localStorage' && arquivo !== 'src/utils/storage.ts' && !arquivo.startsWith('src/shared/accessibility/')) problemas.push(`${arquivo}: localStorage fora de storage.ts`)
-    if (ts.isIdentifier(no) && no.text === 'localStorage' && (!ts.isPropertyAccessExpression(no.parent) || no.parent.name !== no) && arquivo !== 'src/utils/storage.ts' && !arquivo.startsWith('src/shared/accessibility/')) problemas.push(`${arquivo}: localStorage fora de storage.ts`)
+    if (ts.isPropertyAccessExpression(no) && no.name.text === 'localStorage' && arquivo !== 'src/utils/storage.ts') problemas.push(`${arquivo}: localStorage fora de storage.ts`)
+    if (ts.isIdentifier(no) && no.text === 'localStorage' && (!ts.isPropertyAccessExpression(no.parent) || no.parent.name !== no) && arquivo !== 'src/utils/storage.ts') problemas.push(`${arquivo}: localStorage fora de storage.ts`)
     if (ts.isJsxAttribute(no) && no.name.getText(codigo) === 'dangerouslySetInnerHTML') problemas.push(`${arquivo}: HTML externo`)
     if (ts.isJsxAttribute(no) && no.name.getText(codigo) === 'key' && no.initializer && ts.isJsxExpression(no.initializer) && no.initializer.expression && ts.isIdentifier(no.initializer.expression) && ['index', 'i', 'idx'].includes(no.initializer.expression.text)) problemas.push(`${arquivo}: key baseada em índice`)
     if ((ts.isJsxOpeningElement(no) || ts.isJsxSelfClosingElement(no)) && no.tagName.getText(codigo) === 'div' && no.attributes.properties.some((propriedade) => ts.isJsxAttribute(propriedade) && propriedade.name.getText(codigo) === 'onClick')) problemas.push(`${arquivo}: ação em div; use button`)

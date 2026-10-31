@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { parseSseChunk } from '../../src/shared/api/sse/parseSseChunk'
-import { createSseClient, type StreamEvent, type StreamState } from '../../src/shared/api/sse/sseClient'
-import type { ApiError } from '../../src/shared/api/errors'
-import type { SessionPort } from '../../src/shared/api/httpClient'
+import { parseSseChunk } from '../../src/utils/parseSseChunk'
+import { createSseClient } from '../../src/services/sseClient'
+import type { ApiError } from '../../src/utils/apiError'
+import type { StreamEvent, StreamState, SessionPort } from '../../src/types/http'
+
 
 const frame = (event: string, data: unknown) => `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`
 const eventStream = (...frames: string[]) => {

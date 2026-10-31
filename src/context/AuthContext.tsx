@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { sessionManager, useSession } from '../shared/auth'
+import { useSession } from '../hooks/useSession'
+import { sessionManager } from '../services/session'
 import type { AuthContextProps } from '../types/componentes/AuthContext'
 import type { Usuario, ValorAuth } from '../types/usuario'
 import { AuthContext } from './auth'

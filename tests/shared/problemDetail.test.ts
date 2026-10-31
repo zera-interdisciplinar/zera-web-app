@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { parseFieldErrors, parseProblem } from '../../src/shared/api/problemDetail'
-import { ApiError, describeApiError } from '../../src/shared/api/errors'
+import { parseFieldErrors, parseProblem } from '../../src/utils/problemDetail'
+import { ApiError, describeApiError } from '../../src/utils/apiError'
 
 describe('parseProblem', () => {
   it('reads a Spring ProblemDetail with field errors', () => {

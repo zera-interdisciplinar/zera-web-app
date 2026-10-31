@@ -1,6 +1,6 @@
 import { useAuth } from '../../hooks/useAuth'
 import { iniciais } from '../../types/usuario'
-import { TopbarSlotOutlet } from '../../shared/ui/TopbarSlot'
+import { TopbarSlotOutlet } from '../TopbarSlotOutlet'
 import estilos from '../../../styles/components/Topbar/Topbar.module.css'
 
 /** Barra superior do Figma: resumo contextual da página (slot) à esquerda e a identidade da conta à direita. */

@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
-import { createHttpClient, type SessionPort } from '../../src/shared/api/httpClient'
-import { ApiError } from '../../src/shared/api/errors'
+import { createHttpClient } from '../../src/services/httpClient'
+import { ApiError } from '../../src/utils/apiError'
+import type { SessionPort } from '../../src/types/http'
 
 const baseUrls = { administrative: '/api/administrative', inventory: '/api/inventory', analytics: '/api/analytics' }
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })

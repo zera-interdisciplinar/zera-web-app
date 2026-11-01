@@ -47,6 +47,7 @@ test('T-17: criar modelo valida no navegador e envia o corpo do contrato', async
   const inventory = await abrir(page)
   await page.getByRole('button', { name: 'Novo modelo' }).click()
   const form = dialog(page)
+  await expect(form.getByLabel('Nome do modelo')).toBeFocused()
   await form.getByRole('button', { name: 'Cadastrar modelo' }).click()
   for (const message of ['Informe o nome.', 'Informe o fabricante.', 'Selecione a categoria.', 'Selecione ao menos um material.']) await expect(form.getByText(message)).toBeVisible()
   expect(inventory.writes).toEqual([])

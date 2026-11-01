@@ -10,7 +10,7 @@ export function ConfirmDialog({ title, message, confirmLabel, cancelLabel, onCon
       <div className={styles.form}>
         <p>{message}</p>
         <div className={styles.actions}>
-          <Button variante="secundario" onClick={onCancel}>{cancelLabel}</Button>
+          <Button variante="secundario" data-autofocus onClick={onCancel}>{cancelLabel}</Button>
           <Button variante="perigo" onClick={onConfirm}>{confirmLabel}</Button>
         </div>
       </div>

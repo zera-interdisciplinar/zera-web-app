@@ -292,6 +292,9 @@ it('Req 24: abas, menus e diálogos com padrões ARIA e gerenciamento de foco', 
   const dialogo = ler('src/components/Dialog/index.tsx')
   expect(dialogo).toContain('showModal()')
   expect(dialogo).toContain('opener.focus()')
+  // Ao abrir, o foco vai para o primeiro campo (ou para a opção segura marcada), não para o botão de fechar.
+  expect(dialogo).toContain('data-autofocus')
+  expect(ler('src/components/ConfirmDialog/index.tsx')).toContain('data-autofocus')
   expect(dialogo).toContain('aria-labelledby=')
   const leitor = ler('e2e/leitor-virtual.playwright.ts')
   expect(leitor).toContain('@guidepup/virtual-screen-reader')

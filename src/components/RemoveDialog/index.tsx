@@ -14,7 +14,7 @@ export function RemoveDialog({ item, onClose, onDone }: RemoveDialogProps) {
         <p>Remover <strong>{item.name ?? item.displayCode ?? item.barcode}</strong>? O item sai das listagens e pode ser restaurado depois.</p>
         {remove.isError && <p role="alert" className={styles.formAlertLight}>{failureMessage(remove.error)}</p>}
         <div className={styles.actions}>
-          <Button variante="secundario" onClick={onClose}>Cancelar</Button>
+          <Button variante="secundario" data-autofocus onClick={onClose}>Cancelar</Button>
           <Button variante="perigo" disabled={remove.isPending} onClick={() => remove.mutate(item.id, { onSuccess: () => onDone('Item removido.') })}>
             {remove.isPending ? 'Removendo…' : 'Remover'}
           </Button>

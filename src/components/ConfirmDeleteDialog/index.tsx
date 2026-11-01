@@ -10,7 +10,7 @@ export function ConfirmDeleteDialog({ title, message, pending, error, confirmLab
         <p>{message}</p>
         {error && <p role="alert" className={styles.formAlertLight}>{error}</p>}
         <div className={styles.actions}>
-          <Button variante="secundario" onClick={onClose}>Cancelar</Button>
+          <Button variante="secundario" data-autofocus onClick={onClose}>Cancelar</Button>
           <Button variante="perigo" disabled={pending} onClick={onConfirm}>{pending ? 'Excluindo…' : confirmLabel}</Button>
         </div>
       </div>

@@ -24,6 +24,26 @@ function responderErro(res, status, mensagem) {
   res.end(JSON.stringify({ type: 'about:blank', title: titulo, status, detail: mensagem }))
 }
 
+function metodosPermitidos(servico, caminho) {
+  const segmento = "[A-Za-z0-9._~-]+"
+  if (servico === "administrative") {
+    if (/^\/api\/v1\/auth\/(?:login|refresh)$/.test(caminho)) return ["POST"]
+    if (caminho === "/api/v1/users") return ["GET"]
+    if (new RegExp("^/api/v1/users/" + segmento + "$").test(caminho)) return ["GET"]
+    if (caminho === "/api/v1/recycling-places") return ["GET"]
+    if (caminho === "/api/v1/recyclings") return ["GET", "POST"]
+    return []
+  }
+  if (servico === "analytics") return caminho === "/health" || caminho === "/api/v1/dashboard/overview" ? ["GET"] : []
+  if (servico !== "inventory") return []
+  if (["/api/v1/items", "/api/v1/models", "/api/v1/categories", "/api/v1/disposals"].includes(caminho)) return ["GET", "POST"]
+  if (["/api/v1/materials", "/api/v1/unit-settings", "/api/v1/dashboard/home", "/api/v1/dashboard/by-category", "/api/v1/dashboard/indicators"].includes(caminho)) return ["GET"]
+  if (/^\/api\/v1\/items\/by-barcode\/[A-Za-z0-9._~-]+$/.test(caminho)) return ["GET"]
+  if (/^\/api\/v1\/items\/[A-Za-z0-9._~-]+\/events$/.test(caminho)) return ["GET"]
+  if (/^\/api\/v1\/items\/[A-Za-z0-9._~-]+$/.test(caminho)) return ["GET", "PATCH", "DELETE"]
+  if (/^\/api\/v1\/items\/[A-Za-z0-9._~-]+\/(?:submit|approve|reject|lend|return|evaluate|maintenance\/(?:start|finish))$/.test(caminho)) return ["POST"]
+  return []
+}
 /**
  * @param {{ administrative?: string, inventory?: string, analytics?: string, apiKey?: string, origins?: string[] }} options
  * @returns {import('node:http').RequestListener}
@@ -35,20 +55,31 @@ export function criarProxy({ administrative, inventory, analytics, apiKey, origi
     const origin = req.headers.origin
     if (!origemPermitida(origin, req.headers.host, origins)) { res.writeHead(403); res.end(); return }
     if (origin) { res.setHeader('Access-Control-Allow-Origin', origin); res.setHeader('Vary', 'Origin') }
-    if (req.method === 'OPTIONS') {
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS')
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Unit-Id')
-      res.writeHead(204); res.end(); return
-    }
     let route
     try { route = new URL(req.url ?? '/', 'http://localhost') }
     catch { res.writeHead(400); res.end(); return }
     const match = route.pathname.match(/^\/(?:api\/)?(administrative|inventory|analytics)(\/api\/v1\/[A-Za-z0-9/_.%~-]+|\/health)$/)
-    if (!match || !['GET', 'POST', 'PATCH', 'PUT', 'DELETE'].includes(req.method ?? '')) {
+    if (!match) {
       res.writeHead(404); res.end(); return
     }
-    if ((match[1] === 'analytics' && (req.method !== 'GET' || !['/health', '/api/v1/dashboard/overview'].includes(match[2])))
-      || (match[2] === '/health' && match[1] !== 'analytics')) {
+    const metodosDaRota = metodosPermitidos(match[1], match[2])
+    if (req.method === 'OPTIONS') {
+      if (metodosDaRota.length === 0) { res.writeHead(404); res.end(); return }
+      const metodoSolicitado = req.headers['access-control-request-method']
+      if (typeof metodoSolicitado === 'string' && !metodosDaRota.includes(metodoSolicitado)) {
+        res.writeHead(404); res.end(); return
+      }
+      const cabecalhosPermitidos = new Set(['authorization', 'content-type', 'x-unit-id'])
+      const cabecalhosSolicitados = (req.headers['access-control-request-headers'] ?? '').split(',').map((item) => item.trim().toLowerCase()).filter(Boolean)
+      if (cabecalhosSolicitados.some((cabecalho) => !cabecalhosPermitidos.has(cabecalho))) {
+        res.writeHead(403); res.end(); return
+      }
+      res.setHeader('Access-Control-Allow-Methods', metodosDaRota.join(', '))
+      res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type, X-Unit-Id')
+      res.setHeader('Vary', 'Origin, Access-Control-Request-Method, Access-Control-Request-Headers')
+      res.writeHead(204); res.end(); return
+    }
+    if (!metodosDaRota.includes(req.method ?? '')) {
       res.writeHead(404); res.end(); return
     }
     if (route.searchParams.has('access_token')) {

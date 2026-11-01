@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 | --- | --- |
-| Status | **Aprovada**: decisões de 31/10/2026 incorporadas (seção 13); a Q-15 (publicação) foi respondida em 01/11/2026: o cluster é por conta de outra pessoa do time |
+| Status | **Aprovada**: publicação no GKE/Kong definida em 01/11/2026; QA por push em `qa` e produção por Release estável de `main` |
 | Data | 2026-10-31 |
 | Repositório | `zera-interdisciplinar/zera-web-app` (branch base `main` @ `45f7163`) |
 | Público | Quem vai implementar a reformulação (front-end) e quem revisa os PRs |
@@ -249,7 +249,7 @@ O dashboard usa `shared/api/sseClient` com o mesmo cabeçalho e a mesma polític
 - Remover o filtro de `EMPLOYEE` (decodificação de JWT e `createdBy`), que é inútil com BR-01.
 - `POST /items/{id}/photo` (multipart) fica fora da allowlist (D-11); por isso o limite de corpo de 64 KB se mantém.
 - O cliente **deve** reconectar quando o stream terminar (7.4): proxies intermediários podem encerrar conexões longas.
-- **Sem deploy na Vercel** (D-12): `api/proxy.ts` e `vercel.json` foram removidos no PR 2. O destino de publicação está em aberto (Q-15).
+- **Publicação no GKE/Kong** (D-12/D-13): a imagem entrega `dist/` e `server/web.mjs` na mesma origem. QA usa `qa.zeratech.online`; produção usa `gestao.zeratech.online`. O proxy injeta a chave apenas no servidor.
 - `.env.example`: `VITE_*_URL` relativos (`/api/analytics` etc.) e as variáveis `ZERA_*` acima, com os valores do QA e sem a chave.
 
 ### 7.2 Allowlist do proxy (L1)
@@ -555,7 +555,6 @@ As preferências ficam em `localStorage['zera.a11y.v1']`, validadas por zod; pre
 | Código morto | [KpiCard](../../src/components/KpiCard/index.tsx), [ChartCard](../../src/components/DashboardTabs/ChartCard/index.tsx), [DashboardTabs/index.tsx](../../src/components/DashboardTabs/index.tsx), [usePreferenciasInventario.ts](../../src/hooks/usePreferenciasInventario.ts) |
 | Regras de lint que geram boilerplate | Em [check-project.mjs](../../scripts/check-project.mjs): "agrupe o estado relacionado", "useCallback/useMemo sem justificativa", "props precisam de interface em types" |
 | Testes do demo | `tests/dashboardDemo.test.ts`, `tests/demoUsers.test.ts`, `tests/envDemo.ts`, `tests/mocks/demoUsers.ts`, handlers MSW de rotas inexistentes (`/dashboard/summary`, `/alerts/batches`, `/disposal-reports`, `/settings`, `/maintenances`, `/triage`) |
-| GitHub Pages (**removido no PR 9**, D-13) | Job `deploy`, build com `--base` e `VITE_ROUTER_MODE=hash` em [.github/workflows/pages.yml](../../.github/workflows/pages.yml); `HashRouter` em [App.tsx](../../src/App.tsx); [usePublicacao.ts](../../src/hooks/usePublicacao.ts); link do Pages no [README.md](../../README.md) |
 
 A pasta `src/` inteira é migrada para a estrutura da 5.2. Lógica aproveitável é **portada e renomeada**, não copiada:
 
@@ -627,9 +626,9 @@ A pasta `src/` inteira é migrada para a estrutura da 5.2. Lógica aproveitável
 | D-03 | Meta de circularidade? | Não existe; remover. |
 | D-04 | Card inferior do dashboard? | Proposta aceita: por categoria + por situação + alertas por gravidade, tudo do snapshot. |
 | D-05 | Sessão sobrevive a F5? | Sim, com o refresh token em `sessionStorage`; **encerrar sessão sempre via `POST /auth/logout`** (BR-20, BR-21). |
-| D-06 | Descontinuar o GitHub Pages? | **Superada por D-12/Q-15**: a opção era "só Vercel", e a Vercel saiu. O Pages permanece até a Q-15 ser respondida. |
-| D-13 | Publicação (Q-15) | Fora deste repositório: será no cluster, por outra pessoa do time. O PR 9 só removeu o que publicava (workflow do Pages, `HashRouter`, `check-publication`, que virou `check-bundle`) e deixou no README o que o cluster precisa (`dist/`, o proxy e suas variáveis). |
-| D-12 | Deploy na Vercel? | Não: foi um erro do colega. Removidos `api/proxy.ts`, `vercel.json`, o link e as variáveis `VERCEL_*`. |
+| D-06 | Destino de hospedagem? | GKE, atrás do Kong. A landing e os servlets ficam em `www.zeratech.online`; o painel tem hosts próprios de QA e produção. |
+| D-13 | Publicação (Q-15) | `.github/workflows/deploy-web.yml` reaproveita o CI, constrói a imagem e aplica o digest no namespace correto. Push em `qa` publica QA; Release estável de `main` publica produção. Ingress e certificados ficam no repositório da infraestrutura. |
+| D-12 | Servidor da aplicação? | Node com SPA e proxy allowlist na mesma origem; imagem Docker sem segredos de build. Configuração de runtime e chave vêm de ConfigMap/Secret do cluster. |
 | D-07 | Barra de acessibilidade? | Mantida e corrigida (seção 10). |
 | D-08 | Filtros de `GET /items`? | Vale o código do `ms-inventory` (`q`, `status`, `categoryId`, `modelId`, `eligibleForDisposal`). Corrigir o Confluence pág. 3. |
 | D-09 | Origem do código de barras no cadastro web? | Digitado pelo gestor; sem geração nem câmera. |
@@ -641,7 +640,7 @@ A pasta `src/` inteira é migrada para a estrutura da 5.2. Lógica aproveitável
 
 | ID | Pergunta | Por que a documentação não resolve | Suposição padrão | Bloqueia |
 | --- | --- | --- | --- | --- |
-| **Q-15** (respondida: D-13) | Onde o front será publicado, e quem injeta a `apiKey` do gateway Kong? Sem a Vercel, o GitHub Pages serve só arquivos estáticos e não pode guardar a chave. | O browser nunca deve conhecer a chave (BR-23); alguém precisa rodar o proxy. | Publicar `dist/` e `server/proxy.mjs` juntos em um host Node do time (ou atrás do Kong, que pode injetar a chave) | PR 9 |
+| **Q-15** (respondida: D-13) | Onde publicar o front e injetar a `apiKey`? | A chave fica fora do navegador (BR-23). | Servidor Node no GKE, atrás do Kong; runtime injeta a chave a partir do Secret. Ver [deploy](../../k8s/README.md). | Resolvida |
 
 Uma dúvida nova durante a implementação entra aqui como `Q-16` em diante, com suposição padrão e o PR que ela bloqueia.
 
@@ -653,7 +652,7 @@ Cada PR é mergeável sozinho e mantém a `main` verde.
 
 | # | PR | Conteúdo | Definition of Done |
 | --- | --- | --- | --- |
-| 1 | `chore: remove demo mode, dead code and out-of-scope screens` | Seção 11, exceto acessibilidade e GitHub Pages | Build e testes verdes; `grep -ri "modoDemonstracao\|VITE_USE_MSW" src` vazio |
+| 1 | `chore: remove demo mode, dead code and out-of-scope screens` | Seção 11, exceto acessibilidade | Build e testes verdes; `grep -ri "modoDemonstracao\|VITE_USE_MSW" src` vazio |
 | 2 | `feat(proxy): single allowlisted proxy` | 7.1 + 7.2; Vite usa o mesmo middleware; `.env.example` novo | T-04 (proxy), T-22 |
 | 3 | `refactor: app skeleton and shared layer` | 5.2: `app/`, `shared/api`, `shared/config`, TanStack Query, zod | T-09, T-23 |
 | 4 | `feat(auth): manager-only session with server logout` | 7.3, guards, BR-01/02/19/20/21. O visual do login do Figma (8.1) entra no PR 5, junto com as fontes e os tokens; o roteamento segue em `<Routes>` com `PrivateRoute`, porque os requisitos Req 18 e Req 23 de `tests/requisitos.test.ts` leem esses arquivos | T-01, T-02, T-03, T-19, T-20, T-21 |

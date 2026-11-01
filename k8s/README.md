@@ -25,6 +25,10 @@ O overlay de QA aponta exclusivamente a `/qa/administrative`, `/qa/inventory` e 
 - Registros DNS `qa` e `gestao` apontando para o LoadBalancer do Kong. IP observado em 01/11/2026: `34.39.143.218`; conferir novamente antes de qualquer troca futura.
 - Cert-manager e `ClusterIssuer zera-letsencrypt`, provisionados pela infra. HTTP-01 precisa chegar ao Kong; nao bloquear `/.well-known/acme-challenge/` no Cloudflare. Depois de emitir o certificado de origem, usar SSL Full (strict), sem reduzir validacao de TLS.
 
+## Permissao do repositorio no WIF
+
+O provider aceita a organizacao, mas a conta de deploy possui uma lista de repositorios autorizados. Incluir `zera-interdisciplinar/zera-web-app` em `roles/iam.workloadIdentityUser` da SA `github-actions-deploy@zera-512810.iam.gserviceaccount.com`; a regra do provider sozinha nao libera a emissao do token. Usar o principalSet especifico do repositorio, sem ampliar a organizacao inteira e sem gerar chave persistente. Ausente essa permissao, `get-gke-credentials` falha com `iam.serviceAccounts.getAccessToken`.
+
 ## Pipeline
 
 `deploy-web.yml` reaproveita o CI completo (estrutura, lint, tipos, cobertura, build, bundle e navegador). Depois autentica por OIDC, confere o Secret, constrói a imagem sem arquivos `.env`, publica com SHA e aplica um digest imutavel. Kustomize gera ConfigMap com hash: uma mudanca de configuracao provoca rollout. O processo roda sem root, sem token de ServiceAccount e com filesystem somente leitura.

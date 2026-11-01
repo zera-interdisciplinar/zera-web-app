@@ -1,6 +1,6 @@
 name: CI
 
-# Validation only. Publishing is handled outside this repository (cluster).
+# Reusable validation for branch checks and GKE deployments.
 on:
   push:
     branches: [main]

@@ -1,7 +1,7 @@
 import type { Credenciais, SessaoAutenticada } from '../types/usuario'
 import type { TokenResponse } from '../types/apiReal'
 import { contextualizar, requisitar } from './http'
-import { definirSessaoApi, modoDemonstracao, obterSessaoApi, requisitarApiReal } from './apiReal'
+import { definirSessaoApi, modoDemonstracao, obterSessaoApi, registrarRenovacaoSessaoApi, requisitarApiReal } from './apiReal'
 import { ApiError } from '../types/api'
 import { ehObjeto, ehTexto, ehNumeroFinito } from '../utils/guardasApi'
 import { ehUsuarioApi } from '../utils/guardaUsuarioApi'
@@ -16,12 +16,14 @@ function ehTokenApi(valor: unknown): valor is TokenResponse {
 }
 
 let refreshToken: string | null = null
+let renovacaoEmAndamento: Promise<string> | null = null
 
 export function limparRenovacaoSessao() {
   refreshToken = null
+  renovacaoEmAndamento = null
 }
 
-export async function renovarSessao(): Promise<string> {
+async function renovarSessaoUmaVez(): Promise<string> {
   try {
     const sessao = obterSessaoApi()
     const anterior = refreshToken
@@ -40,6 +42,19 @@ export async function renovarSessao(): Promise<string> {
     throw contextualizar(erro, 'Não foi possível renovar a sessão.')
   }
 }
+
+export function renovarSessao(): Promise<string> {
+  if (renovacaoEmAndamento) return renovacaoEmAndamento
+  const tentativa = renovarSessaoUmaVez()
+  renovacaoEmAndamento = tentativa
+  const limparTentativa = () => {
+    if (renovacaoEmAndamento === tentativa) renovacaoEmAndamento = null
+  }
+  void tentativa.then(limparTentativa, limparTentativa)
+  return tentativa
+}
+
+registrarRenovacaoSessaoApi(renovarSessao)
 
 export async function autenticar(credenciais: Credenciais): Promise<SessaoAutenticada> {
   try {

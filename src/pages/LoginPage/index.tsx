@@ -96,7 +96,7 @@ export default function LoginPage() {
                   type="submit"
                   disabled={entrando || bloqueio.restante > 0}
                 >
-                  {entrando ? 'Entrando…' : bloqueio.restante > 0 ? `Aguarde ${bloqueio.restante}s` : 'Entrar'}
+                  {entrando ? 'Entrando…' : bloqueio.restante > 0 ? `Aguarde ${bloqueio.restante}s` : mostrarErro && erro ? 'Tentar novamente' : 'Entrar'}
                 </Button>
               </Formulario>
             </section>

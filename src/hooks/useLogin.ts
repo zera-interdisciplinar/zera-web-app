@@ -98,5 +98,6 @@ export function useLogin() {
     setMostrarErro(false)
     setErros((atuais) => ({ ...atuais, [campo]: undefined }))
   }
-  return { entrando, erro, paginaEstatica, formulario, erros, mostrarErro, bloqueio, aoEnviar, alterarCampo }
+  const mostrarErroNaTela = mostrarErro || erro === 'Sua sessão expirou. Entre novamente para continuar.'
+  return { entrando, erro, paginaEstatica, formulario, erros, mostrarErro: mostrarErroNaTela, bloqueio, aoEnviar, alterarCampo }
 }

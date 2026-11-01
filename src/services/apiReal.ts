@@ -14,6 +14,11 @@ const bases: Record<Recurso, string | undefined> = {
 let accessToken: string | null = null
 let unitId: string | null = null
 const aoExpirar = new Set<() => void>()
+let renovarToken: (() => Promise<string>) | null = null
+
+export function registrarRenovacaoSessaoApi(renovador: () => Promise<string>): void {
+  renovarToken = renovador
+}
 
 export function observarExpiracaoSessao(observador: () => void): () => void {
   aoExpirar.add(observador)
@@ -91,24 +96,24 @@ export async function requisitarApiReal<T>(recurso: Recurso, caminho: string, op
   if (opcoes.autenticada !== false && accessToken) headers.Authorization = `Bearer ${accessToken}`
   if (opcoes.unidade && unitId) headers['X-Unit-Id'] = unitId
 
-  let resposta: Response
-  try {
-    const consultar = () => fetch(url, {
-      method: opcoes.metodo ?? 'GET',
-      headers,
-      body: opcoes.corpo === undefined ? undefined : JSON.stringify(opcoes.corpo),
-      signal: AbortSignal.any([AbortSignal.timeout(15_000), ...(opcoes.sinal ? [opcoes.sinal] : [])]),
-      credentials: 'omit',
-      redirect: 'error',
-      cache: 'no-store',
-    })
+  const metodo = opcoes.metodo ?? 'GET'
+  const corpo = opcoes.corpo === undefined ? undefined : JSON.stringify(opcoes.corpo)
+  const consultarComRetentativas = async (): Promise<Response> => {
     for (let tentativa = 0; ; tentativa += 1) {
       try {
-        resposta = await consultar()
-        if ((opcoes.metodo ?? 'GET') !== 'GET' || ![502, 503, 504].includes(resposta.status) || tentativa >= 2) break
-        await resposta.text()
+        const respostaAtual = await fetch(url, {
+          method: metodo,
+          headers,
+          body: corpo,
+          signal: AbortSignal.any([AbortSignal.timeout(15_000), ...(opcoes.sinal ? [opcoes.sinal] : [])]),
+          credentials: 'omit',
+          redirect: 'error',
+          cache: 'no-store',
+        })
+        if (metodo !== 'GET' || ![502, 503, 504].includes(respostaAtual.status) || tentativa >= 2) return respostaAtual
+        await respostaAtual.text()
       } catch (erro) {
-        if ((opcoes.metodo ?? 'GET') !== 'GET' || opcoes.sinal?.aborted || tentativa >= 2) throw erro
+        if (metodo !== 'GET' || opcoes.sinal?.aborted || tentativa >= 2) throw erro
       }
       await new Promise<void>((resolve, reject) => {
         if (opcoes.sinal?.aborted) return reject(new DOMException('Consulta cancelada.', 'AbortError'))
@@ -117,17 +122,40 @@ export async function requisitarApiReal<T>(recurso: Recurso, caminho: string, op
         opcoes.sinal?.addEventListener('abort', cancelar, { once: true })
       })
     }
+  }
+  let resposta: Response
+  let tokenDaTentativa = tokenDaRequisicao
+  try {
+    resposta = await consultarComRetentativas()
+    if (resposta.status === 401 && opcoes.autenticada !== false) {
+      try {
+        const tokenAtual = accessToken
+        const novoToken = tokenAtual && tokenAtual !== tokenDaTentativa
+          ? tokenAtual
+          : await renovarToken?.()
+        if (!novoToken) throw new ApiError('Sessão expirada. Entre novamente.', 401)
+        tokenDaTentativa = novoToken
+        headers.Authorization = `Bearer ${novoToken}`
+        resposta = await consultarComRetentativas()
+      } catch (erro) {
+        if (erro instanceof DOMException && erro.name === 'AbortError') throw erro
+        expirarSessaoApi(tokenDaTentativa)
+        throw new ApiError('Sua sessão expirou. Entre novamente para continuar.', 401)
+      }
+    }
   } catch (erro) {
+    if (erro instanceof ApiError) throw erro
     if (erro instanceof DOMException && erro.name === 'AbortError') throw erro
     registrarFalha('rede')
-    throw new ApiError('Não foi possível acessar a API. Verifique a conexão e a configuração.', 0, undefined, 'rede')
+    throw new ApiError('Não conseguimos acessar o serviço agora. Confira sua conexão e tente novamente.', 0, undefined, 'rede')
   }
   if (!resposta.ok) {
     registrarFalha('http')
-    if (resposta.status === 401 && opcoes.autenticada !== false) expirarSessaoApi(tokenDaRequisicao)
+    if (resposta.status === 401 && opcoes.autenticada !== false) expirarSessaoApi(tokenDaTentativa)
     const mensagem = resposta.status === 403
       ? 'Sua conta não tem permissão para esta operação.'
-      : resposta.status === 401 ? 'Sessão inválida. Entre novamente.' : `A API retornou HTTP ${resposta.status}.`
+      : resposta.status === 401 ? 'Sessão inválida. Entre novamente.' : resposta.status >= 500
+        ? 'O serviço está indisponível agora. Tente novamente em instantes.' : `A API retornou HTTP ${resposta.status}.`
     throw new ApiError(mensagem, resposta.status)
   }
   if (resposta.status === 204) return undefined as T

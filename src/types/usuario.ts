@@ -23,6 +23,8 @@ export function iniciais(nome: string): string {
 export interface ValorAuth {
   usuario: Usuario | null
   autenticado: boolean
+  /** Aviso público da sessão, sem expor tokens ou o armazenamento à página. */
+  aviso?: string | null
   /** Verdadeiro enquanto a sessão da aba é restaurada no carregamento da página. */
   restaurando: boolean
   sair: () => Promise<void>

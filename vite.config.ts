@@ -28,6 +28,9 @@ export default defineConfig(({ mode }) => {
       },
     ],
     test: {
+      // Local proxy fixtures and subprocess checks can exceed Vitest defaults on Windows.
+      testTimeout: 20_000,
+      hookTimeout: 20_000,
       coverage: {
         provider: 'v8',
         // The layers where the contract and the business rules live: services, utils and reducers. Components and

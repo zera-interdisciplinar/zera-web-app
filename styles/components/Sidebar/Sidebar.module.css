@@ -6,6 +6,7 @@
   align-self: start;
   width: var(--largura-sidebar);
   height: calc(100vh - var(--altura-topbar));
+  height: calc(100dvh - var(--altura-topbar));
   background-color: var(--navy);
   display: flex;
   flex-direction: column;
@@ -44,3 +45,5 @@
   .lista li { flex: 0 0 auto; }
   .rodape { display: none; }
 }
+
+@media (max-width: 640px) { .lista li { max-width: calc(100vw - 24px); } }

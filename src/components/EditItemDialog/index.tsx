@@ -1,51 +1,16 @@
-import { useForm, useWatch } from 'react-hook-form'
-import { Button } from '../Button'
-import { Dialog } from '../Dialog'
-import { useItemAction } from '../../hooks/useItemMutations'
-import { toEditInput, toEditValues } from '../../utils/itemEditValues'
-import { toFormFailure } from '../../utils/itemFormErrors'
-import { fieldLabel } from '../../utils/itemLabels'
-import { toUpdateRequest } from '../../utils/itemRequests'
-import { editItemSchema } from '../../utils/itemValidation'
-import { ItemFields } from '../ItemFields'
 import styles from '../../../styles/components/Items/Items.module.css'
+import { useEditItemForm } from '../../hooks/useEditItemForm'
 import type { EditItemDialogProps } from '../../types/componentes/EditItemDialog'
-import type { EditItemInput, EditItemValues, ItemFieldErrors } from '../../types/item'
-import { resolverFor } from '../../utils/validation'
-import { useDiscardGuard } from '../../hooks/useDiscardGuard'
+import type { ItemFieldErrors } from '../../types/item'
+import { fieldLabel } from '../../utils/itemLabels'
+import { Button } from '../Button'
 import { ConfirmDialog } from '../ConfirmDialog'
+import { Dialog } from '../Dialog'
+import { ItemFields } from '../ItemFields'
 
-/** Drafts and rejected items finish their registration from here: save, then submit (BR-10). */
-const FINISHES_REGISTRATION = ['DRAFT', 'REJECTED']
 
 export function EditItemDialog({ item, missingFields = [], onClose, onSaved }: EditItemDialogProps) {
-  const { register, handleSubmit, control, setValue, setError, formState: { errors, isDirty } } = useForm<EditItemInput, unknown, EditItemValues>({
-    resolver: resolverFor(editItemSchema), defaultValues: toEditInput(item),
-  })
-  const hasDamages = useWatch({ control, name: 'hasDamages' })
-  const actions = useItemAction()
-  const finishes = FINISHES_REGISTRATION.includes(item.status)
-  const pending = actions.update.isPending || actions.submit.isPending
-  const failure = actions.update.error ?? actions.submit.error
-  const general = failure ? toFormFailure(failure, 'edit').general : undefined
-
-  const { asking, requestClose, confirmDiscard, keepEditing } = useDiscardGuard(isDirty, onClose)
-
-  function fail(error: unknown) {
-    for (const [path, message] of Object.entries(toFormFailure(error, 'edit').fields)) setError(path as 'name', { message })
-  }
-
-  const submit = handleSubmit((values) => {
-    const body = toUpdateRequest(toEditValues(item), values)
-    const changed = Object.keys(body).length > 0
-    if (!changed && !finishes) { onClose(); return }
-    const finish = () => actions.submit.mutate(item.id, {
-      onSuccess: () => onSaved('Cadastro concluído: o item está no estoque.'),
-      onError: fail,
-    })
-    if (!changed) { finish(); return }
-    actions.update.mutate({ id: item.id, body }, { onSuccess: () => (finishes ? finish() : onSaved('Item atualizado.')), onError: fail })
-  })
+  const { register, errors, setValue, hasDamages, finishes, pending, general, asking, requestClose, confirmDiscard, keepEditing, submit } = useEditItemForm({ item, missingFields, onClose, onSaved })
 
   return (
     <>

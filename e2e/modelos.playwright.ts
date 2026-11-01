@@ -3,12 +3,13 @@ import { expect, test, type Page } from '@playwright/test'
 import { base, fazerLogin, preparar } from './api-controlada'
 import { controlarInventario } from './inventario-controlado'
 
-async function abrir(page: Page, destino: 'Modelos' | 'Configurações' = 'Modelos') {
+async function abrir(page: Page, destino: 'Modelos' | 'Itens' = 'Modelos') {
   await preparar(page, 'MANAGER', 0, base, false)
   const inventory = await controlarInventario(page)
   await fazerLogin(page)
   await page.getByRole('navigation', { name: 'Seções do sistema' }).getByRole('link', { name: destino }).click()
-  await expect(page.getByRole('heading', { name: destino, exact: true, level: 1 })).toBeVisible()
+  await expect(page.getByRole('heading', { name: destino === 'Itens' ? 'Gestão de itens' : destino, exact: true, level: 1 })).toBeVisible()
+  if (destino === 'Itens') await page.locator('summary', { hasText: 'Gestão do estoque' }).click()
   return inventory
 }
 
@@ -143,8 +144,8 @@ test('T-16: categoria exige nome e descrição, renomeia, edita a descrição e 
   await expect(rowOf(page, 'Sem uso')).toHaveCount(0)
 })
 
-test('T-18: configurações mostra "Não configurada", valida e salva a capacidade com PUT', async ({ page }) => {
-  const inventory = await abrir(page, 'Configurações')
+test('T-18: gestão do estoque em Itens mostra "Não configurada", valida e salva a capacidade com PUT', async ({ page }) => {
+  const inventory = await abrir(page, 'Itens')
   await expect(page.getByText('Não configurada')).toBeVisible()
   await expect(page.getByText(/ocupação do estoque e a regra de alerta/)).toBeVisible()
   const field = page.getByLabel('Capacidade (itens)')
@@ -178,7 +179,8 @@ test('T-24: modelos, categorias, configurações e os diálogos não têm viola�
   await page.keyboard.press('Escape')
   await aba(page, 'Categorias').click()
   expect(await serious()).toEqual([])
-  await page.getByRole('link', { name: 'Configurações' }).click()
+  await page.getByRole('link', { name: 'Itens', exact: true }).click()
+  await page.locator('summary', { hasText: 'Gestão do estoque' }).click()
   await expect(page.getByText('Capacidade do estoque').first()).toBeVisible()
   expect(await serious()).toEqual([])
 })

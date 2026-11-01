@@ -1,5 +1,6 @@
 import { useAuth } from '../../hooks/useAuth'
-import { iniciais } from '../../types/usuario'
+import { UserCard } from '../UserCard'
+import { iniciais, ROTULO_PERFIL } from '../../types/usuario'
 import { TopbarSlotOutlet } from '../TopbarSlotOutlet'
 import estilos from '../../../styles/components/Topbar/Topbar.module.css'
 
@@ -9,7 +10,10 @@ export function Topbar() {
   return (
     <div className={estilos.topbar}>
       <TopbarSlotOutlet className={estilos.slot} />
-      {usuario && <span className={estilos.avatar} role="img" aria-label={`Conta de ${usuario.nome}`}>{iniciais(usuario.nome)}</span>}
+      {usuario && <>
+        <span className={`${estilos.avatar} ${estilos.desktopAvatar}`} role="img" aria-label={`Conta de ${usuario.nome}`}>{iniciais(usuario.nome)}</span>
+        <div className={estilos.mobileAccount}><UserCard compact nome={usuario.nome} cargo={usuario.cargo ?? ROTULO_PERFIL[usuario.perfil]} iniciais={iniciais(usuario.nome)} /></div>
+      </>}
     </div>
   )
 }

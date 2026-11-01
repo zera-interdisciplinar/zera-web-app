@@ -26,3 +26,7 @@
   color: var(--navy);
   font-weight: 700;
 }
+
+.link { min-width: 0; }
+.link svg { flex-shrink: 0; }
+.link span { min-width: 0; overflow-wrap: anywhere; }

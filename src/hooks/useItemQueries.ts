@@ -1,9 +1,9 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { listCategories } from '../services/categories'
-import { getItem, listItems } from '../services/items'
+import { getItem, listItems, listSelectedItems } from '../services/items'
 import { listMaterials } from '../services/materials'
 import { listModels } from '../services/models'
-import type { ListItemsParams } from '../types/item'
+import type { ListItemsParams, ItemSelectionParams } from '../types/item'
 
 export const itemKeys = {
   all: ['items'] as const,
@@ -31,4 +31,8 @@ export function useMaterials() {
 }
 export function useModelOptions(enabled = true) {
   return useQuery({ queryKey: catalogKeys.models, queryFn: ({ signal }) => listModels({ page: 0, size: MODEL_SELECT_SIZE }, signal), staleTime: 60_000, enabled })
+}
+
+export function useSelectedItems(params: ItemSelectionParams) {
+  return useQuery({ queryKey: ['items', 'selection', params], queryFn: ({ signal }) => listSelectedItems(params, signal), placeholderData: keepPreviousData })
 }

@@ -1,6 +1,4 @@
 import { appendFileSync } from 'node:fs'
-import { homedir } from 'node:os'
-import { join } from 'node:path'
 import { test, expect, type Page, type Response } from '@playwright/test'
 import { loadEnv } from 'vite'
 
@@ -14,7 +12,7 @@ async function registrar(resposta: Response, tipo: string): Promise<string> {
   const corpo = await resposta.json()
   expect(corpo.id).toMatch(/^[0-9a-f-]{36}$/i)
   const hora = new Date().toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' })
-  appendFileSync(join(homedir(), 'zera-progresso.md'), `\n${hora} -03:00 QA interface ${tipo} HTTP 201 id ${corpo.id}\n`)
+  appendFileSync(test.info().outputPath('qa-progress.md'), `\n${hora} -03:00 QA interface ${tipo} HTTP 201 id ${corpo.id}\n`)
   return corpo.id
 }
 
@@ -22,7 +20,7 @@ function aguardarCriacao(page: Page, recurso: string): Promise<Response> {
   return page.waitForResponse(resposta => resposta.request().method() === 'POST' && new URL(resposta.url()).pathname.endsWith(`/api/v1/${recurso}`))
 }
 
-test('QA real autorizado: categoria, modelo Outro e item criados na interface; cancelamento', async ({ page }) => {
+test('QA real autorizado: categoria e modelo criados; gestor sem cadastro de itens', async ({ page }) => {
   test.skip(!habilitado, 'Escritas reais exigem ZERA_RUN_LIVE_QA=true e ZERA_RUN_LIVE_QA_WRITE=true.')
   test.setTimeout(180_000)
   page.setDefaultTimeout(15_000)
@@ -31,7 +29,6 @@ test('QA real autorizado: categoria, modelo Outro e item criados na interface; c
   const prefixo = `TESTE-ZERA-${data}-interface`
   const categoria = `${prefixo}-categoria`
   const modelo = `${prefixo}-modelo`
-  const item = `${prefixo}-item`
   let etapa = 'login'
   try {
     await page.goto('http://127.0.0.1:5184/login')
@@ -60,35 +57,15 @@ test('QA real autorizado: categoria, modelo Outro e item criados na interface; c
     const respostaModelo = aguardarCriacao(page, 'models')
     await dialog.getByRole('button', { name: 'Cadastrar modelo' }).click()
     const modeloId = await registrar(await respostaModelo, 'modelo')
-    etapa = 'cadastro de item'
+    etapa = 'permissão de cadastro de itens'
     await page.getByRole('link', { name: 'Itens', exact: true }).click()
-    await page.getByRole('button', { name: 'Adicionar item' }).click()
-    await dialog.getByLabel('Código de barras').fill(`${prefixo}-${Date.now()}`)
-    await dialog.getByLabel('Selecione o modelo').selectOption(modeloId)
-    await dialog.getByLabel('Nome do item').fill(item)
-    await dialog.getByLabel('Condição').selectOption('USED')
-    await dialog.getByLabel('Não', { exact: true }).check()
-    await dialog.getByLabel('Intensidade de uso (0 a 10)').fill('3')
-    const respostaItem = aguardarCriacao(page, 'items')
-    await dialog.getByRole('button', { name: 'Concluir cadastro' }).click()
-    const itemId = await registrar(await respostaItem, 'item')
-    await expect(dialog).toBeHidden()
-    etapa = 'detalhe, edição e cancelamento'
-    await page.getByRole('searchbox').fill(item)
-    await page.getByRole('link', { name: item, exact: true }).click()
-    await expect(page).toHaveURL(new RegExp(`/itens/${itemId}`))
-    await page.getByRole('button', { name: `Editar ${item}` }).click()
-    await dialog.getByLabel('Nome do item').fill(`${prefixo}-alteracao-cancelada`)
-    await dialog.getByRole('button', { name: 'Cancelar' }).click()
-    await page.getByRole('dialog', { name: 'Descartar alterações?' }).getByRole('button', { name: 'Descartar', exact: true }).click()
-    await expect(dialog).toHaveCount(0)
-    await expect(page.getByRole('heading', { name: item, exact: true, level: 1 })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Adicionar item' })).toHaveCount(0)
     etapa = 'listagem da categoria'
     await page.getByRole('link', { name: 'Modelos', exact: true }).click()
     await page.getByRole('tab', { name: 'Categorias' }).click()
     await expect(page.getByRole('cell', { name: categoria, exact: true })).toBeVisible()
     const hora = new Date().toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' })
-    appendFileSync(join(homedir(), 'zera-progresso.md'), `\n${hora} -03:00 QA interface confirmou detalhe do item ${itemId}, cancelamento e listagem da categoria ${categoriaId}; modelo ${modeloId}.\n`)
+    appendFileSync(test.info().outputPath('qa-progress.md'), `\n${hora} -03:00 QA interface confirmou ausência de cadastro de itens para gestor e listagem da categoria ${categoriaId}; modelo ${modeloId}.\n`)
   } catch {
     await page.goto('about:blank').catch(() => undefined)
     throw new Error(`O percurso de escrita QA foi interrompido em ${etapa}; registros já criados estão no arquivo de progresso. Detalhes privados omitidos.`)

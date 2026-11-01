@@ -35,7 +35,7 @@ const itemFields = {
   damages: z.array(z.enum(DAMAGE_TYPES)).default([]),
   usageIntensity: optionalInt(0, 10, 'Informe um número inteiro de 0 a 10.').refine((value) => value !== undefined, 'Informe a intensidade de uso (0 a 10).'),
   serialNumber: optionalText(120, 'O número de série tem no máximo 120 caracteres.'),
-  acquiredAt: z.string().optional().refine((value) => !value || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Data inválida.').refine((value) => !value || value <= today(), 'A data de aquisição não pode ser futura.'),
+  acquiredAt: z.string().optional().refine((value) => !value || z.iso.date().safeParse(value).success, 'Data inválida.').refine((value) => !value || value <= today(), 'A data de aquisição não pode ser futura.'),
   manufacturingYear: optionalInt(1970, new Date().getFullYear(), `Informe um ano entre 1970 e ${new Date().getFullYear()}.`),
   notes: optionalText(500, 'As observações têm no máximo 500 caracteres.'),
 }

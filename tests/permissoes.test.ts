@@ -12,6 +12,7 @@ describe('permissões de navegação e operações', () => {
     expect(permissao.cadastrarCategoria).toBe(true)
     expect(permissao.excluirItem).toBe(true)
     expect(permissao.editarItem).toBe(true)
+    expect(permissao.cadastrarItem).toBe(false)
   })
 
   it.each(['funcionario', 'administrador'])('não reconhece o perfil %s na web (só o gestor entra)', (perfil) => {

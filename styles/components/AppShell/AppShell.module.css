@@ -3,6 +3,7 @@
   grid-template-columns: var(--largura-sidebar) minmax(0, 1fr);
   grid-template-rows: var(--altura-topbar) minmax(0, 1fr);
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .cabecalho {

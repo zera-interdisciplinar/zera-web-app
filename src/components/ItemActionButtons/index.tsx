@@ -10,17 +10,15 @@ const ICON: Record<ItemAction, ReactNode> = {
   reject: <X aria-hidden="true" />, restore: <RotateCcw aria-hidden="true" />, submit: <Check aria-hidden="true" />,
 }
 
-export function ItemActionButtons({ item, onAction, disabled, compact }: ItemActionButtonsProps) {
+export function ItemActionButtons({ item, onAction, disabled }: ItemActionButtonsProps) {
   const name = item.name ?? item.displayCode ?? item.barcode
   return (
     <div className={styles.rowActions}>
       {availableActions(item).map((action) => {
-        const iconOnly = compact && (action === 'edit' || action === 'remove')
         return (
           <button key={action} type="button" className={`${styles.rowAction} ${styles[`action_${action}`]}`} disabled={disabled}
             aria-label={`${ACTION_LABEL[action]} ${name}`} title={ACTION_LABEL[action]} onClick={() => onAction(action, item)}>
             {ICON[action]}
-            {!iconOnly && <span>{ACTION_LABEL[action]}</span>}
           </button>
         )
       })}

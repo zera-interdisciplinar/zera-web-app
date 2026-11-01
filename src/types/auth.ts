@@ -4,9 +4,9 @@ import type { createSessionManager } from '../services/sessionManager'
 import type { createSessionStore } from '../services/sessionStore'
 import type { loginSchema } from '../utils/loginValidation'
 
-export type TokenResponse = z.infer<typeof tokenResponseSchema>
+export interface TokenResponse extends z.infer<typeof tokenResponseSchema> {}
 
-export type UserOutput = z.infer<typeof userOutputSchema>
+export interface UserOutput extends z.infer<typeof userOutputSchema> {}
 
 export interface SessionUser {
   id: string

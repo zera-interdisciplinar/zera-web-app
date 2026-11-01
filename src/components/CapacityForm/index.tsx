@@ -1,20 +1,13 @@
-import { useForm } from 'react-hook-form'
-import { describeApiError } from '../../utils/apiError'
-import { useSaveUnitSettings } from '../../hooks/useUnitSettings'
-import { settingsFormSchema } from '../../utils/settingsValidation'
 import styles from '../../../styles/pages/SettingsPage/SettingsPage.module.css'
+import { useCapacityForm } from '../../hooks/useCapacityForm'
 import type { CapacityFormProps } from '../../types/componentes/CapacityForm'
-import type { SettingsFormInput, SettingsFormValues } from '../../types/settings'
+import { describeApiError } from '../../utils/apiError'
 import { Button } from '../Button'
 import { TextField } from '../TextField'
-import { resolverFor } from '../../utils/validation'
 
 export function CapacityForm({ settings, notify }: CapacityFormProps) {
-  const { register, handleSubmit, formState: { errors } } = useForm<SettingsFormInput, unknown, SettingsFormValues>({
-    resolver: resolverFor(settingsFormSchema), defaultValues: { stockCapacity: settings.stockCapacity ?? '' },
-  })
-  const save = useSaveUnitSettings()
-  const submit = handleSubmit(({ stockCapacity }) => save.mutate(stockCapacity, { onSuccess: () => notify('Capacidade do estoque salva.') }))
+  const { register, errors, save, submit } = useCapacityForm({ settings, notify })
+
   return (
     <form className={styles.settingForm} onSubmit={submit} noValidate>
       {save.isError && <p role="alert" className={styles.formAlertLight}>{describeApiError(save.error)}</p>}

@@ -1,37 +1,15 @@
-import { useForm } from 'react-hook-form'
-import { Button } from '../Button'
+import styles from '../../../styles/components/Models/Models.module.css'
+import { useCategoryForm } from '../../hooks/useCategoryForm'
+import type { CategoryDialogProps } from '../../types/componentes/CategoryDialog'
 import { describeApiError } from '../../utils/apiError'
+import { Button } from '../Button'
+import { ConfirmDialog } from '../ConfirmDialog'
 import { Dialog } from '../Dialog'
 import { TextAreaField } from '../TextAreaField'
 import { TextField } from '../TextField'
-import { useCategoryActions } from '../../hooks/useModelMutations'
-import { categoryFormSchema } from '../../utils/modelValidation'
-import styles from '../../../styles/components/Models/Models.module.css'
-import type { CategoryDialogProps } from '../../types/componentes/CategoryDialog'
-import type { CategoryFormInput, CategoryFormValues } from '../../types/model'
-import { resolverFor } from '../../utils/validation'
-import { useDiscardGuard } from '../../hooks/useDiscardGuard'
-import { ConfirmDialog } from '../ConfirmDialog'
 
 export function CategoryDialog({ category, onClose, onDone }: CategoryDialogProps) {
-  const { register, handleSubmit, formState: { errors, isDirty } } = useForm<CategoryFormInput, unknown, CategoryFormValues>({
-    resolver: resolverFor(categoryFormSchema), defaultValues: { name: category?.name ?? '', description: category?.description ?? '' },
-  })
-  const actions = useCategoryActions()
-  const pending = actions.create.isPending || actions.edit.isPending
-  const failure = actions.create.error ?? actions.edit.error
-
-  const { asking, requestClose, confirmDiscard, keepEditing } = useDiscardGuard(isDirty, onClose)
-
-  const submit = handleSubmit((values) => {
-    if (!category) {
-      actions.create.mutate(values, { onSuccess: () => onDone('Categoria criada.') })
-      return
-    }
-    const changes = { name: values.name !== category.name ? values.name : undefined, description: values.description !== (category.description ?? '') ? values.description : undefined }
-    if (changes.name === undefined && changes.description === undefined) { onClose(); return }
-    actions.edit.mutate({ id: category.id, ...changes }, { onSuccess: () => onDone('Categoria atualizada.') })
-  })
+  const { register, errors, pending, failure, asking, requestClose, confirmDiscard, keepEditing, submit } = useCategoryForm({ category, onClose, onDone })
 
   return (
     <>

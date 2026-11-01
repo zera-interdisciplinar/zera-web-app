@@ -99,6 +99,8 @@ for (const caminho of ['/login', '/rota-inexistente']) {
     await expect(page.getByRole('navigation', { name: 'Navegação de acesso' })).toBeVisible()
     await expect(page.locator('main')).toBeVisible()
     await expect(page.locator('footer')).toBeVisible()
+    // Wait for the lazy page, rather than analyzing its loading skeleton.
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     const antes = await new AxeBuilder({ page }).analyze()
     expect(antes.violations.map(item => item.id)).toEqual([])
   })

@@ -31,4 +31,11 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    files: ['src/types/*.ts'],
+    rules: {
+      // DAD requires named domain interfaces; inherit validated schemas instead of duplicating their fields.
+      '@typescript-eslint/no-empty-object-type': ['error', { allowInterfaces: 'with-single-extends' }],
+    },
+  },
 )

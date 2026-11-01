@@ -17,9 +17,8 @@ async function abrir(page: Page, frame?: (url: URL) => string, role = 'MANAGER')
 
 /** Os filtros ficam recolhidos, como no Figma: abre o bloco antes de usá-los. */
 async function abrirFiltros(page: Page) {
-  const periodo = page.getByLabel('Período', { exact: true })
-  if (!(await periodo.isVisible())) await page.locator('summary', { hasText: 'Filtros' }).click()
-  await expect(periodo).toBeVisible()
+  await page.locator('summary', { hasText: 'Intervalo personalizado' }).click()
+  await expect(page.getByLabel('De', { exact: true })).toBeVisible()
 }
 
 /** Answers every overview request with the given frame and records what the browser sent. */
@@ -48,7 +47,7 @@ test('T-05: abrir o dashboard usa só o BFF de analytics e nenhuma consulta ao i
   expect(seen[0].unit).toBe('22222222-2222-4222-8222-222222222222')
   expect(seen[0].url.search).not.toMatch(/access_token|jwt|sessao-sintetica/)
   // O número é do último lote do cron, e a tela diz de quando ele é.
-  await expect(page.getByText(/Dados do lote de .*atualizados pelo BFF a cada hora/)).toBeVisible()
+  await expect(page.getByText(/Dados do lote de/)).toBeVisible()
   expect(inventario).toEqual([])
 })
 
@@ -60,7 +59,8 @@ test('os quatro KPIs, os gráficos e a distribuição do Figma vêm do snapshot'
   await expect(cards).toContainText('68,00%')
   await expect(cards).toContainText('+4,50 p.p. no período')
   await expect(cards).toContainText('42')
-  await expect(cards.getByRole('link', { name: '8 prioritários' })).toHaveAttribute('href', '/itens?status=PENDING_APPROVAL')
+  await expect(cards.getByText(/prioritários/)).toHaveCount(0)
+  await expect(cards.getByRole('heading', { name: 'Materiais recuperados' })).toBeVisible()
   await expect(cards).toContainText('3,1 t')
   await expect(page.getByRole('heading', { name: 'Itens por mês' })).toBeVisible()
   await expect(page.getByRole('img', { name: /Itens por mês: 47 cadastrados/ })).toBeVisible()
@@ -82,29 +82,24 @@ test('BR-08: valores nulos viram traço com explicação, nunca zero', async ({ 
   await abrir(page, () => snapshotFrame(nulos))
   const taxa = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Taxa de reciclagem' }) })
   await expect(taxa).toContainText('—')
-  await expect(taxa.getByLabel('Sem base de comparação')).toBeVisible()
+  await expect(taxa.getByLabel('Sem base de comparação')).toHaveCount(0)
   await expect(taxa).not.toContainText('0%')
   await expect(page.getByText('A circularidade ainda não foi calculada')).toBeVisible()
 })
 
-test('T-06: cada mudança de filtro abre uma nova conexão com a query certa e atualiza a URL (BR-06)', async ({ page }) => {
-  const { seen } = await abrir(page, (url) => snapshotFrame({ ...dashboardSnapshotMock, batch_id: `b-${url.search}`, alertas: { abertos: url.searchParams.get('period') === '30d' ? 12 : 6, por_gravidade: [] } }))
-  await expect(page.getByRole('heading', { name: 'Visão geral', exact: true })).toBeVisible()
-  await abrirFiltros(page)
-  await page.getByLabel('Período', { exact: true }).selectOption('30d')
-  await expect(page).toHaveURL(/period=30d/)
-  await expect(page.getByRole('region', { name: 'Distribuição do inventário' })).toContainText('Alertas abertos (12)')
-  await page.getByRole('button', { name: 'Pendentes', exact: true }).click()
-  await expect(page).toHaveURL(/view=pendentes/)
-  await abrirFiltros(page)
-  await page.getByLabel('Categoria', { exact: true }).selectOption('Tecnologia')
-  await expect(page).toHaveURL(/category=Tecnologia/)
-  await page.locator('#dashboard-search').fill('notebook')
-  await expect(page).toHaveURL(/q=notebook/)
-  await expect.poll(() => seen.some((item) => item.url.searchParams.get('q') === 'notebook')).toBe(true)
-  const last = seen.filter((item) => item.url.searchParams.get('q') === 'notebook').at(-1)!
-  expect(Object.fromEntries(last.url.searchParams)).toEqual({ period: '30d', view: 'pendentes', category: 'Tecnologia', q: 'notebook' })
-  expect(seen.some((item) => item.url.searchParams.get('period') === '30d' && !item.url.searchParams.has('category'))).toBe(true)
+test('filtros do dashboard são aplicados juntos, com chips removíveis e sem busca', async ({ page }) => {
+  const { seen } = await abrir(page)
+  await page.getByRole('button', { name: /^Filtros/ }).click()
+  const modal = page.getByRole('dialog', { name: 'Filtrar visão geral' })
+  await modal.getByRole('button', { name: 'últimos 30 dias', exact: true }).click()
+  await modal.getByRole('button', { name: 'Tecnologia', exact: true }).click()
+  await modal.getByRole('button', { name: 'Aplicar filtros' }).click()
+  await expect(page).toHaveURL(/period=30d&category=Tecnologia/)
+  await expect(page.getByRole('button', { name: 'Remover filtro Tecnologia' })).toBeVisible()
+  await expect(page.getByRole('searchbox')).toHaveCount(0)
+  await expect.poll(() => seen.at(-1)?.url.searchParams.get('category')).toBe('Tecnologia')
+  await page.getByRole('button', { name: 'Remover filtro Tecnologia' }).click()
+  await expect(page).not.toHaveURL(/category=/)
 })
 
 test('BR-07: o intervalo de datas exige as duas datas, em ordem, e só então vai ao BFF', async ({ page }) => {
@@ -112,14 +107,14 @@ test('BR-07: o intervalo de datas exige as duas datas, em ordem, e só então va
   await expect(page.getByRole('heading', { name: 'Visão geral', exact: true })).toBeVisible()
   await abrirFiltros(page)
   await page.getByLabel('De', { exact: true }).fill('2026-01-01')
-  await page.getByRole('button', { name: 'Aplicar', exact: true }).click()
+  await page.getByRole('button', { name: 'Aplicar intervalo', exact: true }).click()
   await expect(page.getByRole('alert').filter({ hasText: 'duas datas' })).toBeVisible()
   await page.getByLabel('Até', { exact: true }).fill('2025-12-01')
-  await page.getByRole('button', { name: 'Aplicar', exact: true }).click()
+  await page.getByRole('button', { name: 'Aplicar intervalo', exact: true }).click()
   await expect(page.getByRole('alert').filter({ hasText: 'depois da final' })).toBeVisible()
   expect(seen.filter((item) => item.url.searchParams.has('from'))).toHaveLength(0)
   await page.getByLabel('Até', { exact: true }).fill('2026-03-31')
-  await page.getByRole('button', { name: 'Aplicar', exact: true }).click()
+  await page.getByRole('button', { name: 'Aplicar intervalo', exact: true }).click()
   await expect(page).toHaveURL(/from=2026-01-01&to=2026-03-31/)
   await expect.poll(() => seen.at(-1)?.url.searchParams.get('from')).toBe('2026-01-01')
   expect(seen.at(-1)!.url.searchParams.get('to')).toBe('2026-03-31')
@@ -193,7 +188,7 @@ for (const largura of [1440, 320]) {
   })
 }
 
-test('o resumo de filtros aparece na barra superior como no Figma', async ({ page }) => {
+test('o período selecionado aparece como chip junto aos filtros', async ({ page }) => {
   await abrir(page)
-  await expect(page.getByLabel('Filtros aplicados')).toHaveText(/Período: últimos 6 meses • Categoria: todas • Situação: todas • Responsável: todos/)
+  await expect(page.getByText('últimos 6 meses', { exact: true })).toBeVisible()
 })

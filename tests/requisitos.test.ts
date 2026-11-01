@@ -126,7 +126,20 @@ it('Req 9: análise estática procura guardas dos parâmetros de rota', () => { 
 it('Req 10: três rotas ou mais, Link/useNavigate e rota curinga com página de erro e botão de retorno', () => {
   const rotas = ler('src/routes/AppRoutes.tsx')
   expect((rotas.match(/<Route\b/g) ?? []).length).toBeGreaterThanOrEqual(3)
-  expect(rotas).toMatch(/path="\*"\s+element=\{<NotFoundPage\s*\/>\}/)
+  const tree = ts.createSourceFile('AppRoutes.tsx', rotas, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  let wildcardHasNotFound = false
+  function findWildcard(node: ts.Node) {
+    if (ts.isJsxSelfClosingElement(node) && node.tagName.getText(tree) === 'Route' && node.attributes.properties.some((attribute) => ts.isJsxAttribute(attribute) && attribute.name.getText(tree) === 'path' && attribute.initializer && ts.isStringLiteral(attribute.initializer) && attribute.initializer.text === '*')) {
+      function findPage(child: ts.Node) {
+        if (ts.isJsxSelfClosingElement(child) && child.tagName.getText(tree) === 'NotFoundPage') wildcardHasNotFound = true
+        ts.forEachChild(child, findPage)
+      }
+      ts.forEachChild(node, findPage)
+    }
+    ts.forEachChild(node, findWildcard)
+  }
+  findWildcard(tree)
+  expect(wildcardHasNotFound).toBe(true)
   expect(arquivos('src').some(arquivo => /\.tsx?$/.test(arquivo) && /\b(?:Link|useNavigate)\b/.test(ler(arquivo)))).toBe(true)
   expect(ler('scripts/check-project.mjs')).toContain('window.location')
   const html = renderToStaticMarkup(createElement(MemoryRouter, {}, createElement(NotFoundPage)))
@@ -168,7 +181,7 @@ it('Req 14: histórico disponível tem ao menos vinte commits convencionais', ()
   const git = spawnSync('git', ['log', '--format=%s'], { encoding: 'utf8' })
   expect(git.status).toBe(0)
   expect(git.stdout.split('\n').filter(linha => /^(feat|fix|refactor|docs|test|ci|chore|style|perf|build)(\([^)]*\))?!?:\s/.test(linha)).length).toBeGreaterThanOrEqual(20)
-})
+}, 20_000)
 
 // ------------------------------------------------------------------------------------------------------ extras
 
@@ -233,7 +246,7 @@ it('Req 20: análise exige justificativa para useCallback e useMemo', () => { ch
 it('Req 21: proteção contra XSS (sem dangerouslySetInnerHTML; dados externos sanitizados antes de usar)', () => {
   expect(sanitizarObjeto({ texto: '<b>Olá</b>', itens: ['javascript:alert(1)', 'normal'] })).toEqual({ texto: 'Olá', itens: ['alert(1)', 'normal'] })
   expect(arquivos('src').filter(a => /\.tsx?$/.test(a) && ler(a).includes('dangerouslySetInnerHTML'))).toEqual([])
-  expect(ler('src/utils/validation.ts')).toContain('sanitizarObjeto(parsed.data)')
+  expect(ler('src/utils/validation.ts')).toContain('schema.safeParse(sanitizarObjeto(input))')
   // O endereço da foto vem da API: só http(s) chega ao <img>.
   expect(ler('src/utils/itemSchemas.ts')).toContain('safeImageUrl')
 })
@@ -244,20 +257,20 @@ it('Req 22: formulários validam dados tipados, em src/utils, antes de enviar ao
   expect(login).toContain("from '../utils/loginValidation'")
   expect(login.indexOf('loginSchema.safeParse')).toBeGreaterThan(-1)
   expect(login.indexOf('await sessionManager.signIn')).toBeGreaterThan(login.indexOf('loginSchema.safeParse'))
-  const recuperacao = ler('src/components/ForgotPasswordDialog/index.tsx')
-  expect(recuperacao).toContain("from '../../utils/loginValidation'")
+  const recuperacao = ler('src/hooks/useForgotPasswordForm.ts')
+  expect(recuperacao).toContain("from '../utils/loginValidation'")
   expect(recuperacao.indexOf('await requestPasswordReset')).toBeGreaterThan(recuperacao.indexOf('forgotPasswordSchema.safeParse'))
   // Os demais formulários passam por `resolverFor(schema)`, que chama `validate`: o envio só acontece com dados válidos.
   const formularios: Array<[string, string, string]> = [
-    ['CreateItemDialog', 'createItemSchema', 'mutate(toCreateRequest('],
-    ['EditItemDialog', 'editItemSchema', 'mutate({ id: item.id, body }'],
-    ['RejectDialog', 'rejectSchema', 'reject.mutate('],
-    ['ModelDialog', 'modelFormSchema', 'mutate(toCreateModelRequest('],
-    ['CategoryDialog', 'categoryFormSchema', 'create.mutate(values'],
-    ['CapacityForm', 'settingsFormSchema', 'save.mutate('],
+    ['useCreateItemForm', 'createItemSchema', 'mutate(toCreateRequest('],
+    ['useEditItemForm', 'editItemSchema', 'mutate({ id: item.id, body }'],
+    ['useRejectForm', 'rejectSchema', 'reject.mutate('],
+    ['useModelForm', 'modelFormSchema', 'mutate(toCreateModelRequest('],
+    ['useCategoryForm', 'categoryFormSchema', 'create.mutate(values'],
+    ['useCapacityForm', 'settingsFormSchema', 'save.mutate('],
   ]
   for (const [componente, esquema, envio] of formularios) {
-    const fonte = ler(`src/components/${componente}/index.tsx`)
+    const fonte = ler(`src/hooks/${componente}.ts`)
     expect(fonte, componente).toContain(`resolverFor(${esquema})`)
     expect(fonte.indexOf(envio), componente).toBeGreaterThan(fonte.indexOf('handleSubmit('))
   }

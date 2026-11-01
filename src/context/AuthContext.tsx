@@ -16,11 +16,12 @@ export function AuthProvider({ children }: AuthContextProps) {
     return {
       usuario,
       autenticado: sessao.status === 'authenticated',
+      aviso: sessao.notice ?? null,
       restaurando: sessao.status === 'restoring',
       sair: () => sessionManager.signOut('user'),
       temPerfil: (perfis) => usuario !== null && perfis.includes(usuario.perfil),
     }
-  }, [sessao.session, sessao.status])
+  }, [sessao.session, sessao.status, sessao.notice])
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>
 }

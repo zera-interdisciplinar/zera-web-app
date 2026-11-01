@@ -1,7 +1,7 @@
 import type { z } from 'zod'
 import type { settingsFormSchema, unitSettingsSchema } from '../utils/settingsValidation'
 
-export type UnitSettings = z.infer<typeof unitSettingsSchema>
+export interface UnitSettings extends z.infer<typeof unitSettingsSchema> {}
 
 export type SettingsFormInput = z.input<typeof settingsFormSchema>
 

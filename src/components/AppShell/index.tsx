@@ -22,6 +22,7 @@ export function AppShell() {
         <main className={estilos.conteudo} id="conteudo" tabIndex={-1}>
           <Outlet />
         </main>
+        <footer className="rodape-sistema">ZERA · Gestão de resíduos eletrônicos</footer>
       </div>
     </div>
   )

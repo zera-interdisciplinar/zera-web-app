@@ -21,7 +21,7 @@ export interface FiltersParseResult {
   problems: string[]
 }
 
-export type DashboardSnapshot = z.infer<typeof snapshotSchema>
+export interface DashboardSnapshot extends z.infer<typeof snapshotSchema> {}
 
 export type OverviewStatus = 'connecting' | 'live' | 'reconnecting' | 'unavailable' | 'error'
 

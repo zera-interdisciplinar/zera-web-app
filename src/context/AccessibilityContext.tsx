@@ -1,5 +1,6 @@
-import { createContext, useEffect, useMemo, useReducer, type ReactNode } from 'react'
+import { createContext, useEffect, useMemo, useReducer } from 'react'
 import { applyPreferences, defaultPreferences, loadPreferences, readSystemPreferences, savePreferences } from '../utils/accessibilityPreferences'
+import type { ProviderProps } from '../types/componentes/Provider'
 import type { Preferences } from '../types/accessibility'
 import type { AccessibilityValue } from '../types/accessibility'
 
@@ -11,7 +12,7 @@ function reducer(state: Preferences, action: Action): Preferences {
   return action.type === 'reset' ? action.defaults : { ...state, ...action.changes }
 }
 
-export function AccessibilityProvider({ children }: { children: ReactNode }) {
+export function AccessibilityProvider({ children }: ProviderProps) {
   const [preferences, dispatch] = useReducer(reducer, undefined, () => loadPreferences(defaultPreferences(readSystemPreferences())))
 
   useEffect(() => {

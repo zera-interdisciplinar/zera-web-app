@@ -2,3 +2,6 @@
 .slot { min-width: 0; color: var(--texto-secundario); font-size: 0.875rem; }
 .slot p { overflow-wrap: anywhere; }
 .avatar { display: grid; flex: none; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--color-navy-900); color: #fff; font-size: 0.6875rem; font-weight: 700; }
+
+.mobileAccount { display: none; }
+@media (max-width: 640px) { .desktopAvatar { display: none; } .mobileAccount { display: block; flex: none; } }

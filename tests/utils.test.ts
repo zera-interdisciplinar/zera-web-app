@@ -5,6 +5,9 @@ import { initialRequest, requestReducer } from '../src/reducers/requestReducer'
 import { ApiError } from '../src/utils/apiError'
 import { itemSchema } from '../src/utils/itemSchemas'
 import { safeImageUrl } from '../src/utils/safeUrl'
+import { categoryFormSchema, modelFormSchema } from '../src/utils/modelValidation'
+import { settingsFormSchema } from '../src/utils/settingsValidation'
+import { loginSchema } from '../src/utils/loginValidation'
 import { resolverFor, validate } from '../src/utils/validation'
 import type { SseClient } from '../src/types/http'
 
@@ -39,6 +42,23 @@ describe('validate and resolverFor', () => {
     expect(bad).toEqual({ ok: false, errors: { name: 'Informe o nome.', 'nested.code': 'Código curto.' } })
     const good = validate(schema, { name: ' <b>Ana</b> ', nested: { code: 'ok' } })
     expect(good).toEqual({ ok: true, data: { name: 'Ana', nested: { code: 'ok' } } })
+  })
+
+  it('rejects required text that becomes empty after sanitization, before a service can receive it', () => {
+    expect(validate(categoryFormSchema, { name: '<b></b>', description: 'Eletrônicos' })).toEqual({ ok: false, errors: { name: 'Informe o nome.' } })
+    expect(validate(categoryFormSchema, { name: 'Equipamentos', description: '<i> </i>' })).toEqual({ ok: false, errors: { description: 'Informe a descrição.' } })
+  })
+
+  it('sanitizes raw input once, before numeric preprocessing and optional-field transforms', () => {
+    const result = validate(modelFormSchema, { name: '<b>Notebook</b>', manufacturer: ' Zera ', categoryId: 'cat-1', materials: ['METAL'], estimatedWeightKg: '1.5', warrantyMonths: '12', expectedLifespanMonths: '', notes: '<i></i>' })
+    expect(result).toMatchObject({ ok: true, data: { name: 'Notebook', manufacturer: 'Zera', estimatedWeightKg: 1.5, warrantyMonths: 12, expectedLifespanMonths: undefined, notes: undefined } })
+    if (result.ok) expect(modelFormSchema.safeParse({ ...result.data, estimatedWeightKg: '1.5', warrantyMonths: '12' }).success).toBe(true)
+    expect(validate(settingsFormSchema, { stockCapacity: ' 0 ' })).toEqual({ ok: true, data: { stockCapacity: 0 } })
+  })
+
+  it('keeps authentication passwords exactly as typed, outside generic text sanitization', () => {
+    const password = ' <b> senha </b> '
+    expect(loginSchema.parse({ email: 'gestor@example.invalid', password }).password).toBe(password)
   })
 
   it('builds the react-hook-form errors, nested, from the same messages', async () => {

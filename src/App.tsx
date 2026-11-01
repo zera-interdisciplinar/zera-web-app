@@ -27,7 +27,6 @@ function ConteudoApp() {
         <LimiteErro><AppRoutes /></LimiteErro>
         <AvisoNavegacao />
         <AccessibilityPanel routes={voiceRoutes} />
-        <footer className="rodape-sistema">ZERA · Gestão de resíduos eletrônicos</footer>
       </AuthProvider>
     </AccessibilityProvider>
   )

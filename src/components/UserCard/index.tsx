@@ -1,12 +1,14 @@
 import type { UserCardProps } from '../../types/componentes/UserCard'
 export type { UserCardProps } from '../../types/componentes/UserCard'
+import { useId } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { useMenuSuspenso } from '../../hooks/useMenuSuspenso'
 import { ROTULO_PERFIL } from '../../types/usuario'
 import estilos from '../../../styles/components/UserCard/UserCard.module.css'
 
-export function UserCard({ nome, cargo, iniciais: sigla }: UserCardProps) {
+export function UserCard({ nome, cargo, iniciais: sigla, compact = false }: UserCardProps) {
+  const menuId = useId()
   const { usuario, sair } = useAuth()
   const navegar = useNavigate()
   const {
@@ -25,14 +27,14 @@ export function UserCard({ nome, cargo, iniciais: sigla }: UserCardProps) {
   }
 
   return (
-    <div className={estilos.envoltorio}>
+    <div className={`${estilos.envoltorio} ${compact ? estilos.compact : ''}`}>
       <button
         type="button"
         className={estilos.cartao}
         ref={gatilhoRef}
         aria-haspopup="menu"
         aria-expanded={aberto}
-        aria-controls={aberto ? 'menu-perfil-sidebar' : undefined}
+        aria-controls={aberto ? menuId : undefined}
         aria-label={`Perfil de ${nome}`}
         onClick={alternar}
       >
@@ -48,7 +50,7 @@ export function UserCard({ nome, cargo, iniciais: sigla }: UserCardProps) {
       {aberto && usuario && (
         <ul
           className={estilos.menu}
-          id="menu-perfil-sidebar"
+          id={menuId}
           role="menu"
           ref={menuRef}
           onKeyDown={aoTeclarMenu}
@@ -60,7 +62,7 @@ export function UserCard({ nome, cargo, iniciais: sigla }: UserCardProps) {
             <span className={estilos.menuIdentidade}>
               <span className={estilos.menuNome}>{usuario.nome}</span>
               <span className={estilos.menuCargo}>
-                {(usuario.cargo ?? ROTULO_PERFIL[usuario.perfil])} · {usuario.unidade}
+                {usuario.cargo ?? ROTULO_PERFIL[usuario.perfil]}
               </span>
               <span className={estilos.menuEmail}>{usuario.email}</span>
             </span>

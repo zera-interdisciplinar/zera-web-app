@@ -24,12 +24,10 @@ test('cada rota permitida carrega seu chunk de produção no primeiro acesso', a
   })
   await preparar(page, 'MANAGER', 0, origem)
   await expect(page.getByRole('heading', { level: 1, name: 'Visão geral', exact: true })).toBeVisible()
-  const registro: Array<{ rota: string; chunks: string[] }> = []
+  const registro: Array<{ rota: string; chunks: string[] }> = [{ rota: '/login → /', chunks: [...scripts] }]
   for (const [rota, titulo] of [
     ['/itens', 'Gestão de itens'], ['/itens/item-proprio', 'Notebook próprio'],
-    ['/modelos', 'Modelos'], ['/recicladoras', 'Locais de reciclagem'],
-    ['/descartes', 'Registros de descarte'], ['/funcionarios', 'Funcionários'],
-    ['/esqueci-senha', 'Esqueci minha senha'], ['/rota-inexistente', 'Página não encontrada'],
+    ['/modelos', 'Modelos'], ['/rota-inexistente', 'Página não encontrada'],
   ]) {
     const anteriores = new Set(scripts)
     await page.evaluate(destino => { history.pushState(null, '', destino); dispatchEvent(new PopStateEvent('popstate')) }, rota)
@@ -38,10 +36,11 @@ test('cada rota permitida carrega seu chunk de produção no primeiro acesso', a
     expect(novos.length, rota).toBeGreaterThan(0)
     registro.push({ rota, chunks: novos })
   }
-  for (const rota of ['/configuracoes', '/relatorios', '/itens/item-proprio/triagem']) {
+  // Rotas removidas usam o mesmo chunk de página não encontrada, já carregado.
+  for (const rota of ['/recicladoras', '/descartes', '/funcionarios', '/esqueci-senha', '/relatorios', '/itens/item-proprio/triagem']) {
     const quantidade = scripts.size
     await page.evaluate(destino => { history.pushState(null, '', destino); dispatchEvent(new PopStateEvent('popstate')) }, rota)
-    await expect(page.getByRole('heading', { level: 1, name: 'Acesso restrito', exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1, name: 'Página não encontrada', exact: true })).toBeVisible()
     expect(scripts.size, rota).toBe(quantidade)
   }
   await info.attach('chunks-por-rota', { body: JSON.stringify(registro, null, 2), contentType: 'application/json' })

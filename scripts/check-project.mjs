@@ -45,6 +45,7 @@ for (const arquivo of listar('src')) {
   if (arquivo.startsWith('src/') && /from ['"]msw(?:\/|['"])/.test(texto)) problemas.push(`${arquivo}: msw só é permitido em tests/`)
   if (vista && arquivo.endsWith('.tsx') && !arquivo.endsWith('/index.tsx')) problemas.push(`${arquivo}: componente sem pasta própria e index.tsx`)
   function visitar(no) {
+    if (vista && ts.isCallExpression(no) && ts.isPropertyAccessExpression(no.expression) && ['mutate', 'mutateAsync', 'safeParse', 'parseAsync'].includes(no.expression.name.text)) problemas.push(`${arquivo}: mova validação e orquestração de mutações para hooks/utils`)
     if (no.kind === ts.SyntaxKind.AnyKeyword) problemas.push(`${arquivo}: tipo any`)
     if (ts.isCallExpression(no) && ts.isIdentifier(no.expression) && no.expression.text === 'fetch' && !arquivo.startsWith('src/services/')) problemas.push(`${arquivo}: fetch fora de services`)
     if (ts.isCallExpression(no) && ts.isPropertyAccessExpression(no.expression) && ['window', 'globalThis'].includes(no.expression.expression.getText(codigo)) && no.expression.name.text === 'fetch' && !arquivo.startsWith('src/services/')) problemas.push(`${arquivo}: fetch fora de services`)

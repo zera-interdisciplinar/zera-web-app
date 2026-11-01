@@ -17,7 +17,7 @@ export function permissoesDoPerfil(perfil: Perfil | null | undefined): Permissoe
   const gestor = autenticado
   return {
     ler: autenticado,
-    cadastrarItem: autenticado,
+    cadastrarItem: false,
     editarItem: autenticado,
     cadastrarModelo: autenticado,
     cadastrarCategoria: gestor,

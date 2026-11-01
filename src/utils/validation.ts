@@ -11,8 +11,10 @@ export type ValidationResult<T> = { ok: true; data: T } | { ok: false; errors: R
  * schema, and the accepted text is sanitized (tags and dangerous protocols removed) before it is used.
  */
 export function validate<T>(schema: ZodType<T>, input: unknown): ValidationResult<T> {
-  const parsed = schema.safeParse(input)
-  if (parsed.success) return { ok: true, data: sanitizarObjeto(parsed.data) }
+  // Validate the actual value that leaves the form, including text emptied by sanitization.
+  // Do this before schema transforms: parsing transformed output again can change optional/numeric fields.
+  const parsed = schema.safeParse(sanitizarObjeto(input))
+  if (parsed.success) return { ok: true, data: parsed.data }
   const errors: Record<string, string> = {}
   for (const issue of parsed.error.issues) {
     const path = issue.path.join('.')

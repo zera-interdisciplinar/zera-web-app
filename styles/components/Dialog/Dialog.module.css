@@ -1,12 +1,19 @@
-.dialog { width: 100%; max-height: calc(100dvh - 2rem); padding: 0; border: 0; border-radius: 1.875rem; overflow: auto; box-shadow: var(--sombra-modal); }
+.dialog { width: 100%; max-height: calc(100dvh - 32px); padding: 0; border: 1px solid var(--color-border); border-radius: 1.5rem; overflow: hidden; box-shadow: var(--sombra-modal); }
 .dialog::backdrop { background: rgb(18 32 56 / 0.55); }
 .light { background: var(--color-surface); color: var(--color-text); }
 .navy { background: var(--color-navy-900); color: #fff; }
-.content { display: grid; gap: 1.25rem; padding: 1.75rem; }
-.header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
-.header h2 { font-size: 1.25rem; font-weight: 700; line-height: 1.75rem; }
-.close { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; flex: none; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; }
+.content { display: flex; flex-direction: column; max-height: calc(100dvh - 32px - 2px); min-height: 0; }
+.header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex: none; padding: 1.25rem 1.5rem; border-bottom: 1px solid color-mix(in srgb, currentColor 14%, transparent); }
+.header h2 { min-width: 0; overflow-wrap: anywhere; font-size: 1.25rem; font-weight: 700; line-height: 1.5; }
+.body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: #8998b5 transparent; padding: 1.5rem; scroll-padding-block: 1rem 6rem; }
+.body > * + * { margin-top: 1.25rem; }
+.body::-webkit-scrollbar { width: 8px; }
+.body::-webkit-scrollbar-thumb { background: #8998b5; border: 2px solid var(--color-surface); border-radius: 999px; }
+.close { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; flex: none; border: 0; border-radius: 50%; background: color-mix(in srgb, currentColor 6%, transparent); color: inherit; cursor: pointer; }
+.close:hover { background: color-mix(in srgb, currentColor 12%, transparent); }
 .navy .close { color: var(--color-amber-500); }
-.close svg { width: 1.5rem; height: 1.5rem; }
+.close svg { width: 1.25rem; height: 1.25rem; }
 .close:focus-visible { outline: 3px solid var(--color-amber-500); outline-offset: 2px; }
 .light .close:focus-visible { outline-color: var(--color-blue-600); }
+
+@media(max-width:640px) { .dialog { border-radius: 1.25rem; } .header { padding: 16px; gap: 12px; } .header h2 { font-size: 1.125rem; } .close { width: 44px; height: 44px; } .body { padding: 16px; } }

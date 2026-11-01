@@ -1,22 +1,16 @@
-import { useForm, useWatch } from 'react-hook-form'
+import styles from '../../../styles/components/Items/Items.module.css'
+import { failureMessage } from '../../hooks/useItemCommands'
+import { useRejectForm } from '../../hooks/useRejectForm'
+import type { RejectDialogProps } from '../../types/componentes/RejectDialog'
 import { Button } from '../Button'
 import { Dialog } from '../Dialog'
 import { TextAreaField } from '../TextAreaField'
-import { useItemAction } from '../../hooks/useItemMutations'
-import { failureMessage } from '../../hooks/useItemCommands'
-import { rejectSchema } from '../../utils/itemValidation'
-import styles from '../../../styles/components/Items/Items.module.css'
-import type { RejectDialogProps } from '../../types/componentes/RejectDialog'
-import { resolverFor } from '../../utils/validation'
 
 const MAX_REASON = 500
 
 /** The reason is mandatory and travels to the employee who registered the item (BR-14). */
 export function RejectDialog({ item, onClose, onDone }: RejectDialogProps) {
-  const { register, handleSubmit, control, formState: { errors } } = useForm<{ reason: string }>({ resolver: resolverFor(rejectSchema), defaultValues: { reason: '' } })
-  const reason = useWatch({ control, name: 'reason' })
-  const { reject } = useItemAction()
-  const submit = handleSubmit(({ reason: text }) => reject.mutate({ id: item.id, reason: text }, { onSuccess: () => onDone('Item reprovado.') }))
+  const { register, errors, reason, reject, submit } = useRejectForm({ item, onClose, onDone })
 
   return (
     <Dialog open title="Reprovar item" onClose={onClose} width={32}>

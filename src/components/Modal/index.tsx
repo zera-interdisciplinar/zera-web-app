@@ -89,6 +89,7 @@ export function Modal({ aberto, titulo, aoFechar, children, larguraMaxima = 880 
         tabIndex={-1}
         style={{ maxWidth: larguraMaxima }}
       >
+        <header className={estilos.cabecalho}>
         <button
           type="button"
           className={estilos.fechar}
@@ -98,7 +99,8 @@ export function Modal({ aberto, titulo, aoFechar, children, larguraMaxima = 880 
           <X size={24} aria-hidden="true" />
         </button>
         <h2 className={estilos.titulo}>{titulo}</h2>
-        {children}
+        </header>
+        <div className={estilos.corpo}>{children}</div>
       </div>
     </div>
   )

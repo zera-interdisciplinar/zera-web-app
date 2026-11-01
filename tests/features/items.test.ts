@@ -127,6 +127,8 @@ describe('create form validation (BR-11)', () => {
     ['a fractional usage intensity', { usageIntensity: '2.5' }, 'usageIntensity'],
     ['a serial number above 120 characters', { serialNumber: 's'.repeat(121) }, 'serialNumber'],
     ['notes above 500 characters', { notes: 'n'.repeat(501) }, 'notes'],
+    ['an impossible acquisition date', { acquiredAt: '2026-02-31' }, 'acquiredAt'],
+    ['a leap day in a non-leap year', { acquiredAt: '2025-02-29' }, 'acquiredAt'],
     ['a future acquisition date', { acquiredAt: '2999-01-01' }, 'acquiredAt'],
     ['a manufacturing year in the future', { manufacturingYear: String(new Date().getFullYear() + 1) }, 'manufacturingYear'],
     ['an existing model mode without a model', { modelId: '' }, 'modelId'],
@@ -384,7 +386,7 @@ describe('presentation', () => {
   })
 
   it('names each row action after the item', () => {
-    const html = renderToStaticMarkup(createElement(ItemActionButtons, { item: item({ status: 'PENDING_APPROVAL' }), onAction: () => undefined, compact: true }))
+    const html = renderToStaticMarkup(createElement(ItemActionButtons, { item: item({ status: 'PENDING_APPROVAL' }), onAction: () => undefined }))
     for (const label of ['Editar Notebook', 'Aprovar Notebook', 'Reprovar Notebook', 'Remover Notebook']) expect(html).toContain(`aria-label="${label}"`)
     expect(html).not.toContain('Restaurar')
   })

@@ -56,3 +56,10 @@
 .draftNote { padding: 0.75rem 1rem; border-radius: 0.75rem; background: #fff7e6; color: var(--ambar-texto); font-weight: 600; }
 
 @media (max-width: 64rem) { .detailGrid { grid-template-columns: minmax(0, 1fr); } }
+
+.rowActions { gap: 0.5rem; flex-wrap: nowrap; }
+.rowAction { border-color: transparent; background: #f1f4fc; border-radius: 0.75rem; width: 2.75rem; height: 2.75rem; min-width: 2.75rem; min-height: 2.75rem; padding: 0; flex: 0 0 2.75rem; }
+.action_approve { background: #e4f5ed; color: #15583e; }
+.action_remove, .action_reject { color: #a51d2d; background: #fff2f2; }
+
+.loading { padding: 0 1.5rem 1rem; color: var(--color-text-muted); font-size: 0.875rem; }

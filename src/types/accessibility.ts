@@ -7,7 +7,7 @@ export interface AccessibilityValue {
   reset: () => void
 }
 
-export type Preferences = z.infer<typeof preferencesSchema>
+export interface Preferences extends z.infer<typeof preferencesSchema> {}
 
 export interface SystemPreferences {
   prefersMoreContrast: boolean

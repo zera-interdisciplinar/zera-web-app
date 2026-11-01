@@ -1,0 +1,20 @@
+
+.wrapper { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.trigger { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid var(--color-border-input); background: #fff; color: var(--navy); padding: 0.65rem 1rem; border-radius: 0.875rem; min-height: 2.75rem; cursor: pointer; font: inherit; font-size: 0.875rem; font-weight: 700; }
+.trigger span { padding: 0.1rem 0.4rem; background: var(--navy); color: white; border-radius: 50%; font-size: 0.75rem; }
+.applied, .option { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.75rem; max-width: 100%; padding: 0.5rem 0.875rem; border-radius: 999px; border: 1px solid var(--color-border-input); background: white; color: var(--navy); font: inherit; font-size: 0.8125rem; cursor: pointer; overflow-wrap: anywhere; }
+.applied, .option[aria-pressed='true'] { color: #705000; background: #fff4d7; border-color: #c79b35; font-weight: 700; }
+.option svg, .applied svg { flex-shrink: 0; }
+.clear { border: 0; background: none; color: var(--navy); font: inherit; font-size: 0.8125rem; cursor: pointer; padding: 0.75rem; text-decoration: underline; }
+.intro { color: var(--color-text-muted); font-size: 0.875rem; margin-bottom: 1rem; }
+.groups { display: grid; gap: 1.5rem; }
+.group { min-width: 0; padding: 0; border: 0; margin: 0; }
+.group legend { margin-bottom: 0.75rem; color: var(--navy); font-size: 0.875rem; font-weight: 700; }
+.options { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 0.75rem; position: sticky; bottom: -1.5rem; padding: 1rem 0; margin-top: 1.5rem; background: white; border-top: 1px solid var(--color-border); }
+.wrapper button:focus-visible, .option:focus-visible { outline: 3px solid var(--azul); outline-offset: 3px; }
+@media(max-width:640px) { .actions > button { flex: 1; } }
+
+@media(max-width:640px) { .actions { flex-direction: column-reverse; } .actions > button { width: 100%; flex: auto; } .actions > button:first-child { border-color: transparent; padding: 0.5rem; } }
+
+@media(max-width:640px) { .actions { bottom: -16px; } }

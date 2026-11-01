@@ -8,10 +8,10 @@ export interface FieldCommonProps {
   tone?: 'light' | 'navy'
 }
 
-export type FieldProps = FieldCommonProps & { id: string; children: ReactNode; required?: boolean }
-export type TextFieldProps = FieldCommonProps & ComponentPropsWithRef<'input'>
-export type TextAreaFieldProps = FieldCommonProps & ComponentPropsWithRef<'textarea'>
-export type SelectFieldProps = FieldCommonProps & ComponentPropsWithRef<'select'>
+export interface FieldProps extends FieldCommonProps { id: string; children: ReactNode; required?: boolean }
+export interface TextFieldProps extends FieldCommonProps, ComponentPropsWithRef<'input'> {}
+export interface TextAreaFieldProps extends FieldCommonProps, ComponentPropsWithRef<'textarea'> {}
+export interface SelectFieldProps extends FieldCommonProps, ComponentPropsWithRef<'select'> {}
 
 export interface ChoiceGroupProps {
   legend: string
@@ -21,6 +21,6 @@ export interface ChoiceGroupProps {
   required?: boolean
 }
 
-export type ChoiceOptionProps = ComponentPropsWithRef<'input'> & { label: string }
+export interface ChoiceOptionProps extends ComponentPropsWithRef<'input'> { label: string }
 
-export type FilterSelectProps = ComponentPropsWithRef<'select'> & { label: string }
+export interface FilterSelectProps extends ComponentPropsWithRef<'select'> { label: string }

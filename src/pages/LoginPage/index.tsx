@@ -4,15 +4,15 @@ import { Button } from '../../components/Button'
 import { FieldCard } from '../../components/FieldCard'
 import { Formulario } from '../../components/Formulario'
 import { Logo } from '../../components/Logo'
-import { useSession } from '../../hooks/useSession'
+import { useAuth } from '../../hooks/useAuth'
 import { ForgotPasswordDialog } from '../../components/ForgotPasswordDialog'
 import { loginCopy } from '../../utils/loginCopy'
 import { useLoginForm } from '../../hooks/useLoginForm'
 import styles from '../../../styles/pages/LoginPage/LoginPage.module.css'
 
 export default function LoginPage() {
-  const session = useSession()
-  const { state, submit, change } = useLoginForm(session.status === 'authenticated')
+  const { autenticado, aviso } = useAuth()
+  const { state, submit, change } = useLoginForm(autenticado)
   const [forgotOpen, setForgotOpen] = useState(false)
   const locked = state.secondsLeft > 0
 
@@ -20,11 +20,12 @@ export default function LoginPage() {
     <main className={styles.pagina} id="conteudo" tabIndex={-1} data-public-page>
       <aside className={styles.marca} aria-label="Sobre o Zera">
         <div className={styles.marcaCentral}>
-          <Logo />
-          <p className={styles.tagline}>
-            TRANSFORMANDO <span>DESCARTE</span>
-            <br />EM <span>SOLUÇÃO</span>
-          </p>
+          <Logo tom="claro" />
+          <p className={styles.selo}>GESTÃO DE RESÍDUOS ELETRÔNICOS</p>
+          <h2 className={styles.tagline}>
+            Transformando descarte em <span>solução.</span>
+          </h2>
+          <p className={styles.descricao}>Acompanhe cada etapa e dê um novo destino ao que ainda tem valor.</p>
         </div>
         <address className={styles.contatos}>
           <a href="https://www.instagram.com/zera.app_/" target="_blank" rel="noreferrer">
@@ -43,9 +44,10 @@ export default function LoginPage() {
             <Logo />
           </div>
           <section className={styles.cartao}>
+            <p className={styles.eyebrow}>PORTAL DE GESTÃO</p>
             <h1 id="titulo-login">{loginCopy.title}</h1>
             <p className={styles.subtitulo}>{loginCopy.subtitle}</p>
-            {session.notice && !state.failure && <p className={styles.erroGeral} role="status">{session.notice}</p>}
+            {aviso && !state.failure && <p className={styles.erroGeral} role="status">{aviso}</p>}
             <Formulario className={styles.formulario} onSubmit={submit} noValidate>
               <FieldCard
                 id="email" obrigatorio rotulo={loginCopy.email} tipo="email" valor={state.email}

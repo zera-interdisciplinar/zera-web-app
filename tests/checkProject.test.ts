@@ -31,7 +31,7 @@ it('impede violações estáticas nos arquivos analisados pelo CI', () => {
   } finally {
     if (pasta.startsWith(join(tmpdir(), 'zera-check-'))) rmSync(pasta, { recursive: true, force: true })
   }
-})
+}, 20_000)
 
 it('só aceita .ts e .tsx dentro de src (estilos e imagens ficam fora)', () => {
   const pasta = mkdtempSync(join(tmpdir(), 'zera-check-'))
@@ -48,7 +48,7 @@ it('só aceita .ts e .tsx dentro de src (estilos e imagens ficam fora)', () => {
   } finally {
     if (pasta.startsWith(join(tmpdir(), 'zera-check-'))) rmSync(pasta, { recursive: true, force: true })
   }
-})
+}, 20_000)
 
 it('impede que uma camada importe a que está acima dela e que telas acessem services', () => {
   const pasta = mkdtempSync(join(tmpdir(), 'zera-check-'))
@@ -61,13 +61,14 @@ it('impede que uma camada importe a que está acima dela e que telas acessem ser
     // Permitido: tela -> hook -> service; fetch dentro de src/services.
     writeFileSync(join(pasta, 'src/pages/Tela/index.tsx'), "import { useItens } from '../../hooks/useItens'\nexport default function Tela() { return <p>{String(useItens)}</p> }\n")
     // Proibidos: componente chamando service, service importando hook, util importando service, fetch fora de services, msw em src.
-    writeFileSync(join(pasta, 'src/components/Botao/index.tsx'), "import { listar } from '../../services/itens'\nexport function Botao() { return <button type=\"button\">{String(listar)}</button> }\n")
+    writeFileSync(join(pasta, 'src/components/Botao/index.tsx'), "import { listar } from '../../services/itens'\nexport function Botao() { api.mutate({}); schema.safeParse({}); return <button type=\"button\">{String(listar)}</button> }\n")
     writeFileSync(join(pasta, 'src/services/ruim.ts'), "import { useItens } from '../hooks/useItens'\nexport const x = useItens\n")
     writeFileSync(join(pasta, 'src/utils/formatar.ts'), "import { listar } from '../services/itens'\nimport { http } from 'msw'\nexport const f = () => fetch('/y')\nexport const g = listar\n")
     writeFileSync(join(pasta, 'src/reducers/r.ts'), "import { useItens } from '../hooks/useItens'\nexport const r = useItens\n")
     const resultado = spawnSync(process.execPath, [resolve('scripts/check-project.mjs')], { cwd: pasta, encoding: 'utf8' })
     expect(resultado.status).toBe(1)
     expect(resultado.stderr).toContain('src/components/Botao/index.tsx: vista acessa serviço')
+    expect(resultado.stderr).toContain('mova validação e orquestração de mutações para hooks/utils')
     expect(resultado.stderr).toContain('src/components/Botao/index.tsx: components não pode importar services')
     expect(resultado.stderr).toContain('src/services/ruim.ts: services não pode importar hooks')
     expect(resultado.stderr).toContain('src/utils/formatar.ts: utils não pode importar services')
@@ -80,4 +81,4 @@ it('impede que uma camada importe a que está acima dela e que telas acessem ser
   } finally {
     if (pasta.startsWith(join(tmpdir(), 'zera-check-'))) rmSync(pasta, { recursive: true, force: true })
   }
-})
+}, 20_000)

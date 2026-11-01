@@ -72,4 +72,6 @@ export async function fazerLogin(page: Page, endereco = base) {
   await expect(page).toHaveURL(`${endereco}/`)
   // A URL muda antes de a área privada montar: espera a navegação lateral para não correr com a tela de login.
   await expect(page.getByRole('navigation', { name: 'Seções do sistema' })).toBeVisible()
+  // The shell stays visible while the lazy dashboard module loads.
+  await expect(page.getByRole('heading', { name: 'Visão geral', exact: true })).toBeVisible({ timeout: 15_000 })
 }

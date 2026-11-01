@@ -16,9 +16,12 @@ export function Dialog({ open, title, onClose, children, tone = 'light', width =
 
   useEffect(() => {
     const element = ref.current
-    if (!element) return
+    // A closed, mounted dialog must not restore an old focus target when it opens.
+    if (!element || !open) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
-    if (open && !element.open) {
+    if (!element.open) {
       element.showModal()
       // Focus goes to the safest or most useful control, not to the "close" button that comes first in the markup.
       element.querySelector<HTMLElement>(FIRST_FOCUS)?.focus()
@@ -26,13 +29,24 @@ export function Dialog({ open, title, onClose, children, tone = 'light', width =
     // On unmount the dialog is already detached, so the browser cannot restore focus by itself.
     return () => {
       if (element.open) element.close()
+      document.body.style.overflow = previousOverflow
       if (opener?.isConnected) opener.focus()
     }
   }, [open])
 
   return (
     <dialog
-      ref={ref} className={`${styles.dialog} ${styles[tone]}`} style={{ maxWidth: `min(${width}rem, calc(100vw - 2rem))` }}
+      ref={ref} className={`${styles.dialog} ${styles[tone]}`} style={{ maxWidth: `min(${width}rem, calc(100vw - 32px))` }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Tab') return
+        const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), input:not(:disabled):not([type="hidden"]), select:not(:disabled), textarea:not(:disabled), [tabindex]'))
+          .filter((element) => element.tabIndex >= 0 && element.getClientRects().length > 0)
+        const first = controls[0]
+        const last = controls.at(-1)
+        if (!first || !last) return
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
+      }}
       aria-labelledby={titleId} onCancel={(event) => { event.preventDefault(); onClose() }}
     >
       {open && (
@@ -41,7 +55,7 @@ export function Dialog({ open, title, onClose, children, tone = 'light', width =
             <h2 id={titleId}>{title}</h2>
             <button type="button" className={styles.close} onClick={onClose} aria-label="Fechar"><X aria-hidden="true" /></button>
           </header>
-          {children}
+          <div className={styles.body}>{children}</div>
         </div>
       )}
     </dialog>

@@ -10,11 +10,11 @@ export type DamageType = (typeof DAMAGE_TYPES)[number]
 
 export type MaterialCode = (typeof MATERIAL_CODES)[number]
 
-export type Model = z.infer<typeof modelSchema>
+export interface Model extends z.infer<typeof modelSchema> {}
 
-export type ItemResponse = z.infer<typeof itemSchema>
+export interface ItemResponse extends z.infer<typeof itemSchema> {}
 
-export type ItemEvent = z.infer<typeof eventSchema>
+export interface ItemEvent extends z.infer<typeof eventSchema> {}
 
 export type ItemAction = 'edit' | 'approve' | 'reject' | 'submit' | 'remove' | 'restore'
 
@@ -78,12 +78,14 @@ export type SharedField = keyof EditItemInput
 
 export type ItemFieldErrors = Partial<Record<SharedField, { message?: string }>>
 
-export type Category = z.infer<typeof categorySchema>
+export interface Category extends z.infer<typeof categorySchema> {}
 
-export type Material = z.infer<typeof materialSchema>
+export interface Material extends z.infer<typeof materialSchema> {}
 
-export type ItemPage = z.infer<typeof itemPageSchema>
+export interface ItemPage extends z.infer<typeof itemPageSchema> {}
 
-export type ItemEventPage = z.infer<typeof eventPageSchema>
+export interface ItemEventPage extends z.infer<typeof eventPageSchema> {}
 
-export type ModelPage = z.infer<typeof modelPageSchema>
+export interface ModelPage extends z.infer<typeof modelPageSchema> {}
+
+export interface ItemSelectionParams extends Omit<ListItemsParams, "status" | "categoryId"> { statuses: ItemStatus[]; categoryIds: string[] }

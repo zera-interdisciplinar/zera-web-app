@@ -1,7 +1,5 @@
-import { Plus } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Button } from '../../components/Button'
 import type { Coluna } from '../../components/DataTable'
 import { DataTable } from '../../components/DataTable'
 import { EmptyState } from '../../components/EmptyState'
@@ -18,20 +16,21 @@ import { ItemActionButtons } from '../../components/ItemActionButtons'
 import { ItemDialogHost } from '../../components/ItemDialogHost'
 import { StatusPill } from '../../components/StatusPill'
 import styles from '../../../styles/components/Items/Items.module.css'
-import { useCategories, useItemsList } from '../../hooks/useItemQueries'
+import { useCategories, useSelectedItems } from '../../hooks/useItemQueries'
 import { useItemController } from '../../hooks/useItemController'
 import { useItemFilters } from '../../hooks/useItemFilters'
 import { PAGE_SIZES } from '../../utils/itemFilters'
 import { STATUS_LABEL } from '../../utils/itemLabels'
 import { ITEM_STATUSES } from '../../utils/itemSchemas'
 import type { ItemResponse, ItemStatus } from '../../types/item'
-import { FilterSelect } from '../../components/FilterSelect'
+import { FilterSheet } from '../../components/FilterSheet'
+import { StockManagement } from '../../components/StockManagement'
 
 export default function ItemsPage() {
   const { filters, search, setSearch, apply, clear, dirty } = useItemFilters()
   const [toast, notify] = useToast()
   const { target, setTarget, onAction, busy } = useItemController(notify)
-  const list = useItemsList(filters)
+  const list = useSelectedItems(filters)
   const categories = useCategories()
 
   // The column definitions depend on the action handler only.
@@ -46,37 +45,35 @@ export default function ItemsPage() {
     { titulo: 'Status', render: (item) => <StatusPill status={item.status} /> },
     { titulo: 'Responsável', render: (item) => item.createdByName ?? NOT_AVAILABLE },
     { titulo: 'Atualização', render: (item) => formatRelativeTime(item.updatedAt) },
-    { titulo: 'Ação', render: (item) => <ItemActionButtons item={item} compact disabled={busy} onAction={onAction} /> },
+    { titulo: 'Ação', render: (item) => <ItemActionButtons item={item} disabled={busy} onAction={onAction} /> },
   ], [busy, onAction])
 
   const page = list.data
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <PageHeader titulo="Gestão de itens" subtitulo="Cadastre, filtre e acompanhe o ciclo de cada item." />
-        <Button onClick={() => setTarget({ kind: 'create' })}><Plus aria-hidden="true" size={18} /> Adicionar item</Button>
+        <PageHeader titulo="Gestão de itens" subtitulo="Acompanhe os equipamentos, avalie solicitações e gerencie o estoque." />
       </div>
 
       <div className={styles.toolbar} role="search" aria-label="Filtrar itens">
         <SearchInput id="items-search" rotulo="Pesquisar por código, nome, modelo ou material" valor={search} aoMudar={setSearch} placeholder="Pesquisar por ID, Nome ou Material..." />
-        <FilterSelect label="Status" value={filters.status ?? ''} onChange={(event) => apply({ status: (event.target.value || undefined) as ItemStatus | undefined })}>
-          <option value="">Ativos</option>
-          {ITEM_STATUSES.map((status) => <option key={status} value={status}>{STATUS_LABEL[status]}</option>)}
-        </FilterSelect>
-        <FilterSelect label="Categoria" value={filters.categoryId ?? ''} onChange={(event) => apply({ categoryId: event.target.value || undefined })}>
-          <option value="">Todas</option>
-          {categories.data?.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
-        </FilterSelect>
-        {dirty && <button type="button" className={styles.clear} onClick={clear}>Limpar filtros</button>}
+        <FilterSheet title="Filtrar itens" groups={[
+          { id: 'statuses', label: 'Status', multiple: true, selected: filters.statuses, options: ITEM_STATUSES.map((status) => ({ value: status, label: STATUS_LABEL[status] })) },
+          { id: 'categoryIds', label: 'Categoria', multiple: true, selected: filters.categoryIds, options: (categories.data ?? []).map((category) => ({ value: category.id, label: category.name })) },
+        ]} onApply={(selection) => apply({ statuses: (selection.statuses ?? []) as ItemStatus[], categoryIds: selection.categoryIds ?? [] })} onClear={clear} />
+        {dirty && !filters.statuses.length && !filters.categoryIds.length && <button type="button" className={styles.clear} onClick={clear}>Limpar filtros</button>}
       </div>
+
+      <StockManagement />
 
       <section className={styles.card} aria-labelledby="items-title" aria-busy={list.isFetching}>
         <h2 id="items-title" className={styles.cardTitle}>Todos os itens</h2>
+        {list.isFetching && !list.isPending && <p role="status" className={styles.loading}>Atualizando resultados…</p>}
         {list.isPending && <Skeleton descricao="Carregando itens…" linhas={6} />}
         {list.isError && !page && <EstadoErro mensagem={describeApiError(list.error)} aoTentarNovamente={() => void list.refetch()} />}
         {page && page.content.length === 0 && (
           <EmptyState titulo={dirty ? 'Nenhum item encontrado' : 'Nenhum item cadastrado'}
-            descricao={dirty ? 'Ajuste a busca ou limpe os filtros.' : 'Use “Adicionar item” para cadastrar o primeiro.'} />
+            descricao={dirty ? 'Ajuste a busca ou limpe os filtros.' : 'Os itens cadastrados pelos funcionários aparecerão aqui.'} />
         )}
         {page && page.content.length > 0 && (
           <>

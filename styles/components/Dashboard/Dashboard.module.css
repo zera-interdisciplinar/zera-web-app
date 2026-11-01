@@ -25,7 +25,7 @@
 .badge_error { color: #a51d2d; }
 .badge_reconnecting, .badge_unavailable { color: #6b4700; }
 
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1.5rem; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: 1.5rem; }
 .kpi { position: relative; display: grid; gap: 0.25rem; align-content: start; min-height: 8.5rem; padding: 1rem 1.25rem; border-radius: 1.125rem; background: var(--color-surface); }
 .kpiIcon { position: absolute; top: 1rem; right: 1rem; display: grid; place-items: center; width: 2.375rem; height: 2.375rem; border-radius: 0.75rem; color: #fff; }
 .kpiIcon svg { width: 1.25rem; height: 1.25rem; }
@@ -62,7 +62,7 @@
 .donutValue { position: absolute; font-size: 1.75rem; font-weight: 700; color: var(--color-navy-900); }
 
 .breakdown { display: block; }
-.distributions { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1.5rem; margin-top: 1.25rem; }
+.distributions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1.5rem; margin-top: 1.25rem; }
 .distributionTitle { font-size: 0.875rem; font-weight: 600; color: var(--color-text); }
 .distribution ul { display: grid; gap: 0.5rem; margin: 0.75rem 0 0; padding: 0; list-style: none; }
 .distribution li { display: grid; grid-template-columns: minmax(0, 1fr) 6rem auto; align-items: center; gap: 0.5rem; font-size: 0.8125rem; }
@@ -76,3 +76,36 @@
 
 .freshness { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
 .updated { font-size: 0.75rem; color: var(--color-text-muted); }
+
+.circularityCard { display: flex; flex-direction: column; }
+.circularityCard .donut { width: min(100%, 14rem); margin: 1.5rem auto; flex: 1; }
+.circularityCard .donut svg { stroke-width: 12; }
+.circularityCard .donutArc { stroke-linecap: round; }
+.donutCenter { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; }
+.donutCenter .donutValue { position: static; font-size: 2.5rem; line-height: 1.2; }
+.donutCaption { font-size: 0.6875rem; color: var(--color-text-muted); text-align: center; }
+.circularityScale { display: flex; justify-content: space-between; gap: 0.5rem; padding-top: 1rem; border-top: 1px solid var(--color-border); color: var(--color-text-muted); font-size: 0.75rem; }
+
+.filterLayout { display: grid; gap: 0.75rem; }
+.datePanel { padding: 1rem; background: white; border-radius: 1rem; margin-top: 0.75rem; }
+
+/* Let enlarged text reflow instead of forcing minimum track widths past the viewport. */
+.distribution, .circularityCard { container-type: inline-size; }
+.circularityScale { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; text-align: center; }
+.circularityScale > :first-child { text-align: left; }
+.circularityScale > :last-child { text-align: right; }
+.range .field { min-width: 0; flex: 1 1 10rem; }
+.range input { width: 100%; min-width: 0; max-width: 100%; }
+.range button { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+@container (max-width: 18rem) {
+  .distribution li { grid-template-columns: minmax(0, 1fr) auto; }
+  .rowLabel { grid-column: 1 / -1; }
+}
+@container (max-width: 14rem) {
+  .circularityCard .donut { display: flex; flex-direction: column; aspect-ratio: auto; flex: none; }
+  .circularityCard .donut svg { height: auto; aspect-ratio: 1; }
+  .donutCenter { position: static; width: 100%; margin-top: 0.75rem; }
+}
+@media (max-width: 640px) {
+  .card, .kpi { padding: 16px; }
+}

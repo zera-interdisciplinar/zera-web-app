@@ -1,5 +1,5 @@
 import { ITEM_STATUSES } from './itemSchemas'
-import type { ItemStatus, ListItemsParams } from '../types/item'
+import type { ItemStatus, ListItemsParams, ItemSelectionParams } from '../types/item'
 
 
 export const PAGE_SIZES = [20, 50, 100]
@@ -32,5 +32,18 @@ export function toItemSearchParams(filters: ListItemsParams): URLSearchParams {
   if (filters.modelId) params.set('modelId', filters.modelId)
   if (filters.page > 0) params.set('page', String(filters.page))
   if (filters.size !== DEFAULT_PAGE_SIZE) params.set('size', String(filters.size))
+  return params
+}
+
+/** Repeated URL parameters retain every selected status/category, including old single-filter bookmarks. */
+export function parseItemSelection(params: URLSearchParams): ItemSelectionParams {
+  const parsed = parseItemFilters(params)
+  const base = { page: parsed.page, size: parsed.size, q: parsed.q, modelId: parsed.modelId }
+  return { ...base, statuses: [...new Set(params.getAll('status').filter((value): value is ItemStatus => (ITEM_STATUSES as readonly string[]).includes(value)))], categoryIds: [...new Set(params.getAll('categoryId').filter(Boolean))] }
+}
+export function toItemSelectionSearchParams(filters: ItemSelectionParams): URLSearchParams {
+  const params = toItemSearchParams(filters)
+  for (const status of filters.statuses) params.append('status', status)
+  for (const id of filters.categoryIds) params.append('categoryId', id)
   return params
 }

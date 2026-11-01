@@ -91,7 +91,7 @@ describe('global stylesheet', () => {
 
 describe('voice commands (A-8)', () => {
   it('come from the navigation items the sidebar shows, with no stale routes', () => {
-    expect(navigationItems.map((item) => item.path)).toEqual(['/', '/itens', '/modelos', '/configuracoes'])
+    expect(navigationItems.map((item) => item.path)).toEqual(['/', '/itens', '/modelos'])
     const panel = readFileSync(new URL('../../src/components/AccessibilityPanel/index.tsx', import.meta.url), 'utf8')
     for (const stale of ['recicladoras', 'funcionários', 'relatórios', 'login']) expect(panel).not.toContain(stale)
   })

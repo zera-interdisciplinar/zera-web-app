@@ -1,3 +1,4 @@
+import { useModelRemoval } from '../../hooks/useRemovalCommands'
 import { List, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -14,7 +15,7 @@ import { NOT_AVAILABLE } from '../../utils/format'
 import { Pagination } from '../Pagination'
 import { MATERIAL_LABEL } from '../../utils/itemLabels'
 import { APPROVAL_STATUSES } from '../../utils/itemSchemas'
-import { deleteFailureMessage, useModelActions } from '../../hooks/useModelMutations'
+import { deleteFailureMessage } from '../../hooks/useModelMutations'
 import { useModelsList } from '../../hooks/useModelQueries'
 import { APPROVAL_LABEL } from '../../utils/modelLabels'
 import { ConfirmDeleteDialog } from '../ConfirmDeleteDialog'
@@ -41,8 +42,6 @@ export function ModelsTab() {
   const list = useModelsList({ page, size: SIZE, approvalStatus })
   const [target, setTarget] = useState<Target>(null)
   const [toast, notify] = useToast()
-  const { remove } = useModelActions()
-  const resetRemove = remove.reset
 
   const update = (next: { page?: number; approval?: string }) => {
     const copy = new URLSearchParams(params)
@@ -50,6 +49,11 @@ export function ModelsTab() {
     if (next.approval !== undefined) { copy.delete('page'); if (next.approval) copy.set('approval', next.approval); else copy.delete('approval') }
     setParams(copy, { replace: true })
   }
+
+  const close = () => setTarget(null)
+  const done = (message: string) => { notify(message); close() }
+  const { remove, confirmRemoval } = useModelRemoval(done)
+  const resetRemove = remove.reset
 
   // The columns do not depend on any state.
   const columns = useMemo<Coluna<Model>[]>(() => [
@@ -70,8 +74,6 @@ export function ModelsTab() {
     ) },
   ], [resetRemove])
 
-  const close = () => setTarget(null)
-  const done = (message: string) => { notify(message); close() }
   const data = list.data
 
   return (
@@ -102,7 +104,7 @@ export function ModelsTab() {
       {target?.kind === 'delete' && (
         <ConfirmDeleteDialog title="Excluir modelo" message={`Excluir o modelo ${target.model.name}? Esta ação não pode ser desfeita.`} pending={remove.isPending}
           error={remove.isError ? deleteFailureMessage(remove.error, 'Há itens vinculados a este modelo. Remova ou troque o modelo desses itens antes de excluir.') : undefined}
-          onClose={close} onConfirm={() => remove.mutate(target.model.id, { onSuccess: () => done('Modelo excluído.') })} />
+          onClose={close} onConfirm={() => confirmRemoval(target.model.id)} />
       )}
       <Toast mensagem={toast} />
     </div>

@@ -1,3 +1,4 @@
+import { usePermissoes } from './usePermissoes'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ApiError } from '../utils/apiError'
 import { approveItem, createItem, rejectItem, removeItem, restoreItem, submitItem, updateItem } from '../services/items'
@@ -31,10 +32,14 @@ export async function createAndSubmit(request: CreateItemRequest): Promise<Creat
 }
 
 export function useCreateItem() {
+  const { cadastrarItem } = usePermissoes()
   const client = useQueryClient()
   const onError = useRefreshOnConflict()
   return useMutation({
-    mutationFn: createAndSubmit,
+    mutationFn: (request: CreateItemRequest) => {
+      if (!cadastrarItem) return Promise.reject(new Error('O gestor não pode cadastrar itens.'))
+      return createAndSubmit(request)
+    },
     onError,
     onSettled: () => Promise.all([client.invalidateQueries({ queryKey: itemKeys.all }), client.invalidateQueries({ queryKey: catalogKeys.models })]),
   })

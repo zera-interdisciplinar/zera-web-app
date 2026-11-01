@@ -1,3 +1,4 @@
+import { useCategoryRemoval } from '../../hooks/useRemovalCommands'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Button } from '../Button'
@@ -13,7 +14,7 @@ import { NOT_AVAILABLE } from '../../utils/format'
 import { useCategories } from '../../hooks/useItemQueries'
 import type { z } from 'zod'
 import type { categorySchema } from '../../utils/itemSchemas'
-import { deleteFailureMessage, useCategoryActions } from '../../hooks/useModelMutations'
+import { deleteFailureMessage } from '../../hooks/useModelMutations'
 import { CategoryDialog } from '../CategoryDialog'
 import { ConfirmDeleteDialog } from '../ConfirmDeleteDialog'
 import styles from '../../../styles/components/Models/Models.module.css'
@@ -25,7 +26,10 @@ export function CategoriesTab() {
   const list = useCategories()
   const [target, setTarget] = useState<Target>(null)
   const [toast, notify] = useToast()
-  const { remove } = useCategoryActions()
+
+  const close = () => setTarget(null)
+  const done = (message: string) => { notify(message); close() }
+  const { remove, confirmRemoval } = useCategoryRemoval(done)
   const resetRemove = remove.reset
 
   // The columns do not depend on any state.
@@ -40,8 +44,6 @@ export function CategoriesTab() {
     ) },
   ], [resetRemove])
 
-  const close = () => setTarget(null)
-  const done = (message: string) => { notify(message); close() }
 
   return (
     <div>
@@ -60,7 +62,7 @@ export function CategoriesTab() {
       {target?.kind === 'delete' && (
         <ConfirmDeleteDialog title="Excluir categoria" message={`Excluir a categoria ${target.category.name}?`} pending={remove.isPending}
           error={remove.isError ? deleteFailureMessage(remove.error, 'Categoria em uso por modelos. Troque ou exclua esses modelos antes.') : undefined}
-          onClose={close} onConfirm={() => remove.mutate(target.category.id, { onSuccess: () => done('Categoria excluída.') })} />
+          onClose={close} onConfirm={() => confirmRemoval(target.category.id)} />
       )}
       <Toast mensagem={toast} />
     </div>

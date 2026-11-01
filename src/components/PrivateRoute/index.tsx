@@ -8,6 +8,7 @@ import { usePermissoes } from '../../hooks/usePermissoes'
 import { ROTULO_PERFIL } from '../../types/usuario'
 import { Button } from '../Button'
 import { CarregandoPagina } from '../CarregandoPagina'
+import { FeedbackPage } from '../FeedbackPage'
 import { EmptyState } from '../EmptyState'
 
 export function PrivateRoute({ children, perfis, permissao }: PrivateRouteProps) {
@@ -24,7 +25,7 @@ export function PrivateRoute({ children, perfis, permissao }: PrivateRouteProps)
 
   if (!permissoes.ler || (perfis && !temPerfil(perfis)) || (permissao && !permissoes[permissao])) {
     return (
-      <EmptyState
+      <FeedbackPage><EmptyState
         nivelTitulo="h1"
         titulo="Acesso restrito"
         descricao={perfis ? `Esta área exige perfil ${perfis.map((perfil) => ROTULO_PERFIL[perfil].toLowerCase()).join(' ou ')}. Seu perfil (${usuario ? ROTULO_PERFIL[usuario.perfil] : '—'}) não tem essa permissão.` : 'Esta área não está disponível para sua conta neste ambiente.'}
@@ -33,7 +34,7 @@ export function PrivateRoute({ children, perfis, permissao }: PrivateRouteProps)
             Voltar
           </Button>
         }
-      />
+      /></FeedbackPage>
     )
   }
 

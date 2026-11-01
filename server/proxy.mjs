@@ -60,9 +60,12 @@ export function criarProxy({ administrative, inventory, analytics, apiKey, origi
       res.writeHead(503, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({ mensagem: 'O serviço ainda não foi configurado.' })); return
     }
-    const rotaItem = match[1] === 'inventory' && req.method === 'GET'
-      && (match[2] === '/api/v1/items' || /^\/api\/v1\/items\/(?:by-barcode\/[^/]+|[^/]+)$/.test(match[2]))
-    const detalheItem = rotaItem && match[2] !== '/api/v1/items'
+    const listaItens = match[1] === 'inventory' && req.method === 'GET' && match[2] === '/api/v1/items'
+    const eventoItem = match[1] === 'inventory' && req.method === 'GET' && /^\/api\/v1\/items\/[^/]+\/events$/.test(match[2])
+    const leituraItem = match[1] === 'inventory' && req.method === 'GET'
+      && /^\/api\/v1\/items\/(?:by-barcode\/[^/]+|[^/]+)$/.test(match[2])
+    const rotaItem = listaItens || eventoItem || leituraItem
+    const detalheItem = leituraItem
     let identidade = null
     if (rotaItem && req.headers.authorization !== undefined) {
       identidade = identidadeToken(req.headers.authorization)
@@ -92,6 +95,31 @@ export function criarProxy({ administrative, inventory, analytics, apiKey, origi
       // Limita a abertura, nao a vida do SSE; heartbeats podem continuar por minutos.
       const timeout = setTimeout(() => abort.abort(), match[1] === 'analytics' ? 180_000 : 15_000)
       try {
+        if (eventoItem && identidade?.role === 'EMPLOYEE') {
+          const caminhoDoItem = match[2].replace(/\/events$/, '')
+          const respostaDoItem = await fetch(new URL(`${validarBaseProxy(base)}${caminhoDoItem}`), {
+            method: 'GET', headers, redirect: 'error', signal: abort.signal,
+          })
+          if (respostaDoItem.status === 403 || respostaDoItem.status === 404) {
+            responderErro(res, 404, 'Recurso não encontrado.')
+            return
+          }
+          if (!respostaDoItem.ok) {
+            responderErro(res, 502, 'Não foi possível verificar o responsável pelo item.')
+            return
+          }
+          let itemDosEventos
+          try { itemDosEventos = await respostaDoItem.json() }
+          catch { responderErro(res, 502, 'Não foi possível verificar o responsável pelo item.'); return }
+          if (typeof itemDosEventos?.createdBy !== 'string' || !itemDosEventos.createdBy.trim()) {
+            responderErro(res, 502, 'Não foi possível verificar o responsável pelo item.')
+            return
+          }
+          if (itemDosEventos.createdBy !== identidade.id) {
+            responderErro(res, 404, 'Recurso não encontrado.')
+            return
+          }
+        }
         const response = await fetch(url, {
           method: req.method,
           headers,
@@ -99,7 +127,7 @@ export function criarProxy({ administrative, inventory, analytics, apiKey, origi
           redirect: 'error',
           signal: abort.signal,
         })
-      if (rotaItem && !detalheItem && identidade?.role === 'EMPLOYEE' && response.ok) {
+      if (listaItens && identidade?.role === 'EMPLOYEE' && response.ok) {
         let pagina
         try { pagina = await response.json() }
         catch { responderErro(res, 502, 'Não foi possível verificar o responsável pelos itens.'); return }

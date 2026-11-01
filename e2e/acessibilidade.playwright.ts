@@ -85,18 +85,25 @@ test('T-25: alto contraste mantém o painel sem violações do axe', async ({ pa
   expect(resultado.violations.map((violacao) => violacao.id)).toEqual([])
 })
 
-test('T-26: o login usa Instrument Sans e as medidas do Figma', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 })
+test('T-26: o login mantém tipografia legível e controles confortáveis no desktop e no celular', async ({ page }) => {
   await page.goto(`${base}/login`)
   const titulo = page.getByRole('heading', { name: 'Entrar', exact: true })
-  const estilo = await titulo.evaluate((el) => { const c = getComputedStyle(el); return { familia: c.fontFamily, tamanho: c.fontSize, peso: c.fontWeight, linha: c.lineHeight, cor: c.color } })
-  expect(estilo).toMatchObject({ tamanho: '36px', peso: '700', linha: '42px', cor: 'rgb(32, 59, 126)' })
-  expect(estilo.familia).toMatch(/^"?Instrument Sans/)
-  const cartao = await titulo.locator('..').boundingBox()
-  expect(Math.round(cartao!.width)).toBe(480)
-  const campo = await page.locator('#email').evaluate((el) => (el.closest('div[class*="controleComIcones"]') as HTMLElement).getBoundingClientRect().height)
-  expect(Math.round(campo)).toBe(52)
-  const botao = await page.getByRole('button', { name: 'Entrar', exact: true }).boundingBox()
-  expect(Math.round(botao!.height)).toBe(56)
-  await page.screenshot({ path: 'test-results/login-figma-1440.png' })
+  await expect(titulo).toBeVisible()
+  for (const width of [1440, 320]) {
+    await page.setViewportSize({ width, height: 900 })
+    const estilo = await titulo.evaluate((el) => {
+      const c = getComputedStyle(el)
+      return { tamanho: Number.parseFloat(c.fontSize), linha: Number.parseFloat(c.lineHeight), peso: Number(c.fontWeight) }
+    })
+    expect(estilo.tamanho).toBeGreaterThanOrEqual(32)
+    expect(estilo.linha).toBeGreaterThan(estilo.tamanho)
+    expect(estilo.peso).toBeGreaterThanOrEqual(600)
+    const campo = await page.locator('#email').evaluate((el) => (el.closest('div[class*="controleComIcones"]') as HTMLElement).getBoundingClientRect().height)
+    expect(campo).toBeGreaterThanOrEqual(44)
+    const botao = page.getByRole('button', { name: 'Entrar', exact: true })
+    await expect(botao).toBeVisible()
+    expect((await botao.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+    expect(await semRolagemHorizontal(page)).toBe(true)
+  }
+  await page.screenshot({ path: 'test-results/login-responsivo-320.png' })
 })

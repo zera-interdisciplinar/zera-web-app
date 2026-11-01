@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: qa
+resources:
+  - ../../base
+configMapGenerator:
+  - name: zera-web-config
+    literals:
+      - NODE_ENV=production
+      - PORT=8080
+      - ZERA_ADMIN_URL=https://www.zeratech.online/qa/administrative
+      - ZERA_INVENTORY_URL=https://www.zeratech.online/qa/inventory
+      - ZERA_ANALYTICS_URL=https://www.zeratech.online/qa/analytics
+      - ZERA_WEB_ORIGINS=https://qa.zeratech.online

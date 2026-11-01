@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    konghq.com/read-timeout: "3600000"
+    konghq.com/write-timeout: "3600000"
+  name: zera-web-app
+spec:
+  type: ClusterIP
+  selector:
+    app: zera-web-app
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

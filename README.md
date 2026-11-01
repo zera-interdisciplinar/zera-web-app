@@ -2,7 +2,9 @@
 
 Aplicação web para acompanhar equipamentos eletrônicos, do cadastro ao descarte.
 
-[GitHub Pages](https://zera-interdisciplinar.github.io/zera-web-app/)
+Painel: https://gestao.zeratech.online · QA: https://qa.zeratech.online
+
+A landing page e o cadastro por servlets continuam em https://www.zeratech.online (`Projeto-Zera`). Os dominios so ficam disponiveis apos DNS, TLS e rollout; confira [k8s/README.md](k8s/README.md).
 
 ## Rodar localmente
 
@@ -13,7 +15,9 @@ Aplicação web para acompanhar equipamentos eletrônicos, do cadastro ao descar
 
 O login e os dados dependem do ambiente de testes das APIs (`https://www.zeratech.online/qa/...`) e da chave acima: o navegador só chama `/api/<serviço>` e o proxy da aplicação injeta a chave.
 
-Rotas: `/login`, `/` (painel), `/itens`, `/itens/:id`, `/modelos` e `/configuracoes`.
+Rotas: `/login`, `/` (painel), `/itens`, `/itens/:id` e `/modelos`. A capacidade e a ocupação ficam em “Gestão do estoque”, dentro de Itens; `/configuracoes` redireciona para Itens.
+
+O gestor acompanha, edita e avalia os itens cadastrados pelos funcionários; o cadastro de itens não está disponível na interface do gestor. A lista permite múltiplos status e categorias, aplicados em conjunto e preservados na URL. Para múltiplas seleções, a camada de serviços lê todas as páginas necessárias antes de combinar os resultados e paginar a lista.
 A reformulação para um painel exclusivo do gestor está especificada em [docs/specs/web-manager-refactor.md](docs/specs/web-manager-refactor.md).
 
 As contas de teste são informadas na entrega, não ficam no repositório.
@@ -24,12 +28,14 @@ As contas de teste são informadas na entrega, não ficam no repositório.
 
 ## Verificações
 
-`npm run check` (estrutura e fronteiras entre camadas), `npm run lint`, `npm run test:coverage` (mínimo de 80 % das linhas em `src/services`, `src/utils` e `src/reducers`), `npm run build` e `npm run test:e2e`. O workflow [ci.yml](.github/workflows/ci.yml) roda todas elas; ele só valida, não publica.
+`npm run check` (estrutura e fronteiras entre camadas), `npm run lint`, `npm run test:coverage` (mínimo de 80 % das linhas em `src/services`, `src/utils` e `src/reducers`), `npm run build` e `npm run test:e2e`. O workflow [ci.yml](.github/workflows/ci.yml) roda todas elas; ele valida e e reutilizado pelo deploy. O [deploy-web.yml](.github/workflows/deploy-web.yml) publica QA no push para `qa` e producao em uma GitHub Release publicada (sem prerelease).
 
 ## Publicação (cluster)
 
-Este repositório não publica nada. Para quem for subir no cluster:
+O painel usa o mesmo GKE/Kong dos microsservicos. [k8s/README.md](k8s/README.md) documenta dominios, Secret, pipelines, verificacoes e rollback.
 
-- `npm run build` gera `dist/` (arquivos estáticos; as rotas usam o histórico do navegador, então o servidor deve devolver `index.html` para qualquer caminho que não seja `/api`).
-- O navegador só chama `/api/administrative`, `/api/inventory` e `/api/analytics`. Quem responde a isso é o proxy de [server/proxy.mjs](server/proxy.mjs) (`npm run api:proxy`) ou o próprio gateway, e é ele que injeta a chave `apiKey`: ela nunca vai para o navegador.
-- Variáveis do proxy: `ZERA_ADMIN_URL`, `ZERA_INVENTORY_URL`, `ZERA_ANALYTICS_URL`, `ZERA_APP_API_KEY`, `ZERA_WEB_ORIGINS` (origens permitidas) e `ZERA_PROXY_PORT`. O proxy só aceita as rotas listadas em [server/allowlist.mjs](server/allowlist.mjs).
+- `npm run build` gera `dist/`; `npm start` serve o build e o proxy juntos na porta 8080.
+- `Dockerfile` faz o build sem segredos e roda somente o servidor e os arquivos estaticos.
+- O navegador chama `/api/administrative`, `/api/inventory` e `/api/analytics`. O servidor injeta a chave do gateway e preserva JWT/SSE.
+- Push em `qa` publica QA; publicar uma GitHub Release estavel com commit de `main` publica producao. Push em `main` ou uma tag isolada nao publica.
+- Ingress, HTTPS e renovacao de certificados ficam no `infra-gtw-kong`. O DNS e administrado no Cloudflare.

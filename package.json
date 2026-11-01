@@ -14,7 +14,8 @@
     "test:e2e": "node ./node_modules/@playwright/test/cli.js test --workers=1",
     "api:proxy": "node server/proxy.mjs",
     "check": "node scripts/check-project.mjs",
-    "check:bundle": "node scripts/check-bundle.mjs"
+    "check:bundle": "node scripts/check-bundle.mjs",
+    "start": "node server/web.mjs"
   },
   "dependencies": {
     "@fontsource/atkinson-hyperlegible": "5.3.0",

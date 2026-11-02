@@ -31,6 +31,7 @@
 .controle {
   min-width: 0;
   width: 100%;
+  min-height: 1.5rem;
   border: none;
   background: none;
   padding: 0;

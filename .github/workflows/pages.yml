@@ -1,8 +1,8 @@
 name: Deploy Pages
 
-# Publishes the manager app on GitHub Pages. The GKE deployment (deploy-web.yml) is independent of this one.
-# Pages only serves static files, so the API calls go to the proxy that already holds the gateway key (the GKE
-# one). That proxy must list https://<owner>.github.io in ZERA_WEB_ORIGINS. See "Publicação" in README.md.
+# Publishes the manager app on GitHub Pages (production only). The GKE deployment (deploy-web.yml) is independent.
+# Pages only serves static files, so the API calls go to the production proxy, which already holds the gateway
+# key. That proxy lists https://<owner>.github.io in ZERA_WEB_ORIGINS (k8s/overlays/production). See README.md.
 on:
   push:
     branches: [main]

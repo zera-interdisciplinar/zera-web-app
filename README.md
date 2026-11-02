@@ -44,12 +44,13 @@ O painel usa o mesmo GKE/Kong dos microsservicos. [k8s/README.md](k8s/README.md)
 
 O mesmo painel também é publicado em https://zera-interdisciplinar.github.io/zera-web-app/ pelo workflow [pages.yml](.github/workflows/pages.yml) (push na `main`). Ele é independente do deploy do GKE.
 
-O Pages só serve arquivos estáticos, então a chave do gateway **não** vai para o navegador: as chamadas de API vão para o proxy do cluster (o mesmo do QA), por URL absoluta.
+O Pages publica **somente produção**: a chave do gateway não vai para o navegador, então as chamadas de API vão, por URL absoluta, para o proxy de produção do cluster (`gestao.zeratech.online`), que já guarda a chave. O QA não usa o Pages.
 
 Configuração única no GitHub:
 
 1. **Settings → Pages → Source:** `GitHub Actions`.
-2. **Settings → Secrets and variables → Actions → Variables:** `VITE_ADMIN_API_URL`, `VITE_INVENTORY_API_URL` e `VITE_API_BASE_URL`, apontando para o proxy, por exemplo `https://qa.zeratech.online/api/administrative`, `https://qa.zeratech.online/api/inventory` e `https://qa.zeratech.online/api/analytics`. O build falha, com uma mensagem clara, se alguma estiver vazia ou não for https.
-3. **No cluster:** acrescentar `https://zera-interdisciplinar.github.io` ao fim de `ZERA_WEB_ORIGINS` do proxy (sem apagar as origens que já estão lá). Sem isso o navegador bloqueia as chamadas por CORS e o login não funciona no Pages.
+2. **Settings → Secrets and variables → Actions → Variables:** `VITE_ADMIN_API_URL`, `VITE_INVENTORY_API_URL` e `VITE_API_BASE_URL`, com `https://gestao.zeratech.online/api/administrative`, `https://gestao.zeratech.online/api/inventory` e `https://gestao.zeratech.online/api/analytics`. O build falha, com uma mensagem clara, se alguma estiver vazia ou não for https.
+
+Do lado do cluster nada fica manual: `https://zera-interdisciplinar.github.io` já está em `ZERA_WEB_ORIGINS` do overlay de produção ([k8s/overlays/production](k8s/overlays/production/kustomization.yaml)), e vale a partir da próxima GitHub Release publicada (que é o que publica produção). Até lá o Pages abre, mas o login falha por CORS.
 
 No build do Pages o app é gerado com `--base=/<repositório>/`; `404.html` é uma cópia de `index.html` (assim o F5 em `/itens` funciona) e `.nojekyll` evita o processamento do Jekyll. Rodar o mesmo comando localmente: `npm run build -- --base=/zera-web-app/ && node scripts/prepare-pages.mjs`.

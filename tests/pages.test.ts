@@ -47,10 +47,17 @@ describe('GitHub Pages publication', () => {
     expect(read('.github/workflows/deploy-web.yml')).not.toContain('pages')
   })
 
-  it('the README tells how to set it up (source, variables and the proxy origin)', () => {
+  it('the README tells how to set it up for production (source, variables)', () => {
     const readme = read('README.md')
     expect(readme).toContain('https://zera-interdisciplinar.github.io/zera-web-app/')
     expect(readme).toContain('GitHub Actions')
-    expect(readme).toContain('ZERA_WEB_ORIGINS')
+    expect(readme).toContain('https://gestao.zeratech.online/api/administrative')
+    expect(readme).toContain('somente produção')
+  })
+
+  it('only the production proxy accepts calls from the Pages site; QA stays as it was', () => {
+    const origins = (overlay: string) => read(`k8s/overlays/${overlay}/kustomization.yaml`).match(/ZERA_WEB_ORIGINS=(\S+)/)?.[1].split(',')
+    expect(origins('production')).toEqual(['https://gestao.zeratech.online', 'https://zera-interdisciplinar.github.io'])
+    expect(origins('qa')).toEqual(['https://qa.zeratech.online'])
   })
 })

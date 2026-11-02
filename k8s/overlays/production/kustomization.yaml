@@ -11,4 +11,4 @@ configMapGenerator:
       - ZERA_ADMIN_URL=https://www.zeratech.online/administrative
       - ZERA_INVENTORY_URL=https://www.zeratech.online/inventory
       - ZERA_ANALYTICS_URL=https://www.zeratech.online/analytics
-      - ZERA_WEB_ORIGINS=https://gestao.zeratech.online
+      - ZERA_WEB_ORIGINS=https://gestao.zeratech.online,https://zera-interdisciplinar.github.io

@@ -39,3 +39,17 @@ O painel usa o mesmo GKE/Kong dos microsservicos. [k8s/README.md](k8s/README.md)
 - O navegador chama `/api/administrative`, `/api/inventory` e `/api/analytics`. O servidor injeta a chave do gateway e preserva JWT/SSE.
 - Push em `qa` publica QA; publicar uma GitHub Release estavel com commit de `main` publica producao. Push em `main` ou uma tag isolada nao publica.
 - Ingress, HTTPS e renovacao de certificados ficam no `infra-gtw-kong`. O DNS e administrado no Cloudflare.
+
+## Publicação (GitHub Pages)
+
+O mesmo painel também é publicado em https://zera-interdisciplinar.github.io/zera-web-app/ pelo workflow [pages.yml](.github/workflows/pages.yml) (push na `main`). Ele é independente do deploy do GKE.
+
+O Pages só serve arquivos estáticos, então a chave do gateway **não** vai para o navegador: as chamadas de API vão para o proxy do cluster (o mesmo do QA), por URL absoluta.
+
+Configuração única no GitHub:
+
+1. **Settings → Pages → Source:** `GitHub Actions`.
+2. **Settings → Secrets and variables → Actions → Variables:** `VITE_ADMIN_API_URL`, `VITE_INVENTORY_API_URL` e `VITE_API_BASE_URL`, apontando para o proxy, por exemplo `https://qa.zeratech.online/api/administrative`, `https://qa.zeratech.online/api/inventory` e `https://qa.zeratech.online/api/analytics`. O build falha, com uma mensagem clara, se alguma estiver vazia ou não for https.
+3. **No cluster:** acrescentar `https://zera-interdisciplinar.github.io` ao fim de `ZERA_WEB_ORIGINS` do proxy (sem apagar as origens que já estão lá). Sem isso o navegador bloqueia as chamadas por CORS e o login não funciona no Pages.
+
+No build do Pages o app é gerado com `--base=/<repositório>/`; `404.html` é uma cópia de `index.html` (assim o F5 em `/itens` funciona) e `.nojekyll` evita o processamento do Jekyll. Rodar o mesmo comando localmente: `npm run build -- --base=/zera-web-app/ && node scripts/prepare-pages.mjs`.

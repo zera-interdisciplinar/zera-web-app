@@ -9,7 +9,7 @@ import type { RemoveDialogProps } from '../../types/componentes/RemoveDialog'
 export function RemoveDialog({ item, onClose, onDone }: RemoveDialogProps) {
   const { remove, confirmRemoval } = useItemRemoval(item.id, onDone)
   return (
-    <Dialog open title="Remover item" onClose={onClose} width={30}>
+    <Dialog open title="Remover item" description={`Confirme a remoção de ${item.name ?? item.displayCode ?? item.barcode}. O item sairá das listagens e poderá ser restaurado.`} onClose={onClose} width={30}>
       <div className={styles.form}>
         <p>Remover <strong>{item.name ?? item.displayCode ?? item.barcode}</strong>? O item sai das listagens e pode ser restaurado depois.</p>
         {remove.isError && <p role="alert" className={styles.formAlertLight}>{failureMessage(remove.error)}</p>}

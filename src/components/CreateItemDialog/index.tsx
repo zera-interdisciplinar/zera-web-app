@@ -19,7 +19,7 @@ export function CreateItemDialog({ onClose, onCreated, onDraft }: CreateItemDial
 
   return (
     <>
-      <Dialog open title="Adicionar item" tone="navy" width={44} onClose={requestClose}>
+      <Dialog open title="Adicionar item" description="Preencha os dados do equipamento para cadastrá-lo na unidade." tone="navy" width={44} onClose={requestClose}>
         <form className={styles.form} onSubmit={submit} noValidate>
           {general && <p role="alert" className={styles.formAlert}>{general}</p>}
           <TextField tone="navy" label="Código de barras" required maxLength={128} autoComplete="off" error={errors.barcode?.message} {...register('barcode')} />

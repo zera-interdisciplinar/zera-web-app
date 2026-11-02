@@ -19,7 +19,7 @@ export function ModelDialog({ model, onClose, onDone }: ModelDialogProps) {
 
   return (
     <>
-      <Dialog open title={model ? 'Editar modelo' : 'Novo modelo'} width={48} onClose={requestClose}>
+      <Dialog open title={model ? 'Editar modelo' : 'Novo modelo'} description={model ? 'Atualize a identificação, composição ou detalhes do modelo.' : 'Preencha a identificação, composição e detalhes do modelo.'} width={48} onClose={requestClose}>
         <form className={`${styles.form} ${styles.modelForm}`} onSubmit={submit} noValidate>
           {failure && <p role="alert" className={styles.formAlert}>{describeApiError(failure)}</p>}
           <p className={styles.formIntro}>Defina um modelo para padronizar os equipamentos da unidade. Campos com * são obrigatórios.</p>

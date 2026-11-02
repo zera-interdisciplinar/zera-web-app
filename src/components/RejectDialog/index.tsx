@@ -13,7 +13,7 @@ export function RejectDialog({ item, onClose, onDone }: RejectDialogProps) {
   const { register, errors, reason, reject, submit } = useRejectForm({ item, onClose, onDone })
 
   return (
-    <Dialog open title="Reprovar item" onClose={onClose} width={32}>
+    <Dialog open title="Reprovar item" description={`Informe o motivo da reprovação de ${item.name ?? item.displayCode ?? item.barcode}.`} onClose={onClose} width={32}>
       <form className={styles.form} onSubmit={submit} noValidate>
         <p>Informe o motivo da reprovação de <strong>{item.name ?? item.displayCode ?? item.barcode}</strong>.</p>
         {reject.isError && <p role="alert" className={styles.formAlertLight}>{failureMessage(reject.error)}</p>}

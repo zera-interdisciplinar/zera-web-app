@@ -14,7 +14,7 @@ export function EditItemDialog({ item, missingFields = [], onClose, onSaved }: E
 
   return (
     <>
-      <Dialog open title={`Editar item${item.displayCode ? ` ${item.displayCode}` : ''}`} tone="navy" width={44} onClose={requestClose}>
+      <Dialog open title={`Editar item${item.displayCode ? ` ${item.displayCode}` : ''}`} description="Atualize os campos do item e salve as alterações." tone="navy" width={44} onClose={requestClose}>
         <form className={styles.form} onSubmit={submit} noValidate>
           {missingFields.length > 0 && (
             <p role="alert" className={styles.formAlert}>

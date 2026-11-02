@@ -64,7 +64,8 @@ export function AccessibilityPanel({ routes }: AccessibilityPanelProps) {
     <>
       {preferences.readingGuide && state.pointerY > 0 && <div className={styles.guide} style={{ top: state.pointerY }} aria-hidden="true" />}
       <div className={styles.container} data-accessibility>
-        <section id={`${id}-panel`} className={styles.panel} role="dialog" aria-modal="false" aria-labelledby={`${id}-title`} hidden={!state.open}>
+        <section id={`${id}-panel`} className={styles.panel} role="dialog" aria-modal="false" aria-labelledby={`${id}-title`} aria-describedby={`${id}-description`} hidden={!state.open}>
+          <p id={`${id}-description`} className="somente-leitor-de-tela">Opções para ajustar a leitura, o contraste, o movimento e a navegação por teclado.</p>
           <div className={styles.header}>
             <h2 id={`${id}-title`} ref={heading} tabIndex={-1}>Acessibilidade</h2>
             <button type="button" onClick={() => { dispatch({ type: 'close' }); trigger.current?.focus() }}>Fechar</button>

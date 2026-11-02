@@ -14,7 +14,7 @@ export function ModelItemsDialog({ model, onClose }: ModelItemsDialogProps) {
   const items = useModelItems(model.id, page)
   const data = items.data
   return (
-    <Dialog open title={`Itens do modelo ${model.name}`} onClose={onClose} width={36}>
+    <Dialog open title={`Itens do modelo ${model.name}`} description={`Lista de itens associados ao modelo ${model.name}.`} onClose={onClose} width={36}>
       {items.loading && !data && <Skeleton descricao="Carregando itens…" linhas={3} />}
       {items.error && !data && <EstadoErro mensagem={items.error} aoTentarNovamente={items.reload} />}
       {data && data.content.length === 0 && <p className={styles.muted}>Nenhum item usa este modelo.</p>}

@@ -10,7 +10,7 @@ export function ForgotPasswordDialog({ open, onClose }: ForgotPasswordDialogProp
   const { state, dispatch, close, submit } = useForgotPasswordForm({ open, onClose })
 
   return (
-    <Modal aberto={open} titulo={forgotCopy.title} aoFechar={close} larguraMaxima={520}>
+    <Modal aberto={open} titulo={forgotCopy.title} descricao={state.done ? forgotCopy.confirmation : forgotCopy.intro} aoFechar={close} larguraMaxima={520}>
       {state.done ? (
         <div>
           <p role="status">{forgotCopy.confirmation}</p>

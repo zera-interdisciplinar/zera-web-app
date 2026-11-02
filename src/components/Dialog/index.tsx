@@ -10,9 +10,10 @@ const FIRST_FOCUS = '[data-autofocus], input:not([type="hidden"]):not(:disabled)
  * Modal built on the native <dialog>: the browser traps focus, makes the rest of the page inert and returns
  * focus to the opener. Esc is routed to `onClose` so unsaved work can be protected.
  */
-export function Dialog({ open, title, onClose, children, tone = 'light', width = 40 }: DialogProps) {
+export function Dialog({ open, title, description, onClose, children, tone = 'light', width = 40 }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
+  const descriptionId = useId()
 
   useEffect(() => {
     const element = ref.current
@@ -47,7 +48,8 @@ export function Dialog({ open, title, onClose, children, tone = 'light', width =
         if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
       }}
-      aria-labelledby={titleId} onCancel={(event) => { event.preventDefault(); onClose() }}
+      aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId}
+      onCancel={(event) => { event.preventDefault(); onClose() }}
     >
       {open && (
         <div className={styles.content}>
@@ -55,6 +57,7 @@ export function Dialog({ open, title, onClose, children, tone = 'light', width =
             <h2 id={titleId}>{title}</h2>
             <button type="button" className={styles.close} onClick={onClose} aria-label="Fechar"><X aria-hidden="true" /></button>
           </header>
+          <p id={descriptionId} className="somente-leitor-de-tela">{description}</p>
           <div className={styles.body}>{children}</div>
         </div>
       )}

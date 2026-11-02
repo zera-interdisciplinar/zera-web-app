@@ -13,7 +13,7 @@ export function CategoryDialog({ category, onClose, onDone }: CategoryDialogProp
 
   return (
     <>
-      <Dialog open title={category ? 'Editar categoria' : 'Nova categoria'} tone="navy" width={32} onClose={requestClose}>
+      <Dialog open title={category ? 'Editar categoria' : 'Nova categoria'} description={category ? 'Altere o nome ou a descrição da categoria.' : 'Informe o nome e a descrição da categoria.'} tone="navy" width={32} onClose={requestClose}>
         <form className={styles.form} onSubmit={submit} noValidate>
           {failure && <p role="alert" className={styles.formAlert}>{describeApiError(failure)}</p>}
           <TextField tone="navy" label="Nome" required maxLength={120} error={errors.name?.message} {...register('name')} />

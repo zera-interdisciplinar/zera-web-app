@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useId, useRef } from 'react'
 import type { ModalProps } from '../../types/componentes/Modal'
 export type { ModalProps } from '../../types/componentes/Modal'
 
@@ -8,9 +8,11 @@ import estilos from '../../../styles/components/Modal/Modal.module.css'
 const FOCAVEIS =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
-export function Modal({ aberto, titulo, aoFechar, children, larguraMaxima = 880 }: ModalProps) {
+export function Modal({ aberto, titulo, descricao, aoFechar, children, larguraMaxima = 880 }: ModalProps) {
   const dialogoRef = useRef<HTMLDivElement | null>(null)
   const origemFocoRef = useRef<HTMLElement | null>(null)
+  const tituloId = useId()
+  const descricaoId = useId()
   const fecharRef = useRef(aoFechar)
   useEffect(() => { fecharRef.current = aoFechar }, [aoFechar])
 
@@ -84,7 +86,8 @@ export function Modal({ aberto, titulo, aoFechar, children, larguraMaxima = 880 
         className={estilos.modal}
         role="dialog"
         aria-modal="true"
-        aria-label={titulo}
+        aria-labelledby={tituloId}
+        aria-describedby={descricaoId}
         ref={dialogoRef}
         tabIndex={-1}
         style={{ maxWidth: larguraMaxima }}
@@ -98,8 +101,9 @@ export function Modal({ aberto, titulo, aoFechar, children, larguraMaxima = 880 
         >
           <X size={24} aria-hidden="true" />
         </button>
-        <h2 className={estilos.titulo}>{titulo}</h2>
+        <h2 className={estilos.titulo} id={tituloId}>{titulo}</h2>
         </header>
+        <p id={descricaoId} className="somente-leitor-de-tela">{descricao}</p>
         <div className={estilos.corpo}>{children}</div>
       </div>
     </div>

@@ -5,7 +5,7 @@ import type { ConfirmDeleteDialogProps } from '../../types/componentes/ConfirmDe
 
 export function ConfirmDeleteDialog({ title, message, pending, error, confirmLabel = 'Excluir', onConfirm, onClose }: ConfirmDeleteDialogProps) {
   return (
-    <Dialog open title={title} onClose={onClose} width={30}>
+    <Dialog open title={title} description={message} onClose={onClose} width={30}>
       <div className={styles.form}>
         <p>{message}</p>
         {error && <p role="alert" className={styles.formAlertLight}>{error}</p>}

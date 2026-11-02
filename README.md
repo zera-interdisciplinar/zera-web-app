@@ -13,6 +13,7 @@ dashboard de indicadores, itens, modelos e gestão de estoque da unidade. Consom
 
 - Painel: https://gestao.zeratech.online
 - QA: https://qa.zeratech.online
+- GitHub Pages (somente produção): https://zera-interdisciplinar.github.io/zera-web-app/
 
 A landing page e o cadastro por servlets continuam em https://www.zeratech.online (`Projeto-Zera`).
 Os domínios só ficam disponíveis após DNS, TLS e rollout; confira [`k8s/README.md`](k8s/README.md).
@@ -149,13 +150,42 @@ Cloudflare → Kong → `zera-web-app:80` → Node:8080.
 |---|---|
 | QA | Push na branch `qa` |
 | Produção | GitHub Release estável (sem prerelease) com commit presente em `main` |
+| GitHub Pages | Push em `main` (publica somente produção, veja [GitHub Pages](#github-pages)) |
 
-Push em `main` ou uma tag isolada **não** publica. O `Dockerfile` faz o build sem segredos e roda
+Uma tag isolada **não** publica, e um push em `main` nunca publica no GKE (só no GitHub Pages). O `Dockerfile` faz o build sem segredos e roda
 apenas o servidor e os arquivos estáticos. `npm run build` gera `dist/` e `npm start` serve o build
 e o proxy juntos na porta 8080. Ingress, HTTPS e renovação de certificados ficam no
 `infra-gtw-kong`; o DNS é administrado no Cloudflare. Domínios, Secret, pipelines, verificações e
 rollback estão em [`k8s/README.md`](k8s/README.md) — sempre a fonte da verdade para o que precisa
 existir em cada ambiente antes do deploy.
+
+### GitHub Pages
+
+O mesmo painel também fica em https://zera-interdisciplinar.github.io/zera-web-app/, publicado pelo
+workflow [`pages.yml`](.github/workflows/pages.yml) a cada push em `main`. É independente do deploy do
+GKE.
+
+O Pages publica **somente produção**. Ele só serve arquivos estáticos, então a chave do gateway não
+vai para o navegador: as chamadas de API vão, por URL absoluta, para o proxy de produção do cluster
+(`gestao.zeratech.online`), que já guarda a chave. O QA não usa o Pages.
+
+Configuração única no GitHub:
+
+1. **Settings → Pages → Source:** `GitHub Actions`.
+2. **Settings → Secrets and variables → Actions → Variables:** `VITE_ADMIN_API_URL`,
+   `VITE_INVENTORY_API_URL` e `VITE_API_BASE_URL`, com
+   `https://gestao.zeratech.online/api/administrative`, `https://gestao.zeratech.online/api/inventory`
+   e `https://gestao.zeratech.online/api/analytics`. O build falha, com uma mensagem clara, se alguma
+   estiver vazia ou não for https.
+
+Do lado do cluster nada fica manual: `https://zera-interdisciplinar.github.io` já está em
+`ZERA_WEB_ORIGINS` do overlay de produção
+([`k8s/overlays/production`](k8s/overlays/production/kustomization.yaml)) e vale a partir da próxima
+GitHub Release publicada. Até lá o Pages abre, mas o login falha por CORS.
+
+No build do Pages o app é gerado com `--base=/<repositório>/`; `404.html` é uma cópia de `index.html`
+(assim o F5 em `/itens` funciona) e `.nojekyll` evita o processamento do Jekyll. Para repetir o mesmo
+build localmente: `npm run build -- --base=/zera-web-app/ && node scripts/prepare-pages.mjs`.
 
 ## Licença
 

@@ -22,7 +22,7 @@ export function ForgotPasswordDialog({ open, onClose }: ForgotPasswordDialogProp
           <FieldCard
             id="email-recuperacao" obrigatorio rotulo="Email" tipo="email" valor={state.email}
             aoMudar={(value) => dispatch({ type: 'change', value })} erro={state.error}
-            autoComplete="email" maxLength={120} placeholder="email@exemplo.com" desabilitado={state.sending} autoFocus
+            autoComplete="email" maxLength={120} placeholder="email@exemplo.com" desabilitado={state.sending}
           />
           <Button variante="primario" tamanho="grande" type="submit" disabled={state.sending}>
             {state.sending ? forgotCopy.sending : forgotCopy.submit}

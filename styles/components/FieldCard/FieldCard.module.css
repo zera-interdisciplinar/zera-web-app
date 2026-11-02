@@ -31,7 +31,7 @@
 .controle {
   min-width: 0;
   width: 100%;
-  min-height: 1.5rem;
+  min-height: 2.75rem;
   border: none;
   background: none;
   padding: 0;
@@ -126,15 +126,15 @@
 .controleComIcones .controle {
   flex: 1;
   width: 0;
-  min-height: 2.5rem;
+  min-height: 2.75rem;
 }
 
 .alternarSenha {
   display: grid;
   flex: none;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.75rem;
+  height: 2.75rem;
   padding: 0;
   border: 0;
   border-radius: 50%;

@@ -11,11 +11,11 @@
 .filtersBox[open] > summary { margin-bottom: 0.75rem; }
 .filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem; padding: 1rem 1.25rem; border-radius: 1.125rem; background: var(--color-surface); }
 .field { display: grid; gap: 0.25rem; font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); }
-.field select, .range input { min-height: 2.5rem; padding: 0.25rem 0.75rem; border: 1px solid var(--color-border-input); border-radius: 0.75rem; background: var(--color-surface); color: var(--color-text); font: inherit; font-size: 0.875rem; }
+.field select, .range input { min-height: 2.75rem; padding: 0.25rem 0.75rem; border: 1px solid var(--color-border-input); border-radius: 0.75rem; background: var(--color-surface); color: var(--color-text); font: inherit; font-size: 0.875rem; }
 .range { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.75rem; margin: 0; padding: 0; border: 0; min-width: 0; }
 .range legend { padding: 0; margin-bottom: 0.25rem; font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); }
 .range label { display: grid; gap: 0.25rem; font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); }
-.range button, .clear { min-height: 2.5rem; padding: 0.25rem 1rem; border: 1px solid var(--color-navy-900); border-radius: 0.75rem; background: var(--color-surface); color: var(--color-navy-900); font: inherit; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.range button, .clear { min-height: 2.75rem; padding: 0.25rem 1rem; border: 1px solid var(--color-navy-900); border-radius: 0.75rem; background: var(--color-surface); color: var(--color-navy-900); font: inherit; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
 .fieldError { flex-basis: 100%; color: #a51d2d; font-size: 0.8125rem; font-weight: 700; }
 
 .notice { padding: 0.75rem 1rem; border-radius: 0.75rem; background: var(--color-surface); color: var(--color-text-muted); }

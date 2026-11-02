@@ -11,9 +11,10 @@ import { AppProviders } from './context/AppProviders'
 const voiceRoutes = navigationItems.map((item) => ({ phrase: item.voice, path: item.path }))
 
 export function App() {
+  // BASE_URL is `/` everywhere but GitHub Pages, which serves the app under `/<repository>/`.
   return (
     <AppProviders>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <ConteudoApp />
       </BrowserRouter>
     </AppProviders>

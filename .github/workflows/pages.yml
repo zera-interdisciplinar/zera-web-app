@@ -1,0 +1,64 @@
+name: Deploy Pages
+
+# Publishes the manager app on GitHub Pages. The GKE deployment (deploy-web.yml) is independent of this one.
+# Pages only serves static files, so the API calls go to the proxy that already holds the gateway key (the GKE
+# one). That proxy must list https://<owner>.github.io in ZERA_WEB_ORIGINS. See "Publicação" in README.md.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    needs: checks
+    runs-on: ubuntu-latest
+    env:
+      VITE_ADMIN_API_URL: ${{ vars.VITE_ADMIN_API_URL }}
+      VITE_INVENTORY_API_URL: ${{ vars.VITE_INVENTORY_API_URL }}
+      VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: The API addresses must be set and public (https)
+        run: |
+          for name in VITE_ADMIN_API_URL VITE_INVENTORY_API_URL VITE_API_BASE_URL; do
+            value="${!name}"
+            case "$value" in
+              https://*) ;;
+              *) echo "::error::Repository variable $name must be an https URL of the API proxy (Settings > Secrets and variables > Actions > Variables)."; exit 1 ;;
+            esac
+          done
+      - run: npm ci
+      - run: npm run build -- --base=/${{ github.event.repository.name }}/
+      - run: npm run check:bundle
+      - run: node scripts/prepare-pages.mjs
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

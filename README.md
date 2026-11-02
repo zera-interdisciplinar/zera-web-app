@@ -1,41 +1,162 @@
-# Zera
+# zera-web-app
 
-Aplicação web para acompanhar equipamentos eletrônicos, do cadastro ao descarte.
+[![Node](https://img.shields.io/badge/Node-22-339933.svg)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB.svg)](https://react.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Painel: https://gestao.zeratech.online · QA: https://qa.zeratech.online
+Painel web do Zera para o **gestor** acompanhar equipamentos eletrônicos, do cadastro ao descarte:
+dashboard de indicadores, itens, modelos e gestão de estoque da unidade. Consome o
+[`ms-administrative-core`](https://github.com/zera-interdisciplinar/ms-administrative-core)
+(autenticação e unidade), o [`ms-inventory`](https://github.com/zera-interdisciplinar/ms-inventory)
+(itens, modelos, categorias) e o [`ms-analytics-bff`](https://github.com/zera-interdisciplinar/ms-analytics-bff)
+(indicadores do dashboard), sempre pelo gateway ([`infra-gtw-kong`](https://github.com/zera-interdisciplinar/infra-gtw-kong)).
 
-A landing page e o cadastro por servlets continuam em https://www.zeratech.online (`Projeto-Zera`). Os dominios so ficam disponiveis apos DNS, TLS e rollout; confira [k8s/README.md](k8s/README.md).
+- Painel: https://gestao.zeratech.online
+- QA: https://qa.zeratech.online
 
-## Rodar localmente
+A landing page e o cadastro por servlets continuam em https://www.zeratech.online (`Projeto-Zera`).
+Os domínios só ficam disponíveis após DNS, TLS e rollout; confira [`k8s/README.md`](k8s/README.md).
 
-1. `git clone https://github.com/zera-interdisciplinar/zera-web-app.git`
-2. `cd zera-web-app` e `npm install`
-3. Copie `.env.example` para `.env` e preencha `ZERA_APP_API_KEY` (chave do gateway, fornecida pelo time)
-4. `npm run dev` (porta padrão 5173)
+## Sumário
 
-O login e os dados dependem do ambiente de testes das APIs (`https://www.zeratech.online/qa/...`) e da chave acima: o navegador só chama `/api/<serviço>` e o proxy da aplicação injeta a chave.
+- [Domínio](#domínio)
+- [Arquitetura](#arquitetura)
+- [Stack](#stack)
+- [Executando localmente](#executando-localmente)
+- [Configuração](#configuração)
+- [API e proxy](#api-e-proxy)
+- [Testes e verificações](#testes-e-verificações)
+- [Deploy](#deploy)
+- [Licença](#licença)
 
-Rotas: `/login`, `/` (painel), `/itens`, `/itens/:id` e `/modelos`. A capacidade e a ocupação ficam em “Gestão do estoque”, dentro de Itens; `/configuracoes` redireciona para Itens.
+## Domínio
 
-O gestor acompanha, edita e avalia os itens cadastrados pelos funcionários; o cadastro de itens não está disponível na interface do gestor. A lista permite múltiplos status e categorias, aplicados em conjunto e preservados na URL. Para múltiplas seleções, a camada de serviços lê todas as páginas necessárias antes de combinar os resultados e paginar a lista.
-A reformulação para um painel exclusivo do gestor está especificada em [docs/specs/web-manager-refactor.md](docs/specs/web-manager-refactor.md).
+O painel é **exclusivo do gestor** (`MANAGER`): ele acompanha, edita e avalia os itens cadastrados
+pelos funcionários. O cadastro de itens não está disponível na interface do gestor. A reformulação
+para esse formato está especificada em [`docs/specs/web-manager-refactor.md`](docs/specs/web-manager-refactor.md).
 
-As contas de teste são informadas na entrega, não ficam no repositório.
+| Rota | Tela |
+|---|---|
+| `/login` | Login e recuperação de senha |
+| `/` | Dashboard (indicadores vindos do BFF de analytics, atualizados por SSE) |
+| `/itens`, `/itens/:id` | Lista de itens, detalhe e decisões do gestor (aprovar, reprovar, editar, remover, restaurar) |
+| `/modelos` | Modelos e categorias |
 
-## Estrutura
+A capacidade e a ocupação do estoque ficam em "Gestão do estoque", dentro de Itens;
+`/configuracoes` redireciona para Itens. A lista de itens permite múltiplos status e categorias,
+aplicados em conjunto e preservados na URL. Para múltiplas seleções, a camada de serviços lê todas
+as páginas necessárias antes de combinar os resultados e paginar a lista.
 
-`src/components/<Nome>/index.tsx` e `src/pages/<Nome>/index.tsx` (um por pasta), `hooks/`, `context/`, `reducers/`, `services/` (única camada com `fetch`, um arquivo por recurso), `types/` (entidades e props), `utils/` (validação, schemas da API, formatação, `localStorage` versionado). Estilos em `styles/` e imagens em `assets/`: dentro de `src/` só há `.ts` e `.tsx`. As regras de dependência entre as pastas são checadas por `npm run check`.
+## Arquitetura
 
-## Verificações
+```
+src/
+├── components/<Nome>/index.tsx   Componentes de interface, um por pasta
+├── pages/<Nome>/index.tsx        Telas, uma por rota
+├── routes/                       Definição das rotas
+├── hooks/  context/  reducers/   Estado e composição
+├── services/                     Única camada com fetch, um arquivo por recurso
+├── types/                        Entidades e props
+└── utils/                        Validação, schemas da API, formatação, localStorage versionado
+server/                           Servidor Node: serve o build e executa o proxy com allowlist
+styles/  assets/                  Estilos e imagens (dentro de src/ só há .ts e .tsx)
+e2e/  tests/                      Playwright e Vitest
+k8s/                              Kustomize (base + overlays qa e production)
+```
 
-`npm run check` (estrutura e fronteiras entre camadas), `npm run lint`, `npm run test:coverage` (mínimo de 80 % das linhas em `src/services`, `src/utils` e `src/reducers`), `npm run build` e `npm run test:e2e`. O workflow [ci.yml](.github/workflows/ci.yml) roda todas elas; ele valida e e reutilizado pelo deploy. O [deploy-web.yml](.github/workflows/deploy-web.yml) publica QA no push para `qa` e producao em uma GitHub Release publicada (sem prerelease).
+As dependências entre as pastas têm direção fixa — telas e componentes falam com hooks, hooks com
+services, e services e utils não conhecem a interface. Essas fronteiras são checadas por
+`npm run check`.
 
-## Publicação (cluster)
+## Stack
 
-O painel usa o mesmo GKE/Kong dos microsservicos. [k8s/README.md](k8s/README.md) documenta dominios, Secret, pipelines, verificacoes e rollback.
+| | |
+|---|---|
+| Linguagem | **TypeScript** 5.9 |
+| Framework | React 19, React Router 7 |
+| Build | Vite 7 (`npm`, Node ≥ 22.12) |
+| Dados | TanStack Query, Zod (schemas das respostas da API), React Hook Form |
+| Gráficos | Recharts |
+| Testes | Vitest, MSW, Playwright (com axe-core para acessibilidade) |
+| Servidor | Node (`server/web.mjs`): arquivos estáticos + proxy de API |
 
-- `npm run build` gera `dist/`; `npm start` serve o build e o proxy juntos na porta 8080.
-- `Dockerfile` faz o build sem segredos e roda somente o servidor e os arquivos estaticos.
-- O navegador chama `/api/administrative`, `/api/inventory` e `/api/analytics`. O servidor injeta a chave do gateway e preserva JWT/SSE.
-- Push em `qa` publica QA; publicar uma GitHub Release estavel com commit de `main` publica producao. Push em `main` ou uma tag isolada nao publica.
-- Ingress, HTTPS e renovacao de certificados ficam no `infra-gtw-kong`. O DNS e administrado no Cloudflare.
+## Executando localmente
+
+Pré-requisitos: Node 22.12 ou superior.
+
+```bash
+git clone https://github.com/zera-interdisciplinar/zera-web-app.git
+cd zera-web-app
+npm install
+cp .env.example .env     # e preencha ZERA_APP_API_KEY
+npm run dev              # porta padrão 5173
+```
+
+O login e os dados dependem do ambiente de QA das APIs (`https://www.zeratech.online/qa/...`) e da
+chave do gateway: o navegador só chama `/api/<serviço>` e o proxy da aplicação injeta a chave. As
+contas de teste são informadas na entrega, não ficam no repositório.
+
+## Configuração
+
+Tudo o que começa com `VITE_` vai para o navegador — **nunca coloque segredos ali**; o
+`npm run check:bundle` falha o CI se algum valor privado aparecer no bundle. Referência completa em
+[`.env.example`](.env.example).
+
+### Obrigatórias
+
+| Variável | Efeito |
+|---|---|
+| `ZERA_APP_API_KEY` | Chave do gateway (header `apikey`), injetada pelo proxy. Peça ao time; nunca a versione. O servidor se recusa a subir sem ela |
+| `ZERA_ADMIN_URL`, `ZERA_INVENTORY_URL`, `ZERA_ANALYTICS_URL` | Raiz HTTPS de cada serviço, sem `/api` nem `/swagger-ui`. HTTP só é aceito em `localhost`/`127.0.0.1`/`::1` |
+
+### Opcionais
+
+| Variável | Efeito |
+|---|---|
+| `VITE_API_BASE_URL`, `VITE_ADMIN_API_URL`, `VITE_INVENTORY_API_URL` | Caminhos que o navegador chama na própria origem (padrão: `/api/analytics`, `/api/administrative`, `/api/inventory`) |
+| `VITE_ADMIN_OPENAPI_URL`, `VITE_INVENTORY_OPENAPI_URL` | URLs de documentação, sem credenciais |
+| `ZERA_PROXY_PORT` (default `8787`), `ZERA_WEB_ORIGINS` | Porta do proxy autônomo (`npm run api:proxy`) e origens aceitas pelo CORS |
+| `ZERA_QA_GESTOR_*`, `ZERA_QA_FUNCIONARIO_*` | Contas de teste dos testes de QA. Nunca prefixar com `VITE_` |
+| `ZERA_RUN_LIVE_QA=true` | Habilita o login remoto de navegador nos testes; por padrão eles usam respostas controladas |
+
+## API e proxy
+
+O navegador chama `/api/administrative`, `/api/inventory` e `/api/analytics` na **mesma origem**; o
+servidor Node (`server/`) encaminha para o gateway, injeta a chave e preserva o JWT, o
+`X-Unit-Id` e o SSE. Só as rotas listadas em [`server/allowlist.mjs`](server/allowlist.mjs) passam;
+qualquer outra responde 404. Para liberar uma rota nova, ela precisa entrar nessa lista.
+
+## Testes e verificações
+
+```bash
+npm run check           # estrutura e fronteiras entre camadas
+npm run lint
+npm run test:coverage   # mínimo de 80 % das linhas em src/services, src/utils e src/reducers
+npm run build
+npm run test:e2e        # Playwright
+```
+
+O workflow [`ci.yml`](.github/workflows/ci.yml) roda todas elas (mais `check:bundle`) e é
+reutilizado pelo deploy. Os testes de navegador usam respostas controladas; eles não substituem a
+validação com credenciais reais em QA.
+
+## Deploy
+
+O painel usa o mesmo GKE e o mesmo Kong dos microsserviços. Caminho da requisição: navegador →
+Cloudflare → Kong → `zera-web-app:80` → Node:8080.
+
+| Ambiente | Evento que publica |
+|---|---|
+| QA | Push na branch `qa` |
+| Produção | GitHub Release estável (sem prerelease) com commit presente em `main` |
+
+Push em `main` ou uma tag isolada **não** publica. O `Dockerfile` faz o build sem segredos e roda
+apenas o servidor e os arquivos estáticos. `npm run build` gera `dist/` e `npm start` serve o build
+e o proxy juntos na porta 8080. Ingress, HTTPS e renovação de certificados ficam no
+`infra-gtw-kong`; o DNS é administrado no Cloudflare. Domínios, Secret, pipelines, verificações e
+rollback estão em [`k8s/README.md`](k8s/README.md) — sempre a fonte da verdade para o que precisa
+existir em cada ambiente antes do deploy.
+
+## Licença
+
+[MIT](LICENSE)
